@@ -1,0 +1,39 @@
+{
+  "name": "@kumbuka-ai/ui",
+  "version": "0.1.0",
+  "description": "Design-system primitives, parameterisable shell, and trust-surface markers shared by the team console and the commercial ops console.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kumbuka-ai/kumbuka-console.git",
+    "directory": "packages/ui"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens": "./src/tokens/console-tokens.css",
+    "./primitives": "./src/primitives/index.ts",
+    "./shell": "./src/shell/index.ts",
+    "./modals": "./src/modals/index.ts",
+    "./markers": "./src/markers/index.ts"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "dependencies": {
+    "lucide-react": "^0.460.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "typescript": "^5.6.3"
+  }
+}
