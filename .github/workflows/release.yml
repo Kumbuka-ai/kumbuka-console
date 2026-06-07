@@ -51,6 +51,7 @@ jobs:
           fi
           echo "tag=$REF" >> "$GITHUB_OUTPUT"
           echo "version=${REF#v}" >> "$GITHUB_OUTPUT"
+          echo "owner=$(printf "%s" "${{ github.repository_owner }}" | tr "[:upper:]" "[:lower:]")" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@v3
 
@@ -67,9 +68,9 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/kumbuka-console:${{ steps.meta.outputs.tag }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/kumbuka-console:${{ steps.meta.outputs.version }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/kumbuka-console:latest
+            ${{ env.REGISTRY }}/${{ steps.meta.outputs.owner }}/kumbuka-console:${{ steps.meta.outputs.tag }}
+            ${{ env.REGISTRY }}/${{ steps.meta.outputs.owner }}/kumbuka-console:${{ steps.meta.outputs.version }}
+            ${{ env.REGISTRY }}/${{ steps.meta.outputs.owner }}/kumbuka-console:latest
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
@@ -106,7 +107,7 @@ jobs:
           ## Container image
 
           \`\`\`
-          ghcr.io/${{ env.IMAGE_OWNER }}/kumbuka-console:$TAG
+          ghcr.io/${{ steps.meta.outputs.owner }}/kumbuka-console:$TAG
           \`\`\`
 
           Pair with \`kumbuka-server\` for end-to-end deploys."
