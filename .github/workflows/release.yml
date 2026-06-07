@@ -78,9 +78,58 @@ jobs:
           cache-from: type=gha,scope=console
           cache-to: type=gha,scope=console,mode=max
 
+  npm-packages:
+    name: packages · publish to GH npm
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+          registry-url: https://npm.pkg.github.com
+          scope: '@kumbuka-ai'
+
+      - id: meta
+        run: |
+          REF="${GITHUB_REF#refs/tags/}"
+          if [ -z "$REF" ] || [ "$REF" = "$GITHUB_REF" ]; then
+            REF="${{ inputs.tag }}"
+          fi
+          echo "version=${REF#v}" >> "$GITHUB_OUTPUT"
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: align package versions to tag
+        run: |
+          V="${{ steps.meta.outputs.version }}"
+          for PKG in packages/ui packages/api-client; do
+            node -e "const fs=require('fs');const p='${PKG}/package.json';const j=JSON.parse(fs.readFileSync(p));j.version=process.env.V;fs.writeFileSync(p,JSON.stringify(j,null,2)+'\n');"
+          done
+        env:
+          V: ${{ steps.meta.outputs.version }}
+
+      - name: publish @kumbuka-ai/ui
+        working-directory: packages/ui
+        run: npm publish --provenance --access restricted
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: publish @kumbuka-ai/api-client
+        working-directory: packages/api-client
+        run: npm publish --provenance --access restricted
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   github-release:
     name: github release
-    needs: console-image
+    needs: [console-image, npm-packages]
     runs-on: ubuntu-latest
     permissions:
       contents: write
