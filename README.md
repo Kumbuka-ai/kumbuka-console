@@ -135,4 +135,4 @@ The compose service is `kumbuka-console`. It binds only to the internal Docker n
 - Component classes come from `src/styles/console-tokens.css`, a 1:1 copy of `design/prototype/console.css`. **Don't restyle existing components in Tailwind** — extend tokens.css if a real new surface is needed.
 - Mutations always go through Server Actions in `src/app/(app)/actions.ts`. The actions call `lib/api`, then `revalidatePath` the affected routes so the next render sees the new state.
 - The backend is the only source of truth for the private invariant. Reflect it in the UI in all five places; never add a code path that can show private rows.
-- Apache-2.0.
+- AGPL-3.0. The reusable packages `@kumbuka-ai/ui` and `@kumbuka-ai/api-client` stay Apache-2.0 (see each package's `LICENSE`); D-LIC-3 CLA/DCO posture unchanged.
