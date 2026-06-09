@@ -2,7 +2,7 @@
   "name": "@kumbuka-ai/console",
   "version": "0.1.0",
   "private": true,
-  "license": "Apache-2.0",
+  "license": "AGPL-3.0-only",
   "description": "kumbuka.ai admin console — Next.js BFF that consumes the kumbuka-backend admin API.",
   "scripts": {
     "dev": "next dev -p 3000",
