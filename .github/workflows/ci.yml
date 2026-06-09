@@ -58,3 +58,27 @@ jobs:
           tags: kumbuka-console:ci-smoke
           cache-from: type=gha,scope=console-ci
           cache-to: type=gha,scope=console-ci,mode=max
+
+  # ---------------------------------------------------------------------
+  # SonarQube Cloud analysis. Pure TS/JS — no compile step needed; the
+  # scan-action reads sources directly. Requires SONAR_TOKEN secret +
+  # Automatic Analysis turned OFF in the Sonar UI (Project → Analysis
+  # Method → CI-based). Coverage wiring comes in a follow-up PR.
+  # ---------------------------------------------------------------------
+  sonar:
+    name: code quality · SonarQube Cloud
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history for accurate new-code / blame attribution.
+          fetch-depth: 0
+
+      - name: SonarQube Cloud scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
