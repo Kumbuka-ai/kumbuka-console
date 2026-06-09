@@ -3,6 +3,7 @@ node_modules
 .pnpm-store
 out
 build
+coverage
 .env*.local
 *.tsbuildinfo
 tsconfig.tsbuildinfo
