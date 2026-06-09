@@ -92,7 +92,8 @@ export function ConfirmModal({
 
         <div className="modal-body">
           <span className="eyebrow" style={danger ? undefined : { color: "var(--c-accent)" }}>
-            // {eyebrow}
+            {"// "}
+            {eyebrow}
           </span>
           <h3>{title}</h3>
           {body ? <div className="modal-body-text">{body}</div> : null}

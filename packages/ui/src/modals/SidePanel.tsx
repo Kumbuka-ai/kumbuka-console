@@ -46,7 +46,7 @@ export function SidePanel({
       >
         <div className="sp-head">
           <div>
-            <span className="eyebrow">// {eyebrow}</span>
+            <span className="eyebrow">{"// "}{eyebrow}</span>
             <h3>{title}</h3>
           </div>
           <button className="iconbtn x" onClick={onClose} aria-label="Close" type="button">

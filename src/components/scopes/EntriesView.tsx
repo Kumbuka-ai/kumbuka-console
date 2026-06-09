@@ -457,7 +457,7 @@ function AuthorCell({
   return (
     <div className={`cell-author${isAgent ? " agent" : ""}`}>
       <Avatar
-        size={compact ? "xs" : "xs"}
+        size="xs"
         isAgent={isAgent}
         initials={
           isAgent
