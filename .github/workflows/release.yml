@@ -44,10 +44,12 @@ jobs:
 
       - id: meta
         name: derive tag
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
         run: |
           REF="${GITHUB_REF#refs/tags/}"
           if [ -z "$REF" ] || [ "$REF" = "$GITHUB_REF" ]; then
-            REF="${{ inputs.tag }}"
+            REF="$INPUT_TAG"
           fi
           echo "tag=$REF" >> "$GITHUB_OUTPUT"
           echo "version=${REF#v}" >> "$GITHUB_OUTPUT"
@@ -97,10 +99,12 @@ jobs:
           scope: '@kumbuka-ai'
 
       - id: meta
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
         run: |
           REF="${GITHUB_REF#refs/tags/}"
           if [ -z "$REF" ] || [ "$REF" = "$GITHUB_REF" ]; then
-            REF="${{ inputs.tag }}"
+            REF="$INPUT_TAG"
           fi
           echo "version=${REF#v}" >> "$GITHUB_OUTPUT"
 
@@ -137,10 +141,12 @@ jobs:
       - uses: actions/checkout@v4
 
       - id: meta
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
         run: |
           REF="${GITHUB_REF#refs/tags/}"
           if [ -z "$REF" ] || [ "$REF" = "$GITHUB_REF" ]; then
-            REF="${{ inputs.tag }}"
+            REF="$INPUT_TAG"
           fi
           echo "tag=$REF" >> "$GITHUB_OUTPUT"
 

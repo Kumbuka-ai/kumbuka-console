@@ -70,7 +70,7 @@ export async function serverFetch<T>(path: string, init: FetchInit = {}): Promis
     method,
     headers: h,
     body: init.body === undefined ? undefined : JSON.stringify(init.body),
-    cache: init.cache ?? (method === "GET" ? "no-store" : "no-store"),
+    cache: init.cache ?? "no-store",
     redirect: "manual",
   });
 

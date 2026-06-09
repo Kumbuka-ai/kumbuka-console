@@ -28,7 +28,7 @@ export function Topbar({
     <header className="topbar">
       <div className="crumb">
         <h1>{title}</h1>
-        {meta ? <span className="crumb-meta">// {meta}</span> : null}
+        {meta ? <span className="crumb-meta">{"// "}{meta}</span> : null}
       </div>
       {contextPin ? <div className="context-pin">{contextPin}</div> : null}
       <span className="topbar-spacer" />
