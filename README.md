@@ -1,5 +1,13 @@
 # `@kumbuka-ai/console`
 
+![License](https://img.shields.io/badge/license-AGPL_v3-FF5B1F?style=flat-square)
+![Next.js](https://img.shields.io/badge/Next.js-2D4059?style=flat-square&logo=nextdotjs&logoColor=F4F1EA)
+![React](https://img.shields.io/badge/React-2D4059?style=flat-square&logo=react&logoColor=F4F1EA)
+![TypeScript](https://img.shields.io/badge/TypeScript-2D4059?style=flat-square&logo=typescript&logoColor=F4F1EA)
+![Tailwind](https://img.shields.io/badge/Tailwind-2D4059?style=flat-square&logo=tailwindcss&logoColor=F4F1EA)
+![Docker](https://img.shields.io/badge/Docker-2D4059?style=flat-square&logo=docker&logoColor=F4F1EA)
+![CI](https://img.shields.io/github/actions/workflow/status/kumbuka-ai/kumbuka-console/ci.yml?style=flat-square&label=CI&color=FF5B1F)
+
 Admin console for **kumbuka.ai** — Next.js 15 (App Router) + React Server
 Components + Tailwind, served behind Caddy as the only browser-facing
 service the team uses to manage shared memory.
