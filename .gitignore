@@ -8,3 +8,4 @@ coverage
 *.tsbuildinfo
 tsconfig.tsbuildinfo
 .DS_Store
+platform-dev
