@@ -35,6 +35,11 @@ export default defineConfig({
       // ground truth, so files in the report count entirely.
       include: [
         "src/lib/time.ts",
+        "src/lib/theme.ts",
+        "src/lib/api/client.ts",
+        "src/lib/api/session.ts",
+        "src/lib/api/impl-live.ts",
+        "src/lib/api/types.ts",
         "packages/api-client/src/client.ts",
         "packages/api-client/src/session.ts",
       ],
