@@ -9,13 +9,25 @@ import { requireSession } from "@/lib/api/session";
  * and seeds the rail with scope + user counts. Each child page renders
  * its own Topbar so it can attach route-local controls (layout toggle,
  * result counts, …).
+ *
+ * The session gate runs BEFORE the data fetches — not in Promise.all —
+ * for a correctness reason. requireSession() turns a 401 into a
+ * NEXT_REDIRECT throw (caught by the router → /signin), while
+ * listScopes/listUsers throw a raw ApiAuthError on 401. Running them in
+ * parallel meant whichever 401 rejection won the race decided the
+ * outcome: a NEXT_REDIRECT win → clean redirect; an ApiAuthError win →
+ * server-side 500 page (prod digest 486888060). The winner is
+ * non-deterministic per request — hence the intermittent 500s on the
+ * unauthenticated entry path.
+ *
+ * Sequencing the session check first costs one extra round-trip for
+ * authenticated visitors (cheap: /api/auth/me is fast) and is the only
+ * reliable way to resolve the redirect first. A race cannot be pinned
+ * to a specific loser.
  */
 export default async function AppLayout({ children }: { children: ReactNode }) {
-  const [session, scopes, users] = await Promise.all([
-    requireSession(),
-    listScopes(),
-    listUsers(),
-  ]);
+  const session = await requireSession();
+  const [scopes, users] = await Promise.all([listScopes(), listUsers()]);
 
   const h = await headers();
   const path = h.get("x-invoke-path") ?? h.get("x-url") ?? "/";
