@@ -16,14 +16,14 @@ export function Topbar({
   meta,
   contextPin,
   trailing,
-}: {
+}: Readonly<{
   title: string;
   meta?: string;
   /** Optional pinned context — the ops console renders an active-tenant indicator here. */
   contextPin?: ReactNode;
   /** Right-aligned actions (theme toggle, etc.). */
   trailing?: ReactNode;
-}) {
+}>) {
   return (
     <header className="topbar">
       <div className="crumb">

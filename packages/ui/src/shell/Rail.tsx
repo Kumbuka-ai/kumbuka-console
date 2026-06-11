@@ -28,7 +28,7 @@ export function Rail({
   foot,
   railColor,
   textOpacity,
-}: {
+}: Readonly<{
   brand: ReactNode;
   nav: ReactNode;
   foot?: ReactNode;
@@ -36,7 +36,7 @@ export function Rail({
   railColor?: string;
   /** Rail text opacity (e.g. 0.74 on navy, 0.62 on deep-ink). */
   textOpacity?: number;
-}) {
+}>) {
   const style: Record<string, string> = {};
   if (railColor) style["--c-rail"] = railColor;
   if (textOpacity !== undefined) style["--c-rail-text"] =
