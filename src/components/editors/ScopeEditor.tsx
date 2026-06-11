@@ -17,10 +17,10 @@ const slugify = (s: string) =>
 export function ScopeEditor({
   scope,
   onClose,
-}: {
+}: Readonly<{
   scope: ScopeView | null;
   onClose: () => void;
-}) {
+}>) {
   const editing = !!scope;
   const [name, setName] = useState(scope?.name ?? "");
   const [slug, setSlug] = useState(scope?.slug ?? "");
@@ -94,7 +94,7 @@ export function ScopeEditor({
           }}
         />
       </Field>
-      {!editing ? (
+      {editing ? null : (
         <div className="idp-banner" style={{ border: "1px solid var(--c-border)", padding: "13px 15px" }}>
           <Icon name="shield" />
           <span>
@@ -102,7 +102,7 @@ export function ScopeEditor({
             <b>Settings → write-scope policy</b>.
           </span>
         </div>
-      ) : null}
+      )}
     </SidePanel>
   );
 }

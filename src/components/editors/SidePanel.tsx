@@ -11,7 +11,7 @@ export function SidePanel({
   footer,
   children,
   onClose,
-}: {
+}: Readonly<{
   ariaLabel: string;
   eyebrow: string;
   title: string;
@@ -19,7 +19,7 @@ export function SidePanel({
   footer: ReactNode;
   children: ReactNode;
   onClose: () => void;
-}) {
+}>) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const focusable = ref.current?.querySelector<HTMLElement>(
@@ -46,7 +46,7 @@ export function SidePanel({
       >
         <div className="sp-head">
           <div>
-            <span className="eyebrow">// {eyebrow}</span>
+            <span className="eyebrow">{"// "}{eyebrow}</span>
             <h3>{title}</h3>
           </div>
           <button className="iconbtn x" onClick={onClose} aria-label="Close" type="button">
@@ -65,12 +65,12 @@ export function Field({
   required,
   hint,
   children,
-}: {
+}: Readonly<{
   label: string;
   required?: boolean;
   hint?: string;
   children: ReactNode;
-}) {
+}>) {
   return (
     <div className="field">
       <label>

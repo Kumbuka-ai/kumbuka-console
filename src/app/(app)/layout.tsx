@@ -25,23 +25,20 @@ import { requireSession } from "@/lib/api/session";
  * reliable way to resolve the redirect first. A race cannot be pinned
  * to a specific loser.
  */
-export default async function AppLayout({ children }: { children: ReactNode }) {
+export default async function AppLayout({ children }: Readonly<{ children: ReactNode }>) {
   const session = await requireSession();
   const [scopes, users] = await Promise.all([listScopes(), listUsers()]);
 
   const h = await headers();
   const path = h.get("x-invoke-path") ?? h.get("x-url") ?? "/";
-  const active = path.startsWith("/overview")
-    ? "overview"
-    : path.startsWith("/scopes")
-      ? "scopes"
-      : path.startsWith("/team")
-        ? "team"
-        : path.startsWith("/settings")
-          ? "settings"
-          : path.startsWith("/account")
-            ? "account"
-            : "overview";
+  const ROUTES = [
+    { prefix: "/overview", id: "overview" },
+    { prefix: "/scopes", id: "scopes" },
+    { prefix: "/team", id: "team" },
+    { prefix: "/settings", id: "settings" },
+    { prefix: "/account", id: "account" },
+  ];
+  const active = ROUTES.find((r) => path.startsWith(r.prefix))?.id ?? "overview";
 
   return (
     <div className="app">

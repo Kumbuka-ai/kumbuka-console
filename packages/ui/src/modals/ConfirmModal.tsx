@@ -40,7 +40,7 @@ export function ConfirmModal({
   wide,
   onCancel,
   onConfirm,
-}: {
+}: Readonly<{
   eyebrow: string;
   title: string;
   body?: ReactNode;
@@ -59,7 +59,7 @@ export function ConfirmModal({
   wide?: boolean;
   onCancel: () => void;
   onConfirm: () => void;
-}) {
+}>) {
   const [typed, setTyped] = useState("");
   const [ackState, setAckState] = useState<Record<string, boolean>>({});
 

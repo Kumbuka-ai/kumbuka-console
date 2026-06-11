@@ -14,9 +14,9 @@ function safeReturnTo(raw: string | undefined): string {
 
 export default async function SignInPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{ return_to?: string }>;
-}) {
+}>) {
   const sp = await searchParams;
   const returnTo = safeReturnTo(sp.return_to);
   const loginHref = `/api/auth/login?return_to=${encodeURIComponent(returnTo)}`;
@@ -51,7 +51,7 @@ export default async function SignInPage({
             kumbuka<span style={{ color: "var(--accent)" }}>.ai</span>
           </div>
         </div>
-        <span className="eyebrow">// memory console</span>
+        <span className="eyebrow">{"// "}memory console</span>
         <h1
           style={{
             fontFamily: "var(--font-display)",

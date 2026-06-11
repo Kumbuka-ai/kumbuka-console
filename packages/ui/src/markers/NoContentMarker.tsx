@@ -23,7 +23,7 @@ export function NoContentMarker({
   body,
   status = "guaranteed by design",
   variant = "info",
-}: {
+}: Readonly<{
   eyebrow?: string;
   title: string;
   body: ReactNode;
@@ -31,7 +31,7 @@ export function NoContentMarker({
   status?: ReactNode;
   /** "info" (default) or "private" (recurs in the team-console PrivatePanel). */
   variant?: "info" | "private";
-}) {
+}>) {
   return (
     <div className={`nocontent${variant === "private" ? " nocontent-private" : ""}`} role="note">
       <div className="nocontent-head">

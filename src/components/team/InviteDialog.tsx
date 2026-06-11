@@ -10,7 +10,7 @@ import type { UserRole } from "@/lib/api/types";
 
 const IDP_NAME = "Keycloak";
 
-export function InviteDialog({ onClose }: { onClose: () => void }) {
+export function InviteDialog({ onClose }: Readonly<{ onClose: () => void }>) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [role, setRole] = useState<UserRole>("member");
@@ -86,8 +86,7 @@ export function InviteDialog({ onClose }: { onClose: () => void }) {
             style={{ ["--tc" as unknown as string]: "var(--c-muted)" }}
             onClick={() => setRole("member")}
           >
-            <span className="sw" />
-            Member
+            <span className="sw" />Member
           </button>
           <button
             type="button"
@@ -95,8 +94,7 @@ export function InviteDialog({ onClose }: { onClose: () => void }) {
             style={{ ["--tc" as unknown as string]: "var(--accent)" }}
             onClick={() => setRole("admin")}
           >
-            <span className="sw" />
-            Admin
+            <span className="sw" />Admin
           </button>
         </div>
         <span className="hint">

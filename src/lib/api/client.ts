@@ -54,7 +54,7 @@ export async function serverFetch<T>(path: string, init: FetchInit = {}): Promis
   const fwdHost = incoming.get("x-forwarded-host") ?? incoming.get("host") ?? undefined;
   const fwdProto = incoming.get("x-forwarded-proto") ?? "https";
 
-  const h = new Headers(init.headers as HeadersInit | undefined);
+  const h = new Headers(init.headers);
   if (cookieHeader) h.set("cookie", cookieHeader);
   if (init.body !== undefined && !h.has("content-type")) {
     h.set("content-type", "application/json");

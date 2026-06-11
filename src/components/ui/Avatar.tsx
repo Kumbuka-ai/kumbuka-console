@@ -4,20 +4,22 @@
  */
 import { Icon } from "./Icon";
 
+const SIZE_CLASS = { xs: "avatar xs", md: "avatar", lg: "avatar lg" } as const;
+
 export function Avatar({
   initials,
   isAgent = false,
   size = "md",
   className = "",
   title,
-}: {
+}: Readonly<{
   initials?: string;
   isAgent?: boolean;
   size?: "xs" | "md" | "lg";
   className?: string;
   title?: string;
-}) {
-  const sizeClass = size === "xs" ? "avatar xs" : size === "lg" ? "avatar lg" : "avatar";
+}>) {
+  const sizeClass = SIZE_CLASS[size];
   if (isAgent) {
     return (
       <span className={`${sizeClass} ${className}`} title={title ?? "via assistant"} aria-label="agent">

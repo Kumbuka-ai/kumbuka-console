@@ -13,11 +13,11 @@ export function EntryEditor({
   entry,
   scope,
   onClose,
-}: {
+}: Readonly<{
   entry: EntryView | null;
   scope: ScopeView;
   onClose: () => void;
-}) {
+}>) {
   const editing = !!entry;
   const [type, setType] = useState<EntryType>(entry?.type ?? "decision");
   const [key, setKey] = useState(entry?.key ?? "");

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { Avatar, initialsOf } from "@/components/ui/Avatar";
+import type { ReactNode } from "react";
 import type { ScopeView, SessionView, UserView } from "@/lib/api/types";
 
 const NAV: { id: string; label: string; icon: IconName; href: string }[] = [
@@ -15,12 +16,12 @@ export function Rail({
   session,
   scopes,
   users,
-}: {
+}: Readonly<{
   activeId: string;
   session: SessionView;
   scopes: ScopeView[];
   users: UserView[];
-}) {
+}>) {
   const totalEntries = scopes.reduce((n, s) => n + s.entryCount, 0);
   const fallbackName = session.displayName || session.email || session.subject || "—";
   const initials = initialsOf(fallbackName);
@@ -42,6 +43,9 @@ export function Rail({
         <div className="nav-label">Workspace</div>
         {NAV.map((n) => {
           const active = activeId === n.id;
+          let countNode: ReactNode = null;
+          if (n.id === "scopes") countNode = <span className="nav-count">{totalEntries}</span>;
+          else if (n.id === "team") countNode = <span className="nav-count">{users.length}</span>;
           return (
             <Link
               key={n.id}
@@ -51,11 +55,7 @@ export function Rail({
             >
               <Icon name={n.icon} />
               <span className="txt">{n.label}</span>
-              {n.id === "scopes" ? (
-                <span className="nav-count">{totalEntries}</span>
-              ) : n.id === "team" ? (
-                <span className="nav-count">{users.length}</span>
-              ) : null}
+              {countNode}
             </Link>
           );
         })}

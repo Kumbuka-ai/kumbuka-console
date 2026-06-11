@@ -14,15 +14,15 @@ export type Theme = "light" | "dark";
 export function ThemeToggle({
   theme,
   onApply,
-}: {
+}: Readonly<{
   theme: Theme;
   onApply: (next: Theme) => void | Promise<void>;
-}) {
+}>) {
   const [pending, start] = useTransition();
   const apply = (next: Theme) => {
     if (next === theme || pending) return;
     if (typeof document !== "undefined") {
-      document.documentElement.setAttribute("data-theme", next);
+      document.documentElement.dataset.theme = next;
     }
     start(() => {
       void onApply(next);

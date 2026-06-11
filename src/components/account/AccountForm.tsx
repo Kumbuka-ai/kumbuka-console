@@ -13,7 +13,7 @@ import type { SessionView } from "@/lib/api/types";
  * field; credentials, MFA, passkey, and active sessions all link out to
  * the Keycloak account console.
  */
-export function AccountForm({ session }: { session: SessionView }) {
+export function AccountForm({ session }: Readonly<{ session: SessionView }>) {
   const initial = session.displayName ?? "";
   const [displayName, setDisplayName] = useState(initial);
   const [savedName, setSavedName] = useState(initial);
@@ -69,7 +69,7 @@ export function AccountForm({ session }: { session: SessionView }) {
         {/* Display name (the only in-app editable field) --------------- */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">// profile</span>
+            <span className="eyebrow">{"// "}profile</span>
             <h3>Display name</h3>
             <p>How your name appears next to entries you author in this console.</p>
           </div>
@@ -102,7 +102,7 @@ export function AccountForm({ session }: { session: SessionView }) {
         {/* Credentials / MFA / Passkey / Sessions — link-outs --------- */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">// security</span>
+            <span className="eyebrow">{"// "}security</span>
             <h3>Sign-in & credentials</h3>
             <p>
               Password, two-factor authentication, passkeys, and active sessions are managed in the
@@ -142,7 +142,7 @@ export function AccountForm({ session }: { session: SessionView }) {
         {/* Private guarantee — surface 4 of 5 -------------------------- */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">// your private memory</span>
+            <span className="eyebrow">{"// "}your private memory</span>
             <h3>Yours alone</h3>
             <p>The space the assistant uses with you that nobody else can reach.</p>
           </div>
@@ -169,7 +169,7 @@ export function AccountForm({ session }: { session: SessionView }) {
         {/* Sign out --------------------------------------------------- */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">// session</span>
+            <span className="eyebrow">{"// "}session</span>
             <h3>Sign out</h3>
             <p>End your console session and log out at Keycloak.</p>
           </div>
@@ -190,12 +190,12 @@ function LinkOutMethod({
   icon,
   title,
   sub,
-}: {
+}: Readonly<{
   href: string;
   icon: "key" | "phone" | "shield" | "monitor";
   title: string;
   sub: string;
-}) {
+}>) {
   return (
     <a className="method" href={href} target="_blank" rel="noreferrer">
       <div className="m-icon">

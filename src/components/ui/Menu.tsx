@@ -31,11 +31,12 @@ export function useMenu() {
   };
 }
 
-function Menu({ items, anchor, onClose }: { items: MenuItem[]; anchor: Anchor; onClose: () => void }) {
+function Menu({ items, anchor, onClose }: Readonly<{ items: MenuItem[]; anchor: Anchor; onClose: () => void }>) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) onClose();
+      const target = e.target;
+      if (target instanceof Node && !ref.current?.contains(target)) onClose();
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -48,8 +49,8 @@ function Menu({ items, anchor, onClose }: { items: MenuItem[]; anchor: Anchor; o
     };
   }, [onClose]);
 
-  const left = Math.min(anchor.x, typeof window === "undefined" ? 9999 : window.innerWidth - 200);
-  const top = Math.min(anchor.y + 4, typeof window === "undefined" ? 9999 : window.innerHeight - 200);
+  const left = Math.min(anchor.x, globalThis.window === undefined ? 9999 : globalThis.window.innerWidth - 200);
+  const top = Math.min(anchor.y + 4, globalThis.window === undefined ? 9999 : globalThis.window.innerHeight - 200);
 
   return (
     <div className="menu" ref={ref} role="menu" style={{ left, top }}>

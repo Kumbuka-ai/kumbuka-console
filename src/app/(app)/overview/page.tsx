@@ -10,7 +10,7 @@ import { ENTRY_TYPE_ORDER, type ScopeView } from "@/lib/api/types";
 import { absTime, relTime } from "@/lib/time";
 import { getTheme } from "@/lib/theme";
 
-function MiniBar({ scope, byType }: { scope: ScopeView; byType: Record<string, number> }) {
+function MiniBar({ scope, byType }: Readonly<{ scope: ScopeView; byType: Record<string, number> }>) {
   if (scope.entryCount === 0) return <div className="mini-bar"><i className="empty" /></div>;
   return (
     <div className="mini-bar">
@@ -43,7 +43,7 @@ export default async function OverviewPage() {
   const invited = users.filter((u) => u.status === "invited").length;
   const admins = users.filter((u) => u.role === "admin").length;
 
-  const weekAgo = Date.now() - 7 * 24 * 3600_000;
+  const weekAgo = Date.now() - 7 * 24 * 3_600_000;
   const writesWeek = overview.recent.filter((r) => new Date(r.updatedAt).getTime() >= weekAgo).length;
 
   return (
@@ -81,7 +81,7 @@ export default async function OverviewPage() {
 
           <div className="connector">
             <div className="conn-main">
-              <span className="eyebrow">// connector</span>
+              <span className="eyebrow">{"// "}connector</span>
               <h3>Connect your AI client</h3>
               <p className="conn-lead">
                 Paste these into the assistant&apos;s MCP configuration. The client reads and writes
@@ -124,7 +124,7 @@ export default async function OverviewPage() {
           <div className="ov-split">
             <div>
               <div className="section-label">
-                <span className="eyebrow">// recent activity · shared scopes</span>
+                <span className="eyebrow">{"// "}recent activity · shared scopes</span>
                 <span className="ln" />
                 <Link className="more" href="/scopes">Open browser →</Link>
               </div>
@@ -163,7 +163,7 @@ export default async function OverviewPage() {
 
             <div>
               <div className="section-label">
-                <span className="eyebrow">// scopes at a glance</span>
+                <span className="eyebrow">{"// "}scopes at a glance</span>
                 <span className="ln" />
               </div>
               <div className="mini">
@@ -189,7 +189,7 @@ export default async function OverviewPage() {
               </div>
 
               <div className="section-label" style={{ marginTop: 28 }}>
-                <span className="eyebrow">// team</span>
+                <span className="eyebrow">{"// "}team</span>
                 <span className="ln" />
                 <Link className="more" href="/team">Manage →</Link>
               </div>

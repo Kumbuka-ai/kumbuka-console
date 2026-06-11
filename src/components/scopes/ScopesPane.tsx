@@ -11,7 +11,7 @@ import { archiveScopeAction } from "@/app/(app)/actions";
 import { useToast } from "@/components/ui/Toast";
 import type { ScopeView } from "@/lib/api/types";
 
-function ScopeIcon({ scope }: { scope: ScopeView }) {
+function ScopeIcon({ scope }: Readonly<{ scope: ScopeView }>) {
   if (scope.kind === "global") return <Icon name="globe" />;
   if (scope.archived) return <Icon name="archive" />;
   return <Icon name="folder" />;
@@ -21,11 +21,11 @@ function ScopeItem({
   scope,
   active,
   onOpenMenu,
-}: {
+}: Readonly<{
   scope: ScopeView;
   active: boolean;
   onOpenMenu?: (e: MouseEvent, s: ScopeView) => void;
-}) {
+}>) {
   return (
     <a
       key={scope.slug}
@@ -74,10 +74,10 @@ function ScopeItem({
 export function ScopesPane({
   scopes,
   activeSlug,
-}: {
+}: Readonly<{
   scopes: ScopeView[];
   activeSlug: string;
-}) {
+}>) {
   const [creating, setCreating] = useState(false);
   const [renaming, setRenaming] = useState<ScopeView | null>(null);
   const [archiving, setArchiving] = useState<ScopeView | null>(null);
@@ -134,7 +134,7 @@ export function ScopesPane({
     <>
       <aside className="scopes-pane">
         <div className="pane-head">
-          <span className="eyebrow">// scopes</span>
+          <span className="eyebrow">{"// "}scopes</span>
           <button
             className="addscope"
             onClick={() => setCreating(true)}

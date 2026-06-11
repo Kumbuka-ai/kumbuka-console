@@ -34,12 +34,12 @@ export function EntriesView({
   entries,
   members,
   syncError,
-}: {
+}: Readonly<{
   scope: ScopeView;
   entries: EntryView[];
   members: Record<string, string>;
   syncError?: boolean;
-}) {
+}>) {
   const router = useRouter();
   const params = useSearchParams();
   const toast = useToast();
@@ -100,7 +100,9 @@ export function EntriesView({
         av = a.updatedAt;
         bv = b.updatedAt;
       }
-      const cmp = av < bv ? -1 : av > bv ? 1 : 0;
+      let cmp = 0;
+      if (av < bv) cmp = -1;
+      else if (av > bv) cmp = 1;
       return sort.dir === "asc" ? cmp : -cmp;
     });
     return r;
@@ -158,6 +160,10 @@ export function EntriesView({
   const activeFilters = types.length > 0 || query.trim().length > 0;
   const isArchived = scope.archived;
 
+  let kindLabel = "project";
+  if (scope.kind === "global") kindLabel = "global · fixed";
+  else if (isArchived) kindLabel = "archived";
+
   return (
     <>
       <section className="entries-pane">
@@ -167,11 +173,7 @@ export function EntriesView({
               <h2>
                 {scope.slug}
                 <span className={`scope-kind${scope.kind === "global" ? " global" : ""}`}>
-                  {scope.kind === "global"
-                    ? "global · fixed"
-                    : isArchived
-                      ? "archived"
-                      : "project"}
+                  {kindLabel}
                 </span>
               </h2>
               <div className="desc">{scope.description}</div>
@@ -356,7 +358,19 @@ export function EntriesView({
           ) : (
             <div className="ecards">
               {rows.map((e) => (
-                <div className="ecard" key={e.id} onClick={() => setEditor({ entry: e })}>
+                <div
+                  className="ecard"
+                  key={e.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setEditor({ entry: e })}
+                  onKeyDown={(ev) => {
+                    if (ev.key === "Enter" || ev.key === " ") {
+                      ev.preventDefault();
+                      setEditor({ entry: e });
+                    }
+                  }}
+                >
                   <div className="ecard-top">
                     <TypeChip type={e.type} />
                     {e.key ? (
@@ -418,15 +432,18 @@ function Th({
   sort,
   setSort,
   className,
-}: {
+}: Readonly<{
   id: SortCol;
   label: string;
   sort: Sort;
   setSort: (s: Sort) => void;
   className?: string;
-}) {
+}>) {
   const active = sort.col === id;
-  const ariaSort = active ? (sort.dir === "asc" ? "ascending" : "descending") : "none";
+  let ariaSort: "ascending" | "descending" | "none" = "none";
+  if (active) ariaSort = sort.dir === "asc" ? "ascending" : "descending";
+  let chevronName = "chevSort";
+  if (active) chevronName = sort.dir === "asc" ? "chevUp" : "chevDown";
   return (
     <th
       className={`${className ?? ""} sortable`}
@@ -437,7 +454,7 @@ function Th({
     >
       <span className="th-in">
         {label}
-        <Icon name={active ? (sort.dir === "asc" ? "chevUp" : "chevDown") : "chevSort"} />
+        <Icon name={chevronName} />
       </span>
     </th>
   );
@@ -447,11 +464,11 @@ function AuthorCell({
   entry,
   members,
   compact,
-}: {
+}: Readonly<{
   entry: EntryView;
   members: Map<string, string>;
   compact?: boolean;
-}) {
+}>) {
   const isAgent = entry.source === "mcp";
   const name = isAgent ? "via assistant" : members.get(entry.authorSubject) ?? entry.authorSubject;
   return (

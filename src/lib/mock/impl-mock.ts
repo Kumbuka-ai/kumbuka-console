@@ -52,7 +52,7 @@ const stripEntries = (s: (typeof state.scopes)[number]): ScopeView => {
 
 // ---------- Session ----------------------------------------------------
 export async function getSession(): Promise<SessionView> {
-  const me = state.users.find((u) => u.self) ?? state.users[0]!;
+  const me = state.users.find((u) => u.self) ?? state.users[0];
   return {
     subject: me.subject,
     email: me.email,
@@ -62,7 +62,7 @@ export async function getSession(): Promise<SessionView> {
   };
 }
 export async function updateMe(req: UpdateMeRequest): Promise<SessionView> {
-  const me = state.users.find((u) => u.self) ?? state.users[0]!;
+  const me = state.users.find((u) => u.self) ?? state.users[0];
   if (req.displayName !== undefined) me.displayName = req.displayName.trim();
   return getSession();
 }
@@ -123,7 +123,7 @@ export async function createEntry(slug: string, req: CreateEntryRequest): Promis
   const s = state.scopes.find((x) => x.slug === slug);
   if (!s) throw new Error(`no scope: ${slug}`);
   if (s.archived) throw new Error("archived scope is read-only");
-  const me = state.users.find((u) => u.self) ?? state.users[0]!;
+  const me = state.users.find((u) => u.self) ?? state.users[0];
   const fresh: EntryView = {
     id: newId(),
     type: req.type,
@@ -170,7 +170,7 @@ export async function inviteUser(req: InviteUserRequest): Promise<UserView> {
     id: `u-${Math.random().toString(36).slice(2, 7)}`,
     subject: `kc-${Math.random().toString(36).slice(2, 7)}`,
     email: req.email,
-    displayName: req.displayName ?? req.email.split("@")[0]!,
+    displayName: req.displayName ?? req.email.split("@")[0],
     role: req.role,
     status: "invited",
     lastSeenAt: null,
@@ -196,11 +196,10 @@ export async function updateSettings(req: UpdateSettingsRequest): Promise<Settin
   if (req.createScopes) state.settings.createScopes = req.createScopes;
   // Re-resolve effective.
   state.settings.effectiveWritePolicy = state.settings.writePolicy;
-  state.settings.defaultScopeStatus = state.settings.defaultScopeSlug
+  const defaultArchived = state.settings.defaultScopeSlug
     ? state.scopes.find((s) => s.slug === state.settings.defaultScopeSlug)?.archived
-      ? "archived"
-      : "ok"
-    : "ok";
+    : false;
+  state.settings.defaultScopeStatus = defaultArchived ? "archived" : "ok";
   return { ...state.settings };
 }
 

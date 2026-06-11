@@ -7,9 +7,9 @@ import { getTheme } from "@/lib/theme";
 
 export default async function ScopeBrowserPage({
   params,
-}: {
+}: Readonly<{
   params: Promise<{ slug: string }>;
-}) {
+}>) {
   const { slug } = await params;
   const [scopes, users, theme] = await Promise.all([listScopes(), listUsers(), getTheme()]);
   const scope = scopes.find((s) => s.slug === slug);

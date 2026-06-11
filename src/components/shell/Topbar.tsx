@@ -7,17 +7,17 @@ export function Topbar({
   meta,
   theme,
   trailing,
-}: {
+}: Readonly<{
   title: string;
   meta: string;
   theme: Theme;
   trailing?: ReactNode;
-}) {
+}>) {
   return (
     <header className="topbar">
       <div className="crumb">
         <h1>{title}</h1>
-        <span className="crumb-meta">// {meta}</span>
+        <span className="crumb-meta">{"// "}{meta}</span>
       </div>
       <span className="topbar-spacer" />
       {trailing}
