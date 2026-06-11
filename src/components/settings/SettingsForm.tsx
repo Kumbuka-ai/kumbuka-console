@@ -228,8 +228,8 @@ export function SettingsForm({
             <div className="conn-light">
               <div className="cl-row">
                 <span className="cl-label">Endpoint</span>
-                <span className="cl-val">{connector.endpoint}</span>
-                <IconButton onClick={() => copy(connector.endpoint)} aria-label="Copy endpoint">
+                <span className="cl-val">{connector.mcpUrl}</span>
+                <IconButton onClick={() => copy(connector.mcpUrl)} aria-label="Copy endpoint">
                   <Icon name="copy" />
                 </IconButton>
               </div>

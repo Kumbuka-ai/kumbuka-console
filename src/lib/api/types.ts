@@ -71,6 +71,8 @@ export type SettingsView = {
 
 export type ConnectorView = {
   endpoint: string;
+  /** Tenant-correct public MCP URL, server-derived (D-CORE-4). Render this. */
+  mcpUrl: string;
   clientId: string;
   clientSecretMasked: string;
   idpName: string;
