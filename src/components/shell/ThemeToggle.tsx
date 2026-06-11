@@ -6,12 +6,12 @@ import { setThemeAction } from "@/app/(app)/actions";
 import { useTransition } from "react";
 import type { Theme } from "@/lib/theme";
 
-export function ThemeToggle({ theme }: { theme: Theme }) {
-  const [pending, start] = useTransition();
+export function ThemeToggle({ theme }: Readonly<{ theme: Theme }>) {
+  const [, start] = useTransition();
   const apply = (t: Theme) => {
     if (t === theme) return;
     // Optimistic: flip the attribute immediately so the swap feels instant.
-    document.documentElement.setAttribute("data-theme", t);
+    document.documentElement.dataset.theme = t;
     start(() => {
       void setThemeAction(t);
     });
