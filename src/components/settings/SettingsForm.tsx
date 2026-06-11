@@ -23,14 +23,14 @@ function RadioOpt({
   tag,
   tagAccent,
   desc,
-}: {
+}: Readonly<{
   on: boolean;
   onClick: () => void;
   title: string;
   tag?: string;
   tagAccent?: boolean;
   desc: string;
-}) {
+}>) {
   return (
     <div
       className={`radio-opt${on ? " on" : ""}`}
@@ -61,11 +61,11 @@ export function SettingsForm({
   initial,
   connector,
   projectScopes,
-}: {
+}: Readonly<{
   initial: SettingsView;
   connector: ConnectorView;
   projectScopes: ScopeView[];
-}) {
+}>) {
   const toast = useToast();
   const [writePolicy, setWritePolicy] = useState<WritePolicy>(initial.writePolicy);
   const [defaultScopeSlug, setDefaultScopeSlug] = useState<string | null>(initial.defaultScopeSlug);
@@ -130,7 +130,7 @@ export function SettingsForm({
         {/* Write policy ------------------------------------------------ */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">// policy</span>
+            <span className="eyebrow">{"// "}policy</span>
             <h3>Default write scope</h3>
             <p>Where the assistant writes a new memory when it isn&apos;t told which scope to use.</p>
           </div>
@@ -160,9 +160,10 @@ export function SettingsForm({
             </div>
             {writePolicy === "project" ? (
               <div className="field" style={{ marginTop: 16 }}>
-                <label>Fallback scope when no project is active</label>
+                <label htmlFor="settings-fallback-scope">Fallback scope when no project is active</label>
                 <div className="select-wrap">
                   <select
+                    id="settings-fallback-scope"
                     className="select"
                     value={defaultScopeSlug ?? "global"}
                     onChange={(e) =>
@@ -186,7 +187,7 @@ export function SettingsForm({
         {/* Create scopes ---------------------------------------------- */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">// permissions</span>
+            <span className="eyebrow">{"// "}permissions</span>
             <h3>Who may create scopes</h3>
             <p>
               Project scopes carve the shared memory into spaces. The{" "}
@@ -217,7 +218,7 @@ export function SettingsForm({
         {/* Connector --------------------------------------------------- */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">// connector</span>
+            <span className="eyebrow">{"// "}connector</span>
             <h3>Connector details</h3>
             <p>
               The endpoint and credentials AI clients use to reach shared memory. Rotate the secret
@@ -265,7 +266,7 @@ export function SettingsForm({
         {/* Private locked — surface 3 of 5 */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">// guarantee</span>
+            <span className="eyebrow">{"// "}guarantee</span>
             <h3>Private memory</h3>
             <p>The one setting you can&apos;t change — and that&apos;s the point.</p>
           </div>
