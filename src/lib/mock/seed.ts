@@ -14,7 +14,7 @@ import type {
 
 const NOW = new Date("2026-06-05T11:00:00Z").getTime();
 const ago = (days: number, hours = 0) =>
-  new Date(NOW - (days * 24 + hours) * 3600_000).toISOString();
+  new Date(NOW - (days * 24 + hours) * 3_600_000).toISOString();
 
 let _id = 100;
 const eid = () => `e-${++_id}`;

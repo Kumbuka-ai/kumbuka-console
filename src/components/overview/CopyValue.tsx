@@ -3,7 +3,7 @@
 import { Icon } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/Toast";
 
-export function CopyValue({ value, masked }: { value: string; masked?: boolean }) {
+export function CopyValue({ value, masked }: Readonly<{ value: string; masked?: boolean }>) {
   const toast = useToast();
   const copy = async () => {
     await navigator.clipboard?.writeText(value);

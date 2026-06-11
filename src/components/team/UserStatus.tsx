@@ -6,7 +6,7 @@ const LABEL: Record<Status, string> = {
   invited: "Invite sent",
 };
 
-export function UserStatus({ status }: { status: Status }) {
+export function UserStatus({ status }: Readonly<{ status: Status }>) {
   return (
     <span className={`ustatus ${status}`}>
       <span className="dot" />
