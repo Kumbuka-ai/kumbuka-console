@@ -89,7 +89,7 @@ export default async function OverviewPage() {
               </p>
               <div className="conn-field">
                 <label>Endpoint URL</label>
-                <CopyValue value={connector.endpoint} />
+                <CopyValue value={connector.mcpUrl} />
               </div>
               <div className="conn-field">
                 <label>Client ID</label>

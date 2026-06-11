@@ -189,6 +189,7 @@ export const SETTINGS: SettingsView = {
 
 export const CONNECTOR: ConnectorView = {
   endpoint: "https://memory.kumbuka.ai/mcp",
+  mcpUrl: "https://memory.kumbuka.ai/mcp",
   clientId: "kai_team_8f3c21a0",
   clientSecretMasked: "sk_live_9d2f••••••••••••••••a71b",
   idpName: "Keycloak",
