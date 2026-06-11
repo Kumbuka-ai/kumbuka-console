@@ -15,12 +15,12 @@ export function Rail({
   session,
   scopes,
   users,
-}: {
+}: Readonly<{
   activeId: string;
   session: SessionView;
   scopes: ScopeView[];
   users: UserView[];
-}) {
+}>) {
   const totalEntries = scopes.reduce((n, s) => n + s.entryCount, 0);
   const fallbackName = session.displayName || session.email || session.subject || "—";
   const initials = initialsOf(fallbackName);
@@ -42,6 +42,9 @@ export function Rail({
         <div className="nav-label">Workspace</div>
         {NAV.map((n) => {
           const active = activeId === n.id;
+          let count: number | null = null;
+          if (n.id === "scopes") count = totalEntries;
+          else if (n.id === "team") count = users.length;
           return (
             <Link
               key={n.id}
@@ -51,11 +54,7 @@ export function Rail({
             >
               <Icon name={n.icon} />
               <span className="txt">{n.label}</span>
-              {n.id === "scopes" ? (
-                <span className="nav-count">{totalEntries}</span>
-              ) : n.id === "team" ? (
-                <span className="nav-count">{users.length}</span>
-              ) : null}
+              {count !== null ? <span className="nav-count">{count}</span> : null}
             </Link>
           );
         })}

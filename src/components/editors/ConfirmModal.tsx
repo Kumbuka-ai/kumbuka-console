@@ -14,7 +14,7 @@ export function ConfirmModal({
   danger,
   onCancel,
   onConfirm,
-}: {
+}: Readonly<{
   eyebrow: string;
   title: string;
   body: string;
@@ -24,7 +24,7 @@ export function ConfirmModal({
   danger?: boolean;
   onCancel: () => void;
   onConfirm: () => void;
-}) {
+}>) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onCancel();
@@ -40,7 +40,7 @@ export function ConfirmModal({
       <div className="modal" role="alertdialog" aria-label={title} aria-modal="true">
         <div className="modal-body">
           <span className="eyebrow" style={danger ? undefined : { color: "var(--c-accent)" }}>
-            // {eyebrow}
+            {"// "}{eyebrow}
           </span>
           <h3>{title}</h3>
           <p>{body}</p>
