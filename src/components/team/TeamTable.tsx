@@ -19,7 +19,12 @@ import type { UserView } from "@/lib/api/types";
 
 const IDP_NAME = "Keycloak";
 
-export function TeamTable({ users }: { users: UserView[] }) {
+function confirmLabelFor(pending: boolean, action: "disable" | "enable"): string {
+  if (pending) return "Working…";
+  return action === "enable" ? "Enable" : "Disable";
+}
+
+export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
   const router = useRouter();
   const params = useSearchParams();
   const toast = useToast();
@@ -220,7 +225,7 @@ export function TeamTable({ users }: { users: UserView[] }) {
               : `They lose console and API access immediately. ${IDP_NAME} suspends the account; their private memory is untouched and stays theirs.`
           }
           target={confirm.user.email}
-          confirmLabel={pending ? "Working…" : confirm.action === "enable" ? "Enable" : "Disable"}
+          confirmLabel={confirmLabelFor(pending, confirm.action)}
           confirmIcon={confirm.action === "enable" ? "shield" : "eyeOff"}
           danger={confirm.action === "disable"}
           onCancel={() => setConfirm(null)}
