@@ -35,7 +35,8 @@ function Menu({ items, anchor, onClose }: Readonly<{ items: MenuItem[]; anchor: 
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) onClose();
+      const target = e.target;
+      if (target instanceof Node && !ref.current?.contains(target)) onClose();
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
