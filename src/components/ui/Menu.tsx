@@ -49,8 +49,8 @@ function Menu({ items, anchor, onClose }: Readonly<{ items: MenuItem[]; anchor: 
     };
   }, [onClose]);
 
-  const left = Math.min(anchor.x, typeof globalThis.window === "undefined" ? 9999 : globalThis.window.innerWidth - 200);
-  const top = Math.min(anchor.y + 4, typeof globalThis.window === "undefined" ? 9999 : globalThis.window.innerHeight - 200);
+  const left = Math.min(anchor.x, globalThis.window === undefined ? 9999 : globalThis.window.innerWidth - 200);
+  const top = Math.min(anchor.y + 4, globalThis.window === undefined ? 9999 : globalThis.window.innerHeight - 200);
 
   return (
     <div className="menu" ref={ref} role="menu" style={{ left, top }}>
