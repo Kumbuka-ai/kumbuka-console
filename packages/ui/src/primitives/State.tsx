@@ -6,12 +6,12 @@ export function EmptyState({
   title,
   body,
   children,
-}: {
+}: Readonly<{
   icon?: IconName | string;
   title: string;
   body: string;
   children?: ReactNode;
-}) {
+}>) {
   return (
     <div className="state">
       <div className="state-mark">
@@ -29,12 +29,12 @@ export function ErrorState({
   body,
   code,
   children,
-}: {
+}: Readonly<{
   title: string;
   body: string;
   code?: string;
   children?: ReactNode;
-}) {
+}>) {
   return (
     <div className="state err">
       <div className="state-mark">
@@ -48,7 +48,7 @@ export function ErrorState({
   );
 }
 
-export function TableSkeleton({ rows = 6 }: { rows?: number }) {
+export function TableSkeleton({ rows = 6 }: Readonly<{ rows?: number }>) {
   return (
     <div>
       {Array.from({ length: rows }).map((_, i) => (

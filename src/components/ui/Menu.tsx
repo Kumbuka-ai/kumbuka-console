@@ -31,7 +31,7 @@ export function useMenu() {
   };
 }
 
-function Menu({ items, anchor, onClose }: { items: MenuItem[]; anchor: Anchor; onClose: () => void }) {
+function Menu({ items, anchor, onClose }: Readonly<{ items: MenuItem[]; anchor: Anchor; onClose: () => void }>) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
@@ -48,8 +48,8 @@ function Menu({ items, anchor, onClose }: { items: MenuItem[]; anchor: Anchor; o
     };
   }, [onClose]);
 
-  const left = Math.min(anchor.x, typeof window === "undefined" ? 9999 : window.innerWidth - 200);
-  const top = Math.min(anchor.y + 4, typeof window === "undefined" ? 9999 : window.innerHeight - 200);
+  const left = Math.min(anchor.x, typeof globalThis.window === "undefined" ? 9999 : globalThis.window.innerWidth - 200);
+  const top = Math.min(anchor.y + 4, typeof globalThis.window === "undefined" ? 9999 : globalThis.window.innerHeight - 200);
 
   return (
     <div className="menu" ref={ref} role="menu" style={{ left, top }}>

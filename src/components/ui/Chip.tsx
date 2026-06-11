@@ -9,11 +9,11 @@ export function TypeChip({
   type,
   boxed = false,
   label,
-}: {
+}: Readonly<{
   type: EntryType;
   boxed?: boolean;
   label?: string;
-}) {
+}>) {
   const meta = ENTRY_TYPES[type];
   return (
     <span

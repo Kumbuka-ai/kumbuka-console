@@ -98,11 +98,11 @@ export function Icon({
   name,
   className = "ico",
   "aria-hidden": ariaHidden = true,
-}: {
+}: Readonly<{
   name: IconName | string;
   className?: string;
   "aria-hidden"?: boolean;
-}) {
+}>) {
   const Cmp = REGISTRY[name] ?? AlertCircle;
   return <Cmp className={className} strokeWidth={1.75} aria-hidden={ariaHidden} />;
 }

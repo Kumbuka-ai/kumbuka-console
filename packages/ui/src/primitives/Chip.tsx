@@ -17,11 +17,11 @@ export function Chip({
   colorVar,
   label,
   boxed = false,
-}: {
+}: Readonly<{
   colorVar?: string;
   label: string;
   boxed?: boolean;
-}) {
+}>) {
   return (
     <span
       className={`tchip${boxed ? " boxed" : ""}`}
