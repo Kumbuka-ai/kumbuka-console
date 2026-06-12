@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { ApiError, listEntries, listScopes, listUsers } from "@/lib/api";
-import { ScopesPane } from "@/components/scopes/ScopesPane";
-import { EntriesView } from "@/components/scopes/EntriesView";
+import { ScopeScreen } from "@/components/scopes/ScopeScreen";
 import { Topbar } from "@/components/shell/Topbar";
 import { getTheme } from "@/lib/theme";
 
@@ -40,10 +39,14 @@ export default async function ScopeBrowserPage({
           </span>
         }
       />
-      <div className="scope-screen">
-        <ScopesPane scopes={scopes} activeSlug={slug} />
-        <EntriesView scope={scope} entries={entries} members={members} syncError={syncError} />
-      </div>
+      <ScopeScreen
+        scopes={scopes}
+        activeSlug={slug}
+        scope={scope}
+        entries={entries}
+        members={members}
+        syncError={syncError}
+      />
     </>
   );
 }

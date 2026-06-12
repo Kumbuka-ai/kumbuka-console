@@ -286,7 +286,17 @@ button { font-family: inherit; }
 /* ============================================================
    Scope browser (two-pane)
    ============================================================ */
-.scope-screen { display: grid; grid-template-columns: 300px 1fr; min-height: 0; flex: 1; }
+.scope-screen { display: grid; grid-template-columns: 300px 1fr; min-height: 0; flex: 1; position: relative; }
+/* Mobile-only scope-browser toggle + overlay backdrop (shown via the media
+   query below; the scope list is otherwise hidden on narrow viewports). */
+.scope-pane-toggle { display: none; }
+.scope-pane-backdrop { display: none; }
+.pane-close {
+  display: none; margin-left: auto; background: none; border: none; cursor: pointer;
+  color: var(--c-muted); width: 28px; height: 28px; border-radius: 7px;
+  align-items: center; justify-content: center;
+}
+.pane-close:hover { background: var(--c-hover, rgba(0,0,0,0.05)); color: var(--c-ink); }
 .scopes-pane {
   border-right: 1px solid var(--c-border); min-height: 0; overflow-y: auto;
   display: flex; flex-direction: column; background: var(--c-panel);
@@ -994,10 +1004,31 @@ button { font-family: inherit; }
 @media (max-width: 900px) {
   .scope-screen { grid-template-columns: 1fr; }
   .scopes-pane { display: none; }
-  .scopes-pane.mobile-open { display: flex; position: absolute; z-index: 60; width: 300px; height: 100%; }
+  .scopes-pane.mobile-open {
+    display: flex; position: absolute; top: 0; left: 0; z-index: 60;
+    width: min(86vw, 320px); height: 100%; box-shadow: 0 0 0 100vmax rgba(0,0,0,0);
+  }
+  .pane-close { display: inline-flex; }
+  .scope-pane-toggle {
+    display: inline-flex; align-items: center; gap: 7px;
+    position: fixed; bottom: 18px; left: 14px; z-index: 50;
+    padding: 9px 14px; border-radius: 999px; cursor: pointer;
+    background: var(--c-accent, #E8623A); border: none;
+    color: #fff; font-size: 13px; font-weight: 600;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.22);
+  }
+  .scope-pane-backdrop {
+    display: block; position: fixed; inset: 0; z-index: 59;
+    background: rgba(0,0,0,0.45); border: none; cursor: pointer;
+  }
 }
 @media (max-width: 720px) {
   .col-author, .col-key { display: none; }
   .etoolbar { gap: 10px; }
   .eh-actions .btn span.txt { display: none; }
+  /* Tighten the topbar so the title + theme toggle fit without overlapping. */
+  .topbar { padding: 0 14px; gap: 10px; }
+  .crumb .crumb-meta { display: none; }
+  .topbar .result-count { display: none; }
+  .crumb h1 { font-size: 17px; }
 }
