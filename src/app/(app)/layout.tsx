@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { headers } from "next/headers";
 import { Rail } from "@/components/shell/Rail";
 import { listScopes, listUsers } from "@/lib/api";
 import { requireSession } from "@/lib/api/session";
@@ -29,20 +28,9 @@ export default async function AppLayout({ children }: Readonly<{ children: React
   const session = await requireSession();
   const [scopes, users] = await Promise.all([listScopes(), listUsers()]);
 
-  const h = await headers();
-  const path = h.get("x-invoke-path") ?? h.get("x-url") ?? "/";
-  const ROUTES = [
-    { prefix: "/overview", id: "overview" },
-    { prefix: "/scopes", id: "scopes" },
-    { prefix: "/team", id: "team" },
-    { prefix: "/settings", id: "settings" },
-    { prefix: "/account", id: "account" },
-  ];
-  const active = ROUTES.find((r) => path.startsWith(r.prefix))?.id ?? "overview";
-
   return (
     <div className="app">
-      <Rail activeId={active} session={session} scopes={scopes} users={users} />
+      <Rail session={session} scopes={scopes} users={users} />
       <main className="main">{children}</main>
     </div>
   );

@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { Avatar, initialsOf } from "@/components/ui/Avatar";
 import type { ReactNode } from "react";
@@ -11,17 +14,28 @@ const NAV: { id: string; label: string; icon: IconName; href: string }[] = [
   { id: "settings", label: "Settings", icon: "settings", href: "/settings" },
 ];
 
+const ACTIVE_ROUTES: { prefix: string; id: string }[] = [
+  { prefix: "/overview", id: "overview" },
+  { prefix: "/scopes", id: "scopes" },
+  { prefix: "/team", id: "team" },
+  { prefix: "/settings", id: "settings" },
+  { prefix: "/account", id: "account" },
+];
+
 export function Rail({
-  activeId,
   session,
   scopes,
   users,
 }: Readonly<{
-  activeId: string;
   session: SessionView;
   scopes: ScopeView[];
   users: UserView[];
 }>) {
+  // Active route is derived client-side from the live pathname. (A server
+  // layout cannot read the current path reliably — the old x-invoke-path /
+  // x-url headers are no longer set, so the highlight was stuck on Overview.)
+  const pathname = usePathname() ?? "";
+  const activeId = ACTIVE_ROUTES.find((r) => pathname.startsWith(r.prefix))?.id ?? "overview";
   const totalEntries = scopes.reduce((n, s) => n + s.entryCount, 0);
   const fallbackName = session.displayName || session.email || session.subject || "—";
   const initials = initialsOf(fallbackName);
