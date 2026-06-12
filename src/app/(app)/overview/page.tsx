@@ -97,7 +97,11 @@ export default async function OverviewPage() {
               </div>
               <div className="conn-field">
                 <label>Client secret</label>
-                <CopyValue value={connector.clientSecretMasked} masked />
+                {connector.clientSecretMasked ? (
+                  <CopyValue value={connector.clientSecretMasked} masked />
+                ) : (
+                  <span className="conn-nosecret">None — public client (PKCE). Leave the secret field empty.</span>
+                )}
               </div>
             </div>
             <div className="vr" />
@@ -111,7 +115,11 @@ export default async function OverviewPage() {
               </p>
               <ol className="cs-steps">
                 <li>Add the endpoint to your client&apos;s MCP servers.</li>
-                <li>Authenticate with the client ID and secret.</li>
+                <li>
+                  {connector.clientSecretMasked
+                    ? "Authenticate with the client ID and secret."
+                    : "Enter the client ID; leave the secret empty (public client, PKCE)."}
+                </li>
                 <li>
                   The assistant reads{" "}
                   <span className="mono" style={{ color: "var(--c-ink-panel-text)" }}>global</span>{" "}
