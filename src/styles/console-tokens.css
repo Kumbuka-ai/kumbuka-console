@@ -1088,4 +1088,12 @@ button { font-family: inherit; }
   /* Guarantee band: stack the nowrap tag onto its own row. */
   .guarantee-band { grid-template-columns: auto 1fr; row-gap: 10px; padding: 16px; }
   .guarantee-band .gb-tag { grid-column: 1 / -1; }
+
+  /* Account identity header: stack avatar · details · IdP button so the
+     verified/role badges and the long email stop getting clipped top-right. */
+  .acct-identity { grid-template-columns: 1fr; gap: 16px; padding: 20px 16px; }
+  .acct-identity > div { min-width: 0; }
+  .acct-identity .ai-email { overflow-wrap: anywhere; }
+  .acct-identity .ai-meta { flex-wrap: wrap; }
+  .acct-identity .btn { justify-self: start; }
 }
