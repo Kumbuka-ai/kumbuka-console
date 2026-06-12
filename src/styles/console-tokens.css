@@ -790,7 +790,7 @@ button { font-family: inherit; }
 .conn-field { margin-top: 14px; }
 .conn-field > label { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--c-ink-panel-muted); }
 .conn-field .row { display: flex; align-items: stretch; border: 1px solid var(--c-ink-panel-line); margin-top: 7px; background: rgba(0,0,0,0.18); }
-.conn-field .val { flex: 1; padding: 11px 13px; font-family: var(--font-mono); font-size: 12.5px; color: var(--c-ink-panel-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: .01em; }
+.conn-field .val { flex: 1; min-width: 0; padding: 11px 13px; font-family: var(--font-mono); font-size: 12.5px; color: var(--c-ink-panel-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: .01em; }
 .conn-field .val.mask { letter-spacing: .18em; }
 .conn-nosecret {
   display: block; margin-top: 7px; font-size: 12.5px; line-height: 1.5;
@@ -890,7 +890,7 @@ button { font-family: inherit; }
 .conn-light .cl-row { display: grid; grid-template-columns: 180px 1fr auto; gap: 16px; align-items: center; padding: 15px 18px; border-top: 1px solid var(--c-border-soft); }
 .conn-light .cl-row:first-child { border-top: 0; }
 .conn-light .cl-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--c-muted); }
-.conn-light .cl-val { font-family: var(--font-mono); font-size: 13px; color: var(--c-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.conn-light .cl-val { min-width: 0; font-family: var(--font-mono); font-size: 13px; color: var(--c-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .conn-light .cl-val.mask { letter-spacing: .18em; }
 
 .set-savebar { position: sticky; bottom: 0; display: flex; align-items: center; gap: 14px; padding: 16px 0; margin-top: 8px; border-top: 1px solid var(--c-border); background: var(--c-page); }
@@ -1070,4 +1070,15 @@ button { font-family: inherit; }
 
   /* Connector card padding on the overview start page. */
   .connector .conn-main, .connector .conn-side { padding: 18px 16px; }
+
+  /* Overview activity feed: drop the fixed 150px scope column to a narrow one,
+     let the content shrink, and hide the long author/email so the row never
+     forces a horizontal page scroll. */
+  .feed-item { grid-template-columns: 84px minmax(0, 1fr) auto; gap: 10px; }
+  .feed-content { min-width: 0; }
+  .feed-meta .who { display: none; }
+
+  /* Guarantee band: stack the nowrap tag onto its own row. */
+  .guarantee-band { grid-template-columns: auto 1fr; row-gap: 10px; padding: 16px; }
+  .guarantee-band .gb-tag { grid-column: 1 / -1; }
 }
