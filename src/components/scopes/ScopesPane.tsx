@@ -74,9 +74,14 @@ function ScopeItem({
 export function ScopesPane({
   scopes,
   activeSlug,
+  mobileOpen = false,
+  onClose,
 }: Readonly<{
   scopes: ScopeView[];
   activeSlug: string;
+  /** On narrow viewports the pane is an overlay toggled open by the parent. */
+  mobileOpen?: boolean;
+  onClose?: () => void;
 }>) {
   const [creating, setCreating] = useState(false);
   const [renaming, setRenaming] = useState<ScopeView | null>(null);
@@ -132,9 +137,19 @@ export function ScopesPane({
 
   return (
     <>
-      <aside className="scopes-pane">
+      <aside className={`scopes-pane${mobileOpen ? " mobile-open" : ""}`}>
         <div className="pane-head">
           <span className="eyebrow">{"// "}scopes</span>
+          {onClose ? (
+            <button
+              className="pane-close"
+              onClick={onClose}
+              aria-label="Close scope browser"
+              type="button"
+            >
+              <Icon name="x" />
+            </button>
+          ) : null}
           <button
             className="addscope"
             onClick={() => setCreating(true)}
