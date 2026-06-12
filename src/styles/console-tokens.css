@@ -1027,8 +1027,15 @@ button { font-family: inherit; }
   }
 }
 @media (max-width: 720px) {
-  /* Trim page gutters so wide content stops pushing a horizontal scrollbar. */
+  /* Trim page gutters so wide content stops pushing a horizontal scrollbar, and
+     clip any residual horizontal overflow so the content area can't be swiped
+     sideways on a phone (belt-and-suspenders behind the per-element width fixes). */
   .page-pad { padding: 20px 16px 48px; }
+  .page-scroll { overflow-x: hidden; }
+  /* Grid items default to min-width:auto and refuse to shrink below their
+     content — force them to 0 so the connector card honours the viewport. */
+  .connector, .connector .conn-main, .connector .conn-side { min-width: 0; }
+  .conn-field .row { max-width: 100%; }
 
   /* Topbar: keep title + theme toggle from overlapping. */
   .topbar { padding: 0 14px; gap: 10px; }
