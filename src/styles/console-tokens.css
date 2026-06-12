@@ -792,6 +792,10 @@ button { font-family: inherit; }
 .conn-field .row { display: flex; align-items: stretch; border: 1px solid var(--c-ink-panel-line); margin-top: 7px; background: rgba(0,0,0,0.18); }
 .conn-field .val { flex: 1; padding: 11px 13px; font-family: var(--font-mono); font-size: 12.5px; color: var(--c-ink-panel-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: .01em; }
 .conn-field .val.mask { letter-spacing: .18em; }
+.conn-nosecret {
+  display: block; margin-top: 7px; font-size: 12.5px; line-height: 1.5;
+  color: var(--c-ink-panel-muted); text-wrap: pretty;
+}
 .conn-copy { border: 0; border-left: 1px solid var(--c-ink-panel-line); background: transparent; color: var(--c-ink-panel-muted); width: 42px; display: grid; place-items: center; cursor: pointer; }
 .conn-copy:hover { background: rgba(244,241,234,0.06); color: var(--accent); }
 .conn-copy .ico { width: 15px; height: 15px; }
@@ -1023,12 +1027,47 @@ button { font-family: inherit; }
   }
 }
 @media (max-width: 720px) {
-  .col-author, .col-key { display: none; }
-  .etoolbar { gap: 10px; }
-  .eh-actions .btn span.txt { display: none; }
-  /* Tighten the topbar so the title + theme toggle fit without overlapping. */
+  /* Trim page gutters so wide content stops pushing a horizontal scrollbar. */
+  .page-pad { padding: 20px 16px 48px; }
+
+  /* Topbar: keep title + theme toggle from overlapping. */
   .topbar { padding: 0 14px; gap: 10px; }
   .crumb .crumb-meta { display: none; }
   .topbar .result-count { display: none; }
   .crumb h1 { font-size: 17px; }
+
+  /* Scopes — entries toolbar + table. The type filters become one swipeable
+     row instead of stacking three deep, and the table drops to its essentials
+     (type + content + actions) with a fixed layout so it never overflows. */
+  .entries-head { padding: 14px 16px 0; }
+  .etoolbar { gap: 10px; padding: 12px 16px; }
+  .typefilters {
+    flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    margin: 0 -16px; padding: 2px 16px; scrollbar-width: none;
+  }
+  .typefilters::-webkit-scrollbar { display: none; }
+  .tf { padding: 5px 8px; font-size: 9.5px; }
+  .toolbar-right { width: 100%; margin-left: 0; }
+  .eh-actions .btn span.txt { display: none; }
+  .etable { table-layout: fixed; }
+  .col-author, .col-key, .col-updated { display: none; }
+  .col-type { width: 84px; }
+  .col-actions { width: 34px; }
+  .etable td, .etable thead th { padding: 11px 10px; }
+  .cell-content { max-width: none; overflow-wrap: anywhere; }
+
+  /* Team — toolbar wraps, table sheds Status + Last active (positions 3 & 4),
+     leaving Member · Role · actions. */
+  .team-toolbar { flex-wrap: wrap; gap: 10px; padding: 12px 16px; }
+  .team-toolbar .search { flex: 1; min-width: 160px; }
+  .team-toolbar .spacer { display: none; }
+  .idp-banner { padding: 12px 16px; font-size: 12px; }
+  .utable th:nth-child(3), .utable td:nth-child(3),
+  .utable th:nth-child(4), .utable td:nth-child(4) { display: none; }
+  .utable td, .utable thead th { padding: 12px 12px; }
+  .u-id { gap: 10px; }
+  .u-id .u-email { overflow-wrap: anywhere; }
+
+  /* Connector card padding on the overview start page. */
+  .connector .conn-main, .connector .conn-side { padding: 18px 16px; }
 }
