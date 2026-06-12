@@ -74,7 +74,8 @@ export type ConnectorView = {
   /** Tenant-correct public MCP URL, server-derived (D-CORE-4). Render this. */
   mcpUrl: string;
   clientId: string;
-  clientSecretMasked: string;
+  /** Masked secret for CE confidential connectors; null for SaaS public + PKCE connectors. */
+  clientSecretMasked: string | null;
   idpName: string;
 };
 

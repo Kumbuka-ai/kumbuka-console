@@ -221,8 +221,8 @@ export function SettingsForm({
             <span className="eyebrow">{"// "}connector</span>
             <h3>Connector details</h3>
             <p>
-              The endpoint and credentials AI clients use to reach shared memory. Rotate the secret
-              if it may have leaked.
+              The endpoint and client ID your AI client uses to reach shared memory.
+              {secretMasked ? " Rotate the secret if it may have leaked." : ""}
             </p>
           </div>
           <div className="set-body">
@@ -241,14 +241,21 @@ export function SettingsForm({
                   <Icon name="copy" />
                 </IconButton>
               </div>
-              <div className="cl-row">
-                <span className="cl-label">Client secret</span>
-                <span className="cl-val mask">{secretMasked}</span>
-                <Button variant="danger" size="sm" onClick={() => setConfirmRotate(true)}>
-                  <Icon name="rotate" />
-                  <span className="txt">Rotate</span>
-                </Button>
-              </div>
+              {secretMasked ? (
+                <div className="cl-row">
+                  <span className="cl-label">Client secret</span>
+                  <span className="cl-val mask">{secretMasked}</span>
+                  <Button variant="danger" size="sm" onClick={() => setConfirmRotate(true)}>
+                    <Icon name="rotate" />
+                    <span className="txt">Rotate</span>
+                  </Button>
+                </div>
+              ) : (
+                <div className="cl-row">
+                  <span className="cl-label">Client secret</span>
+                  <span className="cl-val">None — public client (PKCE). Leave the secret field empty in your AI client.</span>
+                </div>
+              )}
             </div>
             <div
               className="idp-banner"
