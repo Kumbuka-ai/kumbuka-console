@@ -76,6 +76,11 @@ export default defineConfig({
         "packages/ui/src/shell/Rail.tsx",
         "packages/ui/src/shell/Topbar.tsx",
         "packages/ui/src/shell/ThemeToggle.tsx",
+        // Two app components that shipped session regressions and were
+        // previously untested: the connector card (confidential-vs-public
+        // secret rendering) and the mobile scope-pane toggle.
+        "src/components/settings/SettingsForm.tsx",
+        "src/components/scopes/ScopeScreen.tsx",
       ],
       exclude: [
         "**/*.test.*",
