@@ -298,7 +298,7 @@ button { font-family: inherit; }
 }
 .pane-close:hover { background: var(--c-hover, rgba(0,0,0,0.05)); color: var(--c-ink); }
 .scopes-pane {
-  border-right: 1px solid var(--c-border); min-height: 0; overflow-y: auto;
+  border-right: 1px solid var(--c-border); min-height: 0; overflow-y: auto; overflow-x: clip;
   display: flex; flex-direction: column; background: var(--c-panel);
 }
 .pane-head {
@@ -442,7 +442,7 @@ button { font-family: inherit; }
 .result-count { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--c-muted); }
 
 /* scroll body */
-.entries-body { flex: 1; min-height: 0; overflow-y: auto; }
+.entries-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: clip; }
 
 /* ---- Type chip (the spec component) ---- */
 .tchip {
@@ -567,7 +567,7 @@ button { font-family: inherit; }
 .sp-head .eyebrow { color: var(--c-accent); }
 .sp-head h3 { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; margin-top: 9px; }
 .sp-head .x { margin-left: auto; }
-.sp-body { padding: 22px 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 20px; }
+.sp-body { padding: 22px 24px; overflow-y: auto; overflow-x: clip; flex: 1; display: flex; flex-direction: column; gap: 20px; }
 .sp-foot {
   padding: 16px 24px; border-top: 1px solid var(--c-border); display: flex; gap: 10px; align-items: center;
 }
@@ -676,7 +676,7 @@ button { font-family: inherit; }
 .team-toolbar .result-count { margin-left: 4px; }
 .team-toolbar .spacer { flex: 1; }
 
-.team-body { flex: 1; min-height: 0; overflow-y: auto; }
+.team-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: clip; }
 .utable { width: 100%; border-collapse: collapse; }
 .utable thead th {
   position: sticky; top: 0; background: var(--c-inset); z-index: 2;
@@ -750,7 +750,13 @@ button { font-family: inherit; }
 /* ============================================================
    Overview / dashboard
    ============================================================ */
-.page-scroll { flex: 1; min-height: 0; overflow-y: auto; }
+/* overflow-x: clip — a box with overflow-y:auto and overflow-x:visible has its
+   x axis *computed to auto* per the CSS overflow spec, turning every vertical
+   scroll area into a latent horizontal scroller. Content wider than the
+   viewport (a long mono string, a fixed-px grid, a wide table) then becomes
+   sideways-swipeable even though .app clips the page edge. `clip` keeps the
+   vertical scroll while making horizontal non-scrollable at every width. */
+.page-scroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: clip; }
 .page-pad { padding: 26px 30px 56px; max-width: 1320px; }
 
 .section-label {
@@ -1033,7 +1039,7 @@ button { font-family: inherit; }
      clip any residual horizontal overflow so the content area can't be swiped
      sideways on a phone (belt-and-suspenders behind the per-element width fixes). */
   .page-pad { padding: 20px 16px 48px; }
-  .page-scroll { overflow-x: hidden; }
+  /* (.page-scroll horizontal clipping is now global — see the base rule.) */
   /* Grid items default to min-width:auto and refuse to shrink below their
      content — force them to 0 so the connector card honours the viewport. */
   .connector, .connector .conn-main, .connector .conn-side { min-width: 0; }

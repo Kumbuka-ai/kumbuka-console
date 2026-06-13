@@ -11,7 +11,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:responsive": "node e2e/responsive-overflow.mjs"
   },
   "dependencies": {
     "next": "15.0.3",
