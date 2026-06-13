@@ -6,6 +6,7 @@
 import { serverFetch } from "./client";
 import { deriveUserView } from "./types";
 import type {
+  ActiveSession,
   ConnectorView,
   CreateEntryRequest,
   CreateScopeRequest,
@@ -28,6 +29,11 @@ import type {
 export const getSession = () => serverFetch<SessionView>("/api/auth/me");
 export const updateMe = (req: UpdateMeRequest) =>
   serverFetch<SessionView>("/api/auth/me", { method: "PATCH", body: req });
+
+// ---------- Active sessions (D-CORE-8) ---------------------------------
+export const listSessions = () => serverFetch<ActiveSession[]>("/api/sessions");
+export const terminateSession = (id: string) =>
+  serverFetch<void>(`/api/sessions/${encodeURIComponent(id)}`, { method: "DELETE" });
 
 // ---------- Scopes -----------------------------------------------------
 export const listScopes = () => serverFetch<ScopeView[]>("/api/scopes");

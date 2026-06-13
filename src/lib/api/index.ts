@@ -38,6 +38,8 @@ export const {
   getConnector,
   rotateConnectorSecret,
   getOverview,
+  listSessions,
+  terminateSession,
 } = impl;
 
 export { ApiAuthError, ApiError } from "./client";

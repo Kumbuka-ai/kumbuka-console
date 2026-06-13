@@ -259,3 +259,22 @@ describe("impl-mock — settings + connector + overview", () => {
     expect(ov.recent.find((r) => r.scopeSlug === s.slug)).toBeUndefined();
   });
 });
+
+describe("impl-mock — active sessions (D-CORE-8)", () => {
+  it("listSessions returns the seeded connections with a 'current' one", async () => {
+    const sessions = await mock.listSessions();
+    expect(sessions.length).toBeGreaterThanOrEqual(1);
+    expect(sessions.some((s) => s.current)).toBe(true);
+    expect(sessions.some((s) => s.clients.some((c) => c.startsWith("kumbuka-connector")))).toBe(true);
+  });
+
+  it("terminateSession removes the row; an unknown id throws (404 parity)", async () => {
+    const before = await mock.listSessions();
+    const target = before.find((s) => !s.current)!;
+    await mock.terminateSession(target.id);
+    const after = await mock.listSessions();
+    expect(after.find((s) => s.id === target.id)).toBeUndefined();
+
+    await expect(mock.terminateSession("no-such-session")).rejects.toThrow(/no session/);
+  });
+});
