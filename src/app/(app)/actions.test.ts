@@ -19,6 +19,7 @@ const { revalidatePathMock, apiMocks, persistThemeMock } = vi.hoisted(() => ({
     updateSettings: vi.fn(),
     rotateConnectorSecret: vi.fn(),
     updateMe: vi.fn(),
+    terminateSession: vi.fn(),
   },
 }));
 
@@ -39,6 +40,7 @@ import {
   renameScopeAction,
   rotateSecretAction,
   setThemeAction,
+  terminateSessionAction,
   updateEntryAction,
   updateMeAction,
   updateSettingsAction,
@@ -162,5 +164,12 @@ describe("Server Actions — delegation + cache invalidation", () => {
     expect(out.displayName).toBe("Patched");
     expect(revalidatePathMock).toHaveBeenCalledWith("/account");
     expect(revalidatePathMock).toHaveBeenCalledWith("/overview");
+  });
+
+  it("terminateSessionAction (D-CORE-8) delegates by id and revalidates /account", async () => {
+    apiMocks.terminateSession.mockResolvedValue(undefined);
+    await terminateSessionAction("sess-connector");
+    expect(apiMocks.terminateSession).toHaveBeenCalledWith("sess-connector");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/account");
   });
 });

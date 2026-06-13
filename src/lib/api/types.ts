@@ -168,6 +168,23 @@ export type SessionView = {
   loginUrl?: string;
 };
 
+/**
+ * D-CORE-8: one of the member's own active Keycloak sessions. Scoped to
+ * `subject == caller` server-side — never another member's. `clients` are
+ * the OAuth clients seen on the session (`kumbuka-admin`,
+ * `kumbuka-connector-<alias>`), shown as a human label. `current` marks the
+ * session backing the active console request.
+ */
+export type ActiveSession = {
+  id: string;
+  ipAddress: string | null;
+  startedAt: string | null;
+  lastAccessAt: string | null;
+  rememberMe: boolean;
+  clients: string[];
+  current: boolean;
+};
+
 // ---------- Requests ----------------------------------------------------
 
 export type CreateScopeRequest = { slug: string; name: string; description?: string };

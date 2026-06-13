@@ -5,6 +5,7 @@
  * impl-live.ts so the swap is the only difference.
  */
 import type {
+  ActiveSession,
   ConnectorView,
   CreateEntryRequest,
   CreateScopeRequest,
@@ -30,6 +31,26 @@ const state = {
   settings: { ...SETTINGS },
   connector: { ...CONNECTOR },
   users: USERS.map((u) => ({ ...u })),
+  sessions: [
+    {
+      id: "sess-console",
+      ipAddress: "192.0.2.10",
+      startedAt: new Date(Date.now() - 36e5).toISOString(),
+      lastAccessAt: new Date(Date.now() - 6e4).toISOString(),
+      rememberMe: false,
+      clients: ["kumbuka-admin"],
+      current: true,
+    },
+    {
+      id: "sess-connector",
+      ipAddress: "198.51.100.4",
+      startedAt: new Date(Date.now() - 3 * 864e5).toISOString(),
+      lastAccessAt: new Date(Date.now() - 12 * 36e5).toISOString(),
+      rememberMe: true,
+      clients: ["kumbuka-connector-acme"],
+      current: false,
+    },
+  ] as ActiveSession[],
 };
 
 const slugify = (s: string) =>
@@ -253,4 +274,17 @@ export async function getOverview(): Promise<OverviewView> {
       status: u.status,
     })),
   };
+}
+
+// ---------- Active sessions (D-CORE-8) ---------------------------------
+export async function listSessions(): Promise<ActiveSession[]> {
+  return state.sessions.map((s) => ({ ...s, clients: [...s.clients] }));
+}
+export async function terminateSession(id: string): Promise<void> {
+  const before = state.sessions.length;
+  state.sessions = state.sessions.filter((s) => s.id !== id);
+  if (state.sessions.length === before) {
+    // Parity with the backend: an unknown / foreign id is a 404, not a no-op.
+    throw new Error(`no session: ${id}`);
+  }
 }

@@ -11,6 +11,7 @@ import {
   renameScope,
   rotateConnectorSecret,
   updateEntry,
+  terminateSession,
   updateMe,
   updateSettings,
   updateUser,
@@ -99,4 +100,12 @@ export async function updateMeAction(req: UpdateMeRequest) {
   revalidatePath("/account");
   revalidatePath("/overview");
   return out;
+}
+
+// D-CORE-8: terminate one of the caller's own sessions. The backend
+// enforces subject == caller and 404s a foreign id; we just revalidate so
+// the account page re-reads the (now shorter) list.
+export async function terminateSessionAction(id: string) {
+  await terminateSession(id);
+  revalidatePath("/account");
 }

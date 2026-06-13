@@ -5,15 +5,20 @@ import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { Avatar, initialsOf } from "@/components/ui/Avatar";
 import { useToast } from "@/components/ui/Toast";
-import { updateMeAction } from "@/app/(app)/actions";
-import type { SessionView } from "@/lib/api/types";
+import { terminateSessionAction, updateMeAction } from "@/app/(app)/actions";
+import { relTime } from "@/lib/time";
+import type { ActiveSession, SessionView } from "@/lib/api/types";
 
 /**
  * Account screen — D2 hybrid. Display name is the only in-app editable
- * field; credentials, MFA, passkey, and active sessions all link out to
- * the Keycloak account console.
+ * field; credentials, MFA, and passkey link out to the Keycloak account
+ * console. Active connections (D-CORE-8) are managed inline — a member can
+ * see and terminate their own sessions without leaving the console.
  */
-export function AccountForm({ session }: Readonly<{ session: SessionView }>) {
+export function AccountForm({
+  session,
+  sessions,
+}: Readonly<{ session: SessionView; sessions: ActiveSession[] | null }>) {
   const initial = session.displayName ?? "";
   const [displayName, setDisplayName] = useState(initial);
   const [savedName, setSavedName] = useState(initial);
@@ -99,14 +104,14 @@ export function AccountForm({ session }: Readonly<{ session: SessionView }>) {
           </div>
         </div>
 
-        {/* Credentials / MFA / Passkey / Sessions — link-outs --------- */}
+        {/* Credentials / MFA / Passkey — link-outs --------------------- */}
         <div className="set-block">
           <div className="set-intro">
             <span className="eyebrow">{"// "}security</span>
             <h3>Sign-in & credentials</h3>
             <p>
-              Password, two-factor authentication, passkeys, and active sessions are managed in the
-              Keycloak account console.
+              Password, two-factor authentication, and passkeys are managed in the Keycloak account
+              console.
             </p>
           </div>
           <div className="set-body">
@@ -129,13 +134,22 @@ export function AccountForm({ session }: Readonly<{ session: SessionView }>) {
                 title="Passkey"
                 sub="Sign in with a hardware key or platform authenticator."
               />
-              <LinkOutMethod
-                href={`${kc}#/security/device-activity`}
-                icon="monitor"
-                title="Active sessions"
-                sub="Devices currently signed in. Revoke any that aren't you."
-              />
             </div>
+          </div>
+        </div>
+
+        {/* Active connections (D-CORE-8) — inline list + terminate ------ */}
+        <div className="set-block">
+          <div className="set-intro">
+            <span className="eyebrow">{"// "}active connections</span>
+            <h3>Where you&apos;re signed in</h3>
+            <p>
+              Every active connection to Kumbuka — this console and any assistant connector. End any
+              you don&apos;t recognise; that session&apos;s access is revoked immediately.
+            </p>
+          </div>
+          <div className="set-body">
+            <ConnectionsBody sessions={sessions} kcUrl={kc} />
           </div>
         </div>
 
@@ -209,5 +223,102 @@ function LinkOutMethod({
         <Icon name="external" />
       </span>
     </a>
+  );
+}
+
+/** Turn the OAuth client ids on a session into a human label + icon. */
+function describeClients(clients: string[]): { icon: "monitor" | "bot" | "link"; label: string } {
+  if (clients.some((c) => c.startsWith("kumbuka-connector"))) {
+    const alias = clients
+      .find((c) => c.startsWith("kumbuka-connector-"))
+      ?.slice("kumbuka-connector-".length);
+    return { icon: "bot", label: alias ? `Assistant connector · ${alias}` : "Assistant connector" };
+  }
+  if (clients.includes("kumbuka-admin")) {
+    return { icon: "monitor", label: "Web console" };
+  }
+  return { icon: "link", label: clients[0] ?? "Session" };
+}
+
+/**
+ * Renders the active-connections body. Early returns keep the three states
+ * (load failure → link-out, empty, list) flat — no nested ternary.
+ */
+function ConnectionsBody({
+  sessions,
+  kcUrl,
+}: Readonly<{ sessions: ActiveSession[] | null; kcUrl: string }>) {
+  if (sessions === null) {
+    return (
+      <div className="field">
+        <span className="hint">
+          Couldn&apos;t load your active connections right now.{" "}
+          <a href={`${kcUrl}#/security/device-activity`} target="_blank" rel="noreferrer">
+            Manage them in the identity provider
+          </a>
+          {"."}
+        </span>
+      </div>
+    );
+  }
+  if (sessions.length === 0) {
+    return (
+      <div className="field">
+        <span className="hint">No other active connections.</span>
+      </div>
+    );
+  }
+  return (
+    <div className="sessions">
+      {sessions.map((s) => (
+        <SessionRow key={s.id} session={s} />
+      ))}
+    </div>
+  );
+}
+
+function SessionRow({ session }: Readonly<{ session: ActiveSession }>) {
+  const [pending, start] = useTransition();
+  const toast = useToast();
+  const { icon, label } = describeClients(session.clients);
+
+  const terminate = () => {
+    if (pending) return;
+    start(async () => {
+      try {
+        await terminateSessionAction(session.id);
+        toast.push({ message: "Connection ended" });
+      } catch (err) {
+        toast.push({ message: err instanceof Error ? err.message : "Couldn't end the connection" });
+      }
+    });
+  };
+
+  return (
+    <div className={`session${session.current ? " cur" : ""}`}>
+      <div className="s-icon">
+        <Icon name={icon} />
+      </div>
+      <div>
+        <div className="s-dev">
+          {label}
+          {session.current ? <span className="s-cur">this device</span> : null}
+        </div>
+        <div className="s-meta">
+          {session.ipAddress ? <span className="mono">{session.ipAddress}</span> : null}
+          {session.ipAddress && session.lastAccessAt ? " · " : null}
+          {session.lastAccessAt ? <span>active {relTime(session.lastAccessAt)}</span> : null}
+        </div>
+      </div>
+      {session.current ? (
+        <span className="s-revoke" aria-disabled="true">
+          use Sign out below
+        </span>
+      ) : (
+        <button type="button" className="s-revoke" onClick={terminate} disabled={pending}>
+          End
+        </button>
+      )}
+    </div>
   );
 }
