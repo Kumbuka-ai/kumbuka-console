@@ -22,13 +22,14 @@ const eid = () => `e-${++_id}`;
 type Seed = ScopeView & { entries: EntryView[] };
 
 export const USERS: UserView[] = [
-  { id: "u-jba", subject: "kc-jba", email: "johannes@kumbuka.ai", displayName: "Johannes Bayer-Albert", role: "admin", status: "active", lastSeenAt: ago(0, 0.05), self: true },
-  { id: "u-priya", subject: "kc-priya", email: "priya@kumbuka.ai", displayName: "Priya Raman", role: "admin", status: "active", lastSeenAt: ago(0, 1) },
-  { id: "u-marek", subject: "kc-marek", email: "marek@kumbuka.ai", displayName: "Marek Kowalski", role: "member", status: "active", lastSeenAt: ago(0, 3) },
-  { id: "u-lena", subject: "kc-lena", email: "lena@kumbuka.ai", displayName: "Lena Vogt", role: "member", status: "active", lastSeenAt: ago(1) },
-  { id: "u-tobi", subject: "kc-tobi", email: "tobias@kumbuka.ai", displayName: "Tobias Frank", role: "member", status: "active", lastSeenAt: ago(2) },
-  { id: "u-sara", subject: "kc-sara", email: "sara@kumbuka.ai", displayName: "Sara Nilsson", role: "member", status: "invited", lastSeenAt: null },
-  { id: "u-old", subject: "kc-david", email: "david@kumbuka.ai", displayName: "David Mertens", role: "member", status: "disabled", lastSeenAt: ago(21) },
+  { id: "u-jba", subject: "kc-jba", email: "johannes@kumbuka.ai", displayName: "Johannes Bayer-Albert", role: "admin", status: "active", lastSeenAt: ago(0, 0.05), self: true, muted: false },
+  { id: "u-priya", subject: "kc-priya", email: "priya@kumbuka.ai", displayName: "Priya Raman", role: "admin", status: "active", lastSeenAt: ago(0, 1), muted: false },
+  { id: "u-marek", subject: "kc-marek", email: "marek@kumbuka.ai", displayName: "Marek Kowalski", role: "member", status: "active", lastSeenAt: ago(0, 3), muted: false },
+  { id: "u-lena", subject: "kc-lena", email: "lena@kumbuka.ai", displayName: "Lena Vogt", role: "member", status: "active", lastSeenAt: ago(1), muted: false },
+  // One muted member so the badge + member-perspective notice render in mock mode (D-CORE-2).
+  { id: "u-tobi", subject: "kc-tobi", email: "tobias@kumbuka.ai", displayName: "Tobias Frank", role: "member", status: "active", lastSeenAt: ago(2), muted: true },
+  { id: "u-sara", subject: "kc-sara", email: "sara@kumbuka.ai", displayName: "Sara Nilsson", role: "member", status: "invited", lastSeenAt: null, muted: false },
+  { id: "u-old", subject: "kc-david", email: "david@kumbuka.ai", displayName: "David Mertens", role: "member", status: "disabled", lastSeenAt: ago(21), muted: false },
 ];
 
 const e = (

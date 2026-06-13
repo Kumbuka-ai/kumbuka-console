@@ -216,6 +216,21 @@ describe("impl-mock — users", () => {
 
     await expect(mock.updateUser("no-id", { role: "member" })).rejects.toThrow(/no user/);
   });
+
+  it("updateUser toggles the muted flag (D-CORE-2), leaving role/status intact", async () => {
+    const u = await mock.inviteUser({ email: "mute@x", role: "member" });
+    expect(u.muted).toBe(false);
+    const muted = await mock.updateUser(u.id, { muted: true });
+    expect(muted.muted).toBe(true);
+    expect(muted.role).toBe("member");
+    const unmuted = await mock.updateUser(u.id, { muted: false });
+    expect(unmuted.muted).toBe(false);
+  });
+
+  it("getSession surfaces the caller's muted flag (D-CORE-2)", async () => {
+    const s = await mock.getSession();
+    expect(typeof s.muted).toBe("boolean");
+  });
 });
 
 describe("impl-mock — settings + connector + overview", () => {

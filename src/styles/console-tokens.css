@@ -409,6 +409,9 @@ button { font-family: inherit; }
 }
 .write-note .ico { width: 14px; height: 14px; color: var(--c-muted); }
 .write-note b { color: var(--c-text-2); font-weight: 500; }
+/* D-CORE-2: the muted member's persistent shared-writes notice — calm, not alarming. */
+.write-note.muted { color: var(--c-text-2); border-left: 2px solid var(--c-border); padding-left: 10px; }
+.write-note.muted .ico { color: var(--c-text-2); }
 
 /* toolbar: search + type filters + layout */
 .etoolbar {
@@ -701,6 +704,13 @@ button { font-family: inherit; }
 .rolebadge.admin { border-color: var(--accent); color: var(--c-text); }
 .rolebadge.admin .dot { background: var(--accent); }
 .rolebadge .dot { width: 7px; height: 7px; border-radius: 3px; background: var(--c-muted); }
+
+/* D-CORE-2 mute badge — muted color, never the accent (which stays reserved). */
+.role-cell { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mute-badge {
+  font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase;
+  padding: 3px 7px; border: 1px solid var(--c-border); color: var(--c-muted);
+}
 
 .ustatus { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--c-text-2); }
 .ustatus .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--type-status); flex: none; }

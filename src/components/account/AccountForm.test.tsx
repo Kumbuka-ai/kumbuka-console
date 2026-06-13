@@ -23,6 +23,7 @@ const SESSION: SessionView = {
   displayName: "Me",
   role: "member",
   accountConsoleUrl: "https://auth.example/realms/kumbuka/account",
+  muted: false,
 };
 
 const SESSIONS: ActiveSession[] = [

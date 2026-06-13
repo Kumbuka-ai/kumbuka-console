@@ -89,6 +89,7 @@ export async function updateUser(id: string, req: UpdateUserRequest): Promise<Us
   const body: Record<string, unknown> = {};
   if (req.role !== undefined) body.role = req.role;
   if (req.status !== undefined) body.enabled = req.status === "active";
+  if (req.muted !== undefined) body.muted = req.muted;   // D-CORE-2
   const raw = await serverFetch<RawUserView>(`/api/users/${encodeURIComponent(id)}`, {
     method: "PATCH",
     body,

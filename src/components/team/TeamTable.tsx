@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition, type MouseEvent } from "react";
+import { useMemo, useState, useTransition, type MouseEvent, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
@@ -19,9 +19,58 @@ import type { UserView } from "@/lib/api/types";
 
 const IDP_NAME = "Keycloak";
 
-function confirmLabelFor(pending: boolean, action: "disable" | "enable"): string {
-  if (pending) return "Working…";
-  return action === "enable" ? "Enable" : "Disable";
+type ConfirmAction = "disable" | "enable" | "mute" | "unmute";
+
+const CONFIRM_LABELS: Record<ConfirmAction, string> = {
+  enable: "Enable",
+  disable: "Disable",
+  mute: "Mute",
+  unmute: "Unmute",
+};
+
+function confirmLabelFor(pending: boolean, action: ConfirmAction): string {
+  return pending ? "Working…" : CONFIRM_LABELS[action];
+}
+
+/** Copy + chrome for the confirm modal, by action. Flat lookup, no nested ternary. */
+export function confirmCopy(
+  action: ConfirmAction,
+  name: string,
+): { eyebrow: string; title: string; body: string; icon: "shield" | "eyeOff"; danger: boolean } {
+  switch (action) {
+    case "enable":
+      return {
+        eyebrow: "enable account",
+        title: `Enable ${name}?`,
+        body: "They regain console and API access immediately. Their private memory was never touched.",
+        icon: "shield",
+        danger: false,
+      };
+    case "disable":
+      return {
+        eyebrow: "disable account",
+        title: `Disable ${name}?`,
+        body: `They lose console and API access immediately. ${IDP_NAME} suspends the account; their private memory is untouched and stays theirs.`,
+        icon: "eyeOff",
+        danger: true,
+      };
+    case "mute":
+      return {
+        eyebrow: "mute member",
+        title: `Mute ${name}?`,
+        body: "Shared writes are suspended — on this console and through the assistant. Reading is unaffected, and their private memory stays fully theirs. Reversible anytime.",
+        icon: "eyeOff",
+        danger: false,
+      };
+    case "unmute":
+      return {
+        eyebrow: "unmute member",
+        title: `Unmute ${name}?`,
+        body: "Shared writes resume immediately — on this console and through the assistant.",
+        icon: "shield",
+        danger: false,
+      };
+  }
 }
 
 export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
@@ -32,7 +81,7 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
   const [inviting, setInviting] = useState(false);
   const [confirm, setConfirm] = useState<{
     user: UserView;
-    action: "disable" | "enable";
+    action: ConfirmAction;
   } | null>(null);
   const [pending, start] = useTransition();
 
@@ -78,6 +127,19 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
           }),
       },
       { kind: "sep" },
+      u.muted
+        ? {
+            label: "Unmute member",
+            icon: "edit",
+            onSelect: () => setConfirm({ user: u, action: "unmute" }),
+          }
+        : {
+            label: "Mute member",
+            icon: "eyeOff",
+            disabled: u.self,   // you can't mute yourself
+            onSelect: () => setConfirm({ user: u, action: "mute" }),
+          },
+      { kind: "sep" },
       u.status === "disabled"
         ? {
             label: "Enable account",
@@ -99,14 +161,37 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
     const { user, action } = confirm;
     start(async () => {
       try {
-        await updateUserAction(user.id, { status: action === "enable" ? "active" : "disabled" });
-        toast.push({ message: `${user.displayName} ${action === "enable" ? "enabled" : "disabled"}` });
+        if (action === "mute" || action === "unmute") {
+          await updateUserAction(user.id, { muted: action === "mute" });
+          toast.push({ message: `${user.displayName} ${action === "mute" ? "muted" : "unmuted"}` });
+        } else {
+          await updateUserAction(user.id, { status: action === "enable" ? "active" : "disabled" });
+          toast.push({ message: `${user.displayName} ${action === "enable" ? "enabled" : "disabled"}` });
+        }
         setConfirm(null);
       } catch (err) {
         toast.push({ message: err instanceof Error ? err.message : "Update failed" });
       }
     });
   };
+
+  let confirmModal: ReactNode = null;
+  if (confirm) {
+    const c = confirmCopy(confirm.action, confirm.user.displayName);
+    confirmModal = (
+      <ConfirmModal
+        eyebrow={c.eyebrow}
+        title={c.title}
+        body={c.body}
+        target={confirm.user.email}
+        confirmLabel={confirmLabelFor(pending, confirm.action)}
+        confirmIcon={c.icon}
+        danger={c.danger}
+        onCancel={() => setConfirm(null)}
+        onConfirm={doConfirm}
+      />
+    );
+  }
 
   return (
     <div className="team-screen">
@@ -184,7 +269,14 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
                     </div>
                   </td>
                   <td>
-                    <RoleBadge role={u.role} />
+                    <span className="role-cell">
+                      <RoleBadge role={u.role} />
+                      {u.muted ? (
+                        <span className="mute-badge mono" title="Shared writes suspended">
+                          muted
+                        </span>
+                      ) : null}
+                    </span>
                   </td>
                   <td>
                     <UserStatus status={u.status} />
@@ -211,27 +303,7 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
       </div>
 
       {inviting ? <InviteDialog onClose={() => setInviting(false)} /> : null}
-      {confirm ? (
-        <ConfirmModal
-          eyebrow={confirm.action === "enable" ? "enable account" : "disable account"}
-          title={
-            confirm.action === "enable"
-              ? `Enable ${confirm.user.displayName}?`
-              : `Disable ${confirm.user.displayName}?`
-          }
-          body={
-            confirm.action === "enable"
-              ? `They regain console and API access immediately. Their private memory was never touched.`
-              : `They lose console and API access immediately. ${IDP_NAME} suspends the account; their private memory is untouched and stays theirs.`
-          }
-          target={confirm.user.email}
-          confirmLabel={confirmLabelFor(pending, confirm.action)}
-          confirmIcon={confirm.action === "enable" ? "shield" : "eyeOff"}
-          danger={confirm.action === "disable"}
-          onCancel={() => setConfirm(null)}
-          onConfirm={doConfirm}
-        />
-      ) : null}
+      {confirmModal}
       {menu.node}
     </div>
   );

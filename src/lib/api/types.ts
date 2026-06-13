@@ -98,6 +98,8 @@ export type MemberSummary = {
   displayName: string;
   role: "admin" | "member";
   status: "active" | "invited" | "disabled";
+  /** D-CORE-2: shared writes suspended while true. */
+  muted: boolean;
 };
 
 export type OverviewView = {
@@ -127,6 +129,8 @@ export type UserView = {
   status: UserStatus;
   lastSeenAt: string | null;
   self?: boolean;
+  /** D-CORE-2: shared writes suspended while true. */
+  muted: boolean;
 };
 
 /** Shape coming straight off the backend's AdminUsersResource. */
@@ -137,6 +141,8 @@ export type RawUserView = {
   lastName: string | null;
   role: UserRole;
   status: UserStatus;
+  /** D-CORE-2; optional for forward-compat — `deriveUserView` defaults it to false. */
+  muted?: boolean;
 };
 
 export function deriveUserView(raw: RawUserView, sessionSubject?: string): UserView {
@@ -153,6 +159,7 @@ export function deriveUserView(raw: RawUserView, sessionSubject?: string): UserV
     status: raw.status,
     lastSeenAt: null,
     self: sessionSubject ? raw.email === sessionSubject : undefined,
+    muted: raw.muted ?? false,
   };
 }
 
@@ -166,6 +173,8 @@ export type SessionView = {
   accountConsoleUrl: string;
   /** Optional convenience — see ADR-0009. */
   loginUrl?: string;
+  /** D-CORE-2: the caller's own mute state — drives the member notice + gating. */
+  muted: boolean;
 };
 
 /**
@@ -198,4 +207,4 @@ export type UpdateSettingsRequest = {
 };
 export type UpdateMeRequest = { displayName?: string };
 export type InviteUserRequest = { email: string; displayName?: string; role: UserRole };
-export type UpdateUserRequest = { role?: UserRole; status?: UserStatus };
+export type UpdateUserRequest = { role?: UserRole; status?: UserStatus; muted?: boolean };
