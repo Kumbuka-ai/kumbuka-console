@@ -1066,7 +1066,11 @@ button { font-family: inherit; }
   .eh-actions .btn span.txt { display: none; }
   .etable { table-layout: fixed; }
   .col-author, .col-key, .col-updated { display: none; }
-  .col-type { width: 84px; }
+  .col-type { width: 92px; }
+  /* The fixed 84px column can't hold the longest label ("OPEN QUESTION"), and a
+     nowrap chip overflowed into the content column. Let the chip wrap inside its
+     cell so it stays contained at any label length. */
+  .col-type .tchip { white-space: normal; line-height: 1.3; }
   .col-actions { width: 34px; }
   .etable td, .etable thead th { padding: 11px 10px; }
   .cell-content { max-width: none; overflow-wrap: anywhere; }
