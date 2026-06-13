@@ -19,6 +19,7 @@ export function ScopeScreen({
   entries,
   members,
   syncError,
+  callerMuted,
 }: Readonly<{
   scopes: ScopeView[];
   activeSlug: string;
@@ -26,6 +27,7 @@ export function ScopeScreen({
   entries: EntryView[];
   members: Record<string, string>;
   syncError?: boolean;
+  callerMuted?: boolean;
 }>) {
   const [paneOpen, setPaneOpen] = useState(false);
   return (
@@ -52,7 +54,13 @@ export function ScopeScreen({
         mobileOpen={paneOpen}
         onClose={() => setPaneOpen(false)}
       />
-      <EntriesView scope={scope} entries={entries} members={members} syncError={syncError} />
+      <EntriesView
+        scope={scope}
+        entries={entries}
+        members={members}
+        syncError={syncError}
+        callerMuted={callerMuted}
+      />
     </div>
   );
 }

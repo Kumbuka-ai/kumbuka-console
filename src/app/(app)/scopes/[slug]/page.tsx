@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { ApiError, listEntries, listScopes, listUsers } from "@/lib/api";
+import { requireSession } from "@/lib/api/session";
 import { ScopeScreen } from "@/components/scopes/ScopeScreen";
 import { Topbar } from "@/components/shell/Topbar";
 import { getTheme } from "@/lib/theme";
@@ -10,7 +11,12 @@ export default async function ScopeBrowserPage({
   params: Promise<{ slug: string }>;
 }>) {
   const { slug } = await params;
-  const [scopes, users, theme] = await Promise.all([listScopes(), listUsers(), getTheme()]);
+  const [scopes, users, theme, session] = await Promise.all([
+    listScopes(),
+    listUsers(),
+    getTheme(),
+    requireSession(),
+  ]);
   const scope = scopes.find((s) => s.slug === slug);
   if (!scope) notFound();
 
@@ -46,6 +52,7 @@ export default async function ScopeBrowserPage({
         entries={entries}
         members={members}
         syncError={syncError}
+        callerMuted={session.muted}
       />
     </>
   );

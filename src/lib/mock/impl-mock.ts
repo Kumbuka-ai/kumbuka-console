@@ -80,6 +80,7 @@ export async function getSession(): Promise<SessionView> {
     displayName: me.displayName,
     role: me.role,
     accountConsoleUrl: "/auth/realms/kumbuka/account",
+    muted: me.muted,
   };
 }
 export async function updateMe(req: UpdateMeRequest): Promise<SessionView> {
@@ -198,6 +199,7 @@ export async function inviteUser(req: InviteUserRequest): Promise<UserView> {
     role: req.role,
     status: "invited",
     lastSeenAt: null,
+    muted: false,
   };
   state.users.push(fresh);
   return fresh;
@@ -207,6 +209,7 @@ export async function updateUser(id: string, req: UpdateUserRequest): Promise<Us
   if (!u) throw new Error(`no user: ${id}`);
   if (req.role !== undefined) u.role = req.role;
   if (req.status !== undefined) u.status = req.status;
+  if (req.muted !== undefined) u.muted = req.muted;   // D-CORE-2
   return { ...u };
 }
 
@@ -272,6 +275,7 @@ export async function getOverview(): Promise<OverviewView> {
       displayName: u.displayName,
       role: u.role,
       status: u.status,
+      muted: u.muted,
     })),
   };
 }

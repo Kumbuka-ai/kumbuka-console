@@ -34,11 +34,13 @@ export function EntriesView({
   entries,
   members,
   syncError,
+  callerMuted,
 }: Readonly<{
   scope: ScopeView;
   entries: EntryView[];
   members: Record<string, string>;
   syncError?: boolean;
+  callerMuted?: boolean;
 }>) {
   const router = useRouter();
   const params = useSearchParams();
@@ -122,9 +124,14 @@ export function EntriesView({
     setParam("types", set.size ? Array.from(set).join(",") : null);
   };
 
+  // D-CORE-2: a muted caller (or an archived scope) makes shared entries
+  // read-only here. The console only ever shows shared scopes, so muted gates
+  // every visible scope; private memory is never shown and never affected.
+  const readOnly = scope.archived || Boolean(callerMuted);
+
   const openRowMenu = (e: MouseEvent, entry: EntryView) =>
     menu.open(e, [
-      { label: "Edit", icon: "edit", onSelect: () => setEditor({ entry }) },
+      { label: "Edit", icon: "edit", disabled: readOnly, onSelect: () => setEditor({ entry }) },
       {
         label: "Copy key",
         icon: "copy",
@@ -139,6 +146,7 @@ export function EntriesView({
         label: "Delete",
         icon: "trash",
         danger: true,
+        disabled: readOnly,
         onSelect: () => setConfirmDel(entry),
       },
     ]);
@@ -181,7 +189,7 @@ export function EntriesView({
             <div className="eh-actions">
               <Button
                 variant="primary"
-                disabled={isArchived}
+                disabled={readOnly}
                 onClick={() => setEditor({ entry: null })}
               >
                 <Icon name="plus" />
@@ -189,19 +197,9 @@ export function EntriesView({
               </Button>
             </div>
           </div>
-          <div className="write-note">
-            <Icon name="edit" />
-            {scope.kind === "global" ? (
-              <span>
-                Default write target for memories the assistant marks <b>org-wide</b>.
-              </span>
-            ) : isArchived ? (
-              <span>Read-only — archived scopes can&apos;t be written to.</span>
-            ) : (
-              <span>
-                Writable by <b>admins</b> and members assigned to this project.
-              </span>
-            )}
+          <div className={`write-note${callerMuted ? " muted" : ""}`}>
+            <Icon name={callerMuted ? "lock" : "edit"} />
+            <WriteNote scope={scope} isArchived={isArchived} callerMuted={Boolean(callerMuted)} />
           </div>
         </div>
 
@@ -279,7 +277,7 @@ export function EntriesView({
             >
               <Button
                 variant="primary"
-                disabled={isArchived}
+                disabled={readOnly}
                 onClick={() => setEditor({ entry: null })}
               >
                 <Icon name="plus" />
@@ -503,5 +501,40 @@ function AuthorCell({
       />
       <span className="a-name">{name}</span>
     </div>
+  );
+}
+
+/**
+ * The write-target note under the scope header. Flat branches (no nested
+ * ternary). When the caller is muted (D-CORE-2) the note states the suspension
+ * plainly and calmly — reading + private memory are unaffected.
+ */
+export function WriteNote({
+  scope,
+  isArchived,
+  callerMuted,
+}: Readonly<{ scope: ScopeView; isArchived: boolean; callerMuted: boolean }>) {
+  if (callerMuted) {
+    return (
+      <span>
+        Shared writes are suspended for your account — reading is unaffected, and your private memory
+        stays yours.
+      </span>
+    );
+  }
+  if (scope.kind === "global") {
+    return (
+      <span>
+        Default write target for memories the assistant marks <b>org-wide</b>.
+      </span>
+    );
+  }
+  if (isArchived) {
+    return <span>Read-only — archived scopes can&apos;t be written to.</span>;
+  }
+  return (
+    <span>
+      Writable by <b>admins</b> and members assigned to this project.
+    </span>
   );
 }
