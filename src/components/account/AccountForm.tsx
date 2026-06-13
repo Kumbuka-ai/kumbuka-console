@@ -149,27 +149,7 @@ export function AccountForm({
             </p>
           </div>
           <div className="set-body">
-            {sessions === null ? (
-              <div className="field">
-                <span className="hint">
-                  Couldn&apos;t load your active connections right now.{" "}
-                  <a href={`${kc}#/security/device-activity`} target="_blank" rel="noreferrer">
-                    Manage them in the identity provider
-                  </a>
-                  .
-                </span>
-              </div>
-            ) : sessions.length === 0 ? (
-              <div className="field">
-                <span className="hint">No other active connections.</span>
-              </div>
-            ) : (
-              <div className="sessions">
-                {sessions.map((s) => (
-                  <SessionRow key={s.id} session={s} />
-                ))}
-              </div>
-            )}
+            <ConnectionsBody sessions={sessions} kcUrl={kc} />
           </div>
         </div>
 
@@ -260,6 +240,43 @@ function describeClients(clients: string[]): { icon: "monitor" | "bot" | "link";
   return { icon: "link", label: clients[0] ?? "Session" };
 }
 
+/**
+ * Renders the active-connections body. Early returns keep the three states
+ * (load failure → link-out, empty, list) flat — no nested ternary.
+ */
+function ConnectionsBody({
+  sessions,
+  kcUrl,
+}: Readonly<{ sessions: ActiveSession[] | null; kcUrl: string }>) {
+  if (sessions === null) {
+    return (
+      <div className="field">
+        <span className="hint">
+          Couldn&apos;t load your active connections right now.{" "}
+          <a href={`${kcUrl}#/security/device-activity`} target="_blank" rel="noreferrer">
+            Manage them in the identity provider
+          </a>
+          {"."}
+        </span>
+      </div>
+    );
+  }
+  if (sessions.length === 0) {
+    return (
+      <div className="field">
+        <span className="hint">No other active connections.</span>
+      </div>
+    );
+  }
+  return (
+    <div className="sessions">
+      {sessions.map((s) => (
+        <SessionRow key={s.id} session={s} />
+      ))}
+    </div>
+  );
+}
+
 function SessionRow({ session }: Readonly<{ session: ActiveSession }>) {
   const [pending, start] = useTransition();
   const toast = useToast();
@@ -278,27 +295,29 @@ function SessionRow({ session }: Readonly<{ session: ActiveSession }>) {
   };
 
   return (
-    <div className="session-row">
-      <div className="sr-icon">
+    <div className={`session${session.current ? " cur" : ""}`}>
+      <div className="s-icon">
         <Icon name={icon} />
       </div>
-      <div className="sr-main">
-        <div className="sr-name">
+      <div>
+        <div className="s-dev">
           {label}
-          {session.current ? <span className="sr-current">this device</span> : null}
+          {session.current ? <span className="s-cur">this device</span> : null}
         </div>
-        <div className="sr-meta">
+        <div className="s-meta">
           {session.ipAddress ? <span className="mono">{session.ipAddress}</span> : null}
+          {session.ipAddress && session.lastAccessAt ? " · " : null}
           {session.lastAccessAt ? <span>active {relTime(session.lastAccessAt)}</span> : null}
         </div>
       </div>
       {session.current ? (
-        <span className="sr-hint">use Sign out below</span>
+        <span className="s-revoke" aria-disabled="true">
+          use Sign out below
+        </span>
       ) : (
-        <Button onClick={terminate} disabled={pending}>
-          <Icon name="logout" />
-          <span className="txt">End</span>
-        </Button>
+        <button type="button" className="s-revoke" onClick={terminate} disabled={pending}>
+          End
+        </button>
       )}
     </div>
   );
