@@ -1089,8 +1089,14 @@ button { font-family: inherit; }
   /* Overview activity feed: drop the fixed 150px scope column to a narrow one,
      let the content shrink, and hide the long author/email so the row never
      forces a horizontal page scroll. */
-  .feed-item { grid-template-columns: 84px minmax(0, 1fr) auto; gap: 10px; }
-  .feed-content { min-width: 0; }
+  /* Stack each activity row into two lines so the nowrap type chip (e.g.
+     "OPEN QUESTION") can't overflow a narrow fixed column and paint over the
+     content. Line 1: scope · type (left, wraps) | time (right). Line 2: the
+     entry key, full width. */
+  .feed-item { grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; row-gap: 6px; align-items: center; }
+  .feed-left { grid-column: 1; grid-row: 1; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
+  .feed-meta { grid-column: 2; grid-row: 1; }
+  .feed-content { grid-column: 1 / -1; grid-row: 2; min-width: 0; }
   .feed-meta .who { display: none; }
 
   /* Guarantee band: stack the nowrap tag onto its own row. */

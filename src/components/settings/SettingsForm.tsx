@@ -305,7 +305,7 @@ export function SettingsForm({
           </Button>
           <Button variant="primary" disabled={!dirty || pending} onClick={save}>
             <Icon name="check" />
-            <span className="txt">Save settings</span>
+            <span className="txt">Save</span>
           </Button>
         </div>
       </div>
