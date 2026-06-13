@@ -109,8 +109,8 @@ jobs:
   # vitest/jsdom cannot catch: horizontal overflow / sideways-swipeable
   # content on narrow viewports. Boots the console in full mock mode (no
   # backend, no Keycloak) and asserts no route × mobile viewport has a
-  # horizontal scroll container. Playwright is installed CI-only
-  # (npm --no-save) so the committed pnpm lockfile stays untouched.
+  # horizontal scroll container. Playwright is installed CI-only via
+  # `pnpm add` (mutates only the in-job lockfile, never committed).
   # ---------------------------------------------------------------------
   responsive:
     name: responsive layout (mobile overflow)
@@ -134,10 +134,10 @@ jobs:
       - name: pnpm build
         run: pnpm build
 
-      - name: install Playwright (CI-only, not added to the lockfile)
+      - name: install Playwright (CI-only; mutates the in-job lockfile, not committed)
         run: |
-          npm install --no-save playwright@1.49.0
-          npx playwright install --with-deps chromium
+          pnpm add -w -D playwright@1.49.0
+          pnpm exec playwright install --with-deps chromium
 
       - name: start console in mock mode
         run: |
