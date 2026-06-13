@@ -51,6 +51,8 @@ export type EntryView = {
   type: EntryType;
   key: string | null;
   content: string;
+  /** D-CORE-7: optional external provenance URL (where this came from); never auto-fetched. */
+  reference: string | null;
   authorSubject: string;
   source: EntrySource;
   createdAt: string;
@@ -170,8 +172,8 @@ export type SessionView = {
 
 export type CreateScopeRequest = { slug: string; name: string; description?: string };
 export type UpdateScopeRequest = { name?: string; description?: string };
-export type CreateEntryRequest = { type: EntryType; key?: string; content: string };
-export type UpdateEntryRequest = { type?: EntryType; content?: string };
+export type CreateEntryRequest = { type: EntryType; key?: string; content: string; reference?: string };
+export type UpdateEntryRequest = { type?: EntryType; content?: string; reference?: string };
 export type UpdateSettingsRequest = {
   writePolicy?: WritePolicy;
   defaultScopeSlug?: string | null;
