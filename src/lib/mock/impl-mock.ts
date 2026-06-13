@@ -129,6 +129,7 @@ export async function createEntry(slug: string, req: CreateEntryRequest): Promis
     type: req.type,
     key: req.key ?? null,
     content: req.content,
+    reference: req.reference?.trim() || null,
     authorSubject: me.subject,
     source: "console",
     createdAt: nowIso(),
@@ -150,6 +151,8 @@ export async function updateEntry(
   if (!entry) throw new Error(`no entry: ${id}`);
   if (req.type !== undefined) entry.type = req.type;
   if (req.content !== undefined) entry.content = req.content;
+  // Parity with the backend: an explicit "" clears, a URL sets, undefined preserves.
+  if (req.reference !== undefined) entry.reference = req.reference.trim() || null;
   entry.updatedAt = nowIso();
   return entry;
 }

@@ -22,6 +22,7 @@ export function EntryEditor({
   const [type, setType] = useState<EntryType>(entry?.type ?? "decision");
   const [key, setKey] = useState(entry?.key ?? "");
   const [content, setContent] = useState(entry?.content ?? "");
+  const [reference, setReference] = useState(entry?.reference ?? "");
   const [pending, start] = useTransition();
   const toast = useToast();
 
@@ -32,10 +33,19 @@ export function EntryEditor({
     start(async () => {
       try {
         if (editing && entry) {
-          await updateEntryAction(scope.slug, entry.id, { type, content: content.trim() });
+          await updateEntryAction(scope.slug, entry.id, {
+            type,
+            content: content.trim(),
+            reference: reference.trim(), // "" clears, a URL sets it
+          });
           toast.push({ message: "Entry updated" });
         } else {
-          await createEntryAction(scope.slug, { type, key: key.trim() || undefined, content: content.trim() });
+          await createEntryAction(scope.slug, {
+            type,
+            key: key.trim() || undefined,
+            content: content.trim(),
+            reference: reference.trim() || undefined,
+          });
           toast.push({ message: `Entry created in ${scope.slug}` });
         }
         onClose();
@@ -109,6 +119,20 @@ export function EntryEditor({
           rows={6}
           placeholder="State it plainly, the way you'd want the assistant to recall it."
           onChange={(e) => setContent(e.target.value)}
+        />
+      </Field>
+
+      <Field
+        label="Reference"
+        hint="Optional link to where this came from. Stored as metadata — never fetched, and no credentials in the URL."
+      >
+        <input
+          className="input mono"
+          type="url"
+          value={reference}
+          spellCheck={false}
+          placeholder="https://…"
+          onChange={(e) => setReference(e.target.value)}
         />
       </Field>
 

@@ -139,6 +139,29 @@ describe("impl-mock — entries", () => {
     await expect(mock.updateEntry(s.slug, "no-id", { content: "y" })).rejects.toThrow(/no entry/);
   });
 
+  it("reference (D-CORE-7) round-trips: create sets it, an empty update clears it", async () => {
+    const s = await mock.createScope({ slug: "e-ref", name: "E-ref" });
+    const created = await mock.createEntry(s.slug, {
+      type: "decision",
+      content: "use OAuth",
+      reference: "https://example.com/adr-7",
+    });
+    expect(created.reference).toBe("https://example.com/adr-7");
+
+    // An explicit "" clears; a missing field preserves.
+    const preserved = await mock.updateEntry(s.slug, created.id, { content: "use OAuth v2" });
+    expect(preserved.reference).toBe("https://example.com/adr-7");
+
+    const cleared = await mock.updateEntry(s.slug, created.id, { reference: "" });
+    expect(cleared.reference).toBeNull();
+  });
+
+  it("createEntry leaves reference null when none is supplied", async () => {
+    const s = await mock.createScope({ slug: "e-noref", name: "E-noref" });
+    const e = await mock.createEntry(s.slug, { type: "decision", content: "x" });
+    expect(e.reference).toBeNull();
+  });
+
   it("deleteEntry removes the entry and updates entryCount/empty", async () => {
     const s = await mock.createScope({ slug: "e4", name: "E4" });
     const a = await mock.createEntry(s.slug, { type: "decision", content: "x" });

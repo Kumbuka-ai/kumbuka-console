@@ -43,6 +43,7 @@ const e = (
   type,
   key,
   content,
+  reference: null,
   authorSubject: author === "agent" ? "kc-agent" : `kc-${author.replace(/^u-/, "")}`,
   source: author === "agent" ? "mcp" : "console",
   createdAt: ago(days + 30, hours),

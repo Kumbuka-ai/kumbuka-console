@@ -386,6 +386,20 @@ export function EntriesView({
                   <div className="ecard-content">{e.content}</div>
                   <div className="ecard-foot">
                     <AuthorCell entry={e} members={memberMap} compact />
+                    {e.reference ? (
+                      <a
+                        className="ref-link mono"
+                        href={e.reference}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        title={e.reference}
+                        onClick={(ev) => ev.stopPropagation()}
+                        style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, color: "var(--c-muted)" }}
+                      >
+                        <Icon name="link" />
+                        <span>reference</span>
+                      </a>
+                    ) : null}
                   </div>
                   <button
                     className="row-menu-btn"
