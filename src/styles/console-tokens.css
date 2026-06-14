@@ -823,6 +823,19 @@ button { font-family: inherit; }
 .conn-side .cs-steps li { display: flex; gap: 11px; padding: 8px 0; font-size: 12.5px; color: var(--c-ink-panel-muted); border-top: 1px solid var(--c-ink-panel-soft); }
 .conn-side .cs-steps li::before { counter-increment: step; content: counter(step); font-family: var(--font-mono); font-size: 10px; color: var(--accent); border: 1px solid var(--c-ink-panel-line); width: 20px; height: 20px; display: grid; place-items: center; flex: none; }
 
+/* assistant project-instructions prompt — pairs with the connector above */
+.assistant-prompt { background: var(--c-ink-panel); color: var(--c-ink-panel-text); border: 1px solid var(--c-ink-panel-line); border-top: 0; margin-top: -30px; margin-bottom: 30px; padding: 24px 26px; }
+.assistant-prompt .ap-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.assistant-prompt .eyebrow { color: var(--accent); }
+.assistant-prompt h3 { font-size: 22px; font-weight: 600; letter-spacing: -0.015em; margin: 11px 0 6px; color: var(--c-ink-panel-text); }
+.assistant-prompt .ap-lead { font-size: 13px; line-height: 1.5; color: var(--c-ink-panel-muted); margin: 0; max-width: 60ch; }
+.assistant-prompt .ap-lead b { color: var(--c-ink-panel-text); font-weight: 600; }
+.ap-copy { flex: none; display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--c-ink-panel-text); background: rgba(244,241,234,0.06); border: 1px solid var(--c-ink-panel-line); padding: 9px 14px; cursor: pointer; }
+.ap-copy:hover { background: var(--accent); color: #0F1620; border-color: var(--accent); }
+.ap-copy .ico { width: 14px; height: 14px; }
+.ap-prompt { margin: 18px 0 0; padding: 16px 18px; background: rgba(0,0,0,0.20); border: 1px solid var(--c-ink-panel-line); overflow-x: auto; }
+.ap-prompt code { font-family: var(--font-mono); font-size: 12px; line-height: 1.6; color: var(--c-ink-panel-text); white-space: pre-wrap; word-break: break-word; }
+
 /* two-col split */
 .ov-split { display: grid; grid-template-columns: 1.45fr 1fr; gap: 30px; align-items: start; }
 
@@ -921,6 +934,8 @@ button { font-family: inherit; }
   .connector { grid-template-columns: 1fr; }
   .connector .vr { display: none; }
   .connector .conn-side { border-top: 1px solid var(--c-ink-panel-line); }
+  .assistant-prompt .ap-head { flex-direction: column; }
+  .ap-copy { align-self: flex-start; }
   .set-block { grid-template-columns: 1fr; gap: 18px; }
 }
 
