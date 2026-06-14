@@ -4,6 +4,7 @@ import { Icon } from "@/components/ui/Icon";
 import { TypeChip } from "@/components/ui/Chip";
 import { Avatar, initialsOf } from "@/components/ui/Avatar";
 import { CopyValue } from "@/components/overview/CopyValue";
+import { AssistantPrompt } from "@/components/overview/AssistantPrompt";
 import { GuaranteeBand } from "@/components/overview/GuaranteeBand";
 import { getConnector, getOverview, listScopes, listUsers } from "@/lib/api";
 import { ENTRY_TYPE_ORDER, type ScopeView } from "@/lib/api/types";
@@ -128,6 +129,8 @@ export default async function OverviewPage() {
               </ol>
             </div>
           </div>
+
+          <AssistantPrompt />
 
           <div className="ov-split">
             <div>
