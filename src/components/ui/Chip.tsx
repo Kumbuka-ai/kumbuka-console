@@ -3,7 +3,8 @@
  * Swatch color comes from the per-type CSS variable (--type-decision, etc.)
  * defined in console-tokens.css for both light and dark themes.
  */
-import { ENTRY_TYPES, type EntryType } from "@/lib/api/types";
+import { useTranslations } from "next-intl";
+import type { EntryType } from "@/lib/api/types";
 
 export function TypeChip({
   type,
@@ -14,14 +15,14 @@ export function TypeChip({
   boxed?: boolean;
   label?: string;
 }>) {
-  const meta = ENTRY_TYPES[type];
+  const t = useTranslations("entryTypes");
   return (
     <span
       className={`tchip${boxed ? " boxed" : ""}`}
       style={{ ["--tc" as unknown as string]: `var(--type-${type})` }}
     >
       <span className="sw" aria-hidden />
-      {label ?? meta.label}
+      {label ?? t(`${type}.label`)}
     </span>
   );
 }

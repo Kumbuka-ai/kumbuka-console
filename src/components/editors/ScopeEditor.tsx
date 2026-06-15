@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { SidePanel, Field } from "./SidePanel";
 import { createScopeAction, renameScopeAction } from "@/app/(app)/actions";
 import { useToast } from "@/components/ui/Toast";
 import type { ScopeView } from "@/lib/api/types";
+
+const richB = (c: ReactNode) => <b>{c}</b>;
 
 const slugify = (s: string) =>
   s
@@ -27,6 +30,8 @@ export function ScopeEditor({
   const [touchedSlug, setTouchedSlug] = useState(editing);
   const [pending, start] = useTransition();
   const toast = useToast();
+  const t = useTranslations("editors.scope");
+  const tCommon = useTranslations("common");
 
   const valid = name.trim().length > 0 && slug.trim().length > 0;
 
@@ -36,41 +41,41 @@ export function ScopeEditor({
       try {
         if (editing && scope) {
           await renameScopeAction(scope.slug, name.trim());
-          toast.push({ message: "Scope renamed" });
+          toast.push({ message: t("renamed") });
         } else {
           await createScopeAction({ slug, name: name.trim() });
-          toast.push({ message: `Scope ${slug} created` });
+          toast.push({ message: t("created", { slug }) });
         }
         onClose();
       } catch (err) {
-        toast.push({ message: err instanceof Error ? err.message : "Save failed" });
+        toast.push({ message: err instanceof Error ? err.message : t("saveFailed") });
       }
     });
   };
 
   return (
     <SidePanel
-      ariaLabel={editing ? "Rename scope" : "New scope"}
-      eyebrow={editing ? "rename scope" : "new project scope"}
-      title={editing ? "Rename scope" : "Create scope"}
+      ariaLabel={editing ? t("renameAria") : t("newAria")}
+      eyebrow={editing ? t("renameEyebrow") : t("newEyebrow")}
+      title={editing ? t("renameTitle") : t("createTitle")}
       width={440}
       onClose={onClose}
       footer={
         <>
           <span className="spacer" />
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose}>{tCommon("cancel")}</Button>
           <Button variant="primary" disabled={!valid || pending} onClick={submit}>
             <Icon name="check" />
-            <span className="txt">{editing ? "Save" : "Create scope"}</span>
+            <span className="txt">{editing ? t("save") : t("create")}</span>
           </Button>
         </>
       }
     >
-      <Field label="Display name" required>
+      <Field label={t("nameLabel")} required>
         <input
           className="input"
           value={name}
-          placeholder="e.g. Billing Platform"
+          placeholder={t("namePlaceholder")}
           onChange={(e) => {
             setName(e.target.value);
             if (!touchedSlug) setSlug(slugify(e.target.value));
@@ -78,16 +83,16 @@ export function ScopeEditor({
         />
       </Field>
       <Field
-        label="Scope id"
+        label={t("idLabel")}
         required
-        hint="Stable, kebab-case. The assistant addresses the scope by this. Immutable after creation."
+        hint={t("idHint")}
       >
         <input
           className="input mono"
           value={slug}
           spellCheck={false}
           disabled={editing}
-          placeholder="billing-platform"
+          placeholder={t("idPlaceholder")}
           onChange={(e) => {
             setTouchedSlug(true);
             setSlug(slugify(e.target.value));
@@ -97,10 +102,7 @@ export function ScopeEditor({
       {editing ? null : (
         <div className="idp-banner" style={{ border: "1px solid var(--c-border)", padding: "13px 15px" }}>
           <Icon name="shield" />
-          <span>
-            New scopes start empty and writable by admins. Adjust who may write in{" "}
-            <b>Settings → write-scope policy</b>.
-          </span>
+          <span>{t.rich("banner", { b: richB })}</span>
         </div>
       )}
     </SidePanel>

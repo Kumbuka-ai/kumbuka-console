@@ -21,14 +21,8 @@ export const ENTRY_TYPE_ORDER = [
 ] as const;
 export type EntryType = (typeof ENTRY_TYPE_ORDER)[number];
 
-export const ENTRY_TYPES: Record<EntryType, { label: string; description: string }> = {
-  decision: { label: "Decision", description: "A choice made and the reasoning that fixed it." },
-  convention: { label: "Convention", description: "How the team does a thing — a recurring pattern." },
-  constraint: { label: "Constraint", description: "A hard rule from outside the team (legal, perf, contract)." },
-  open_question: { label: "Open question", description: "A known unknown, waiting on data or a stakeholder." },
-  glossary: { label: "Glossary", description: "A term whose meaning the team needs to share." },
-  status: { label: "Status", description: "Current state of a thing — short-lived." },
-};
+// Entry-type labels + descriptions are localized — see the `entryTypes`
+// message namespace (resolved via useTranslations in TypeChip / the editors).
 
 export type ScopeView = {
   slug: string;

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition, type MouseEvent } from "react";
+import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { useMenu } from "@/components/ui/Menu";
 import { PrivatePanel } from "./PrivatePanel";
@@ -26,6 +27,7 @@ function ScopeItem({
   active: boolean;
   onOpenMenu?: (e: MouseEvent, s: ScopeView) => void;
 }>) {
+  const t = useTranslations("scopes");
   return (
     <a
       key={scope.slug}
@@ -38,7 +40,7 @@ function ScopeItem({
         <span className="sub">{scope.name}</span>
       </span>
       <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        {scope.fixed ? <span className="scope-flag">fixed</span> : null}
+        {scope.fixed ? <span className="scope-flag">{t("fixed")}</span> : null}
         {scope.syncError ? (
           <span
             className="scope-flag"
@@ -47,7 +49,7 @@ function ScopeItem({
               borderColor: "var(--type-constraint)",
             }}
           >
-            sync
+            {t("sync")}
           </span>
         ) : null}
         <span className="scope-count">{scope.entryCount}</span>
@@ -60,7 +62,7 @@ function ScopeItem({
               e.stopPropagation();
               onOpenMenu(e, scope);
             }}
-            aria-label={`Actions for scope ${scope.slug}`}
+            aria-label={t("rowActionsAria", { slug: scope.slug })}
             type="button"
           >
             <Icon name="more" />
@@ -90,6 +92,7 @@ export function ScopesPane({
   const toast = useToast();
   const router = useRouter();
   const menu = useMenu();
+  const t = useTranslations("scopes");
 
   const projects = scopes.filter((s) => s.kind === "project" && !s.archived);
   const archived = scopes.filter((s) => s.archived);
@@ -97,24 +100,24 @@ export function ScopesPane({
 
   const openMenu = (e: MouseEvent, s: ScopeView) =>
     menu.open(e, [
-      { label: "Rename", icon: "edit", onSelect: () => setRenaming(s) },
+      { label: t("menu.rename"), icon: "edit", onSelect: () => setRenaming(s) },
       {
-        label: "Copy scope id",
+        label: t("menu.copyId"),
         icon: "copy",
         onSelect: async () => {
           await navigator.clipboard?.writeText(s.slug);
-          toast.push({ message: "Scope id copied" });
+          toast.push({ message: t("toast.idCopied") });
         },
       },
       { kind: "sep" },
       s.archived
         ? {
-            label: "Restore",
+            label: t("menu.restore"),
             icon: "rotate",
-            onSelect: () => toast.push({ message: "Restore not implemented in this build" }),
+            onSelect: () => toast.push({ message: t("toast.restoreNyi") }),
           }
         : {
-            label: "Archive",
+            label: t("menu.archive"),
             icon: "archive",
             danger: true,
             onSelect: () => setArchiving(s),
@@ -126,11 +129,11 @@ export function ScopesPane({
     start(async () => {
       try {
         await archiveScopeAction(archiving.slug);
-        toast.push({ message: `Scope ${archiving.slug} archived` });
+        toast.push({ message: t("toast.archived", { slug: archiving.slug }) });
         setArchiving(null);
         router.push("/scopes");
       } catch (err) {
-        toast.push({ message: err instanceof Error ? err.message : "Archive failed" });
+        toast.push({ message: err instanceof Error ? err.message : t("toast.archiveFailed") });
       }
     });
   };
@@ -139,12 +142,12 @@ export function ScopesPane({
     <>
       <aside className={`scopes-pane${mobileOpen ? " mobile-open" : ""}`}>
         <div className="pane-head">
-          <span className="eyebrow">{"// "}scopes</span>
+          <span className="eyebrow">{"// "}{t("paneEyebrow")}</span>
           {onClose ? (
             <button
               className="pane-close"
               onClick={onClose}
-              aria-label="Close scope browser"
+              aria-label={t("closeBrowser")}
               type="button"
             >
               <Icon name="x" />
@@ -153,8 +156,8 @@ export function ScopesPane({
           <button
             className="addscope"
             onClick={() => setCreating(true)}
-            aria-label="New scope"
-            title="New scope"
+            aria-label={t("newScope")}
+            title={t("newScope")}
             type="button"
           >
             <Icon name="plus" />
@@ -172,7 +175,7 @@ export function ScopesPane({
         </div>
 
         <div className="scope-group-label">
-          <span>Project scopes</span>
+          <span>{t("projects")}</span>
           <span>{projects.length}</span>
         </div>
         <div className="scope-list">
@@ -186,7 +189,7 @@ export function ScopesPane({
         {archived.length > 0 ? (
           <>
             <div className="scope-group-label">
-              <span>Archived</span>
+              <span>{t("archived")}</span>
               <span>{archived.length}</span>
             </div>
             <div className="scope-list" style={{ paddingBottom: 24 }}>
@@ -203,11 +206,11 @@ export function ScopesPane({
       {menu.node}
       {archiving ? (
         <ConfirmModal
-          eyebrow="archive scope"
-          title={`Archive ${archiving.slug}?`}
-          body={`The scope and its ${archiving.entryCount} entries become read-only. The assistant stops writing to it. You can restore it later.`}
+          eyebrow={t("archiveConfirm.eyebrow")}
+          title={t("archiveConfirm.title", { slug: archiving.slug })}
+          body={t("archiveConfirm.body", { count: archiving.entryCount })}
           target={archiving.slug}
-          confirmLabel={pending ? "Archiving…" : "Archive"}
+          confirmLabel={pending ? t("archiveConfirm.working") : t("archiveConfirm.confirm")}
           confirmIcon="archive"
           danger
           onCancel={() => setArchiving(null)}

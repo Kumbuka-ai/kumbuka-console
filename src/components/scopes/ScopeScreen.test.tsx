@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+import en from "@/i18n/messages/en.json";
 import { ScopeScreen } from "./ScopeScreen";
 import type { EntryView, ScopeView } from "@/lib/api/types";
 
@@ -34,13 +36,15 @@ const ENTRIES: EntryView[] = [];
 
 function renderScreen() {
   return render(
-    <ScopeScreen
-      scopes={[SCOPE]}
-      activeSlug="global"
-      scope={SCOPE}
-      entries={ENTRIES}
-      members={{}}
-    />,
+    <NextIntlClientProvider locale="en" messages={en}>
+      <ScopeScreen
+        scopes={[SCOPE]}
+        activeSlug="global"
+        scope={SCOPE}
+        entries={ENTRIES}
+        members={{}}
+      />
+    </NextIntlClientProvider>,
   );
 }
 

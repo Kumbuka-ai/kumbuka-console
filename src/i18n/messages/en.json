@@ -44,7 +44,8 @@
   "common": {
     "copy": "Copy",
     "copied": "Copied to clipboard",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "close": "Close"
   },
   "overview": {
     "stat": {
@@ -321,6 +322,152 @@
       "saveFailed": "Save failed",
       "rotated": "Secret rotated — copy the new value",
       "rotateFailed": "Rotate failed"
+    }
+  },
+  "entryTypes": {
+    "decision": { "label": "Decision", "description": "A choice made and the reasoning that fixed it." },
+    "convention": { "label": "Convention", "description": "How the team does a thing — a recurring pattern." },
+    "constraint": { "label": "Constraint", "description": "A hard rule from outside the team (legal, perf, contract)." },
+    "open_question": { "label": "Open question", "description": "A known unknown, waiting on data or a stakeholder." },
+    "glossary": { "label": "Glossary", "description": "A term whose meaning the team needs to share." },
+    "status": { "label": "Status", "description": "Current state of a thing — short-lived." }
+  },
+  "scopes": {
+    "toggle": "Scopes",
+    "browseAria": "Browse scopes",
+    "closeBrowser": "Close scope browser",
+    "paneEyebrow": "scopes",
+    "newScope": "New scope",
+    "projects": "Project scopes",
+    "archived": "Archived",
+    "fixed": "fixed",
+    "sync": "sync",
+    "rowActionsAria": "Actions for scope {slug}",
+    "menu": {
+      "rename": "Rename",
+      "copyId": "Copy scope id",
+      "restore": "Restore",
+      "archive": "Archive"
+    },
+    "entryMenu": {
+      "edit": "Edit",
+      "copyKey": "Copy key",
+      "delete": "Delete"
+    },
+    "toast": {
+      "idCopied": "Scope id copied",
+      "restoreNyi": "Restore not implemented in this build",
+      "archived": "Scope {slug} archived",
+      "archiveFailed": "Archive failed",
+      "keyCopied": "Key copied",
+      "entryDeleted": "Entry deleted",
+      "deleteFailed": "Delete failed"
+    },
+    "archiveConfirm": {
+      "eyebrow": "archive scope",
+      "title": "Archive {slug}?",
+      "body": "The scope and its {count} entries become read-only. The assistant stops writing to it. You can restore it later.",
+      "working": "Archiving…",
+      "confirm": "Archive"
+    },
+    "private": {
+      "title": "Private",
+      "titleAttr": "Private memories are owned by each user and are not accessible from this console.",
+      "tag": "per-user · not shown here",
+      "body": "Every member has a <b>private</b> memory scope. It is owned by them and is never exposed to this console — not to admins, and not through the API surface you manage.",
+      "foot": "guaranteed by design"
+    },
+    "kind": {
+      "globalFixed": "global · fixed",
+      "archived": "archived",
+      "project": "project"
+    },
+    "newEntry": "New entry",
+    "searchPlaceholder": "Search keys & content…",
+    "searchAria": "Search entries",
+    "resultCount": "{count, plural, one {# entry} other {# entries}}",
+    "layout": { "aria": "Layout", "table": "Table", "cards": "Cards" },
+    "density": { "aria": "Density", "comfort": "Comfort", "compact": "Compact" },
+    "th": { "type": "Type", "key": "Key", "content": "Content", "author": "Author", "updated": "Updated", "actionsAria": "Actions" },
+    "entryActionsAria": "Entry actions",
+    "noKey": "no key",
+    "reference": "reference",
+    "viaAssistant": "via assistant",
+    "syncError": {
+      "title": "Couldn't reach this scope",
+      "body": "The backend returned a sync error while loading {slug}. The assistant's last-known copy may be stale.",
+      "code": "503 · upstream_sync_failed · scope/{slug}",
+      "retry": "Retry"
+    },
+    "empty": {
+      "title": "No memories yet",
+      "body": "This scope is empty. Add the first decision, convention, or constraint — or let the assistant write one as the team works.",
+      "newEntry": "New entry"
+    },
+    "noMatch": {
+      "title": "Nothing matches",
+      "body": "No entries in {slug} match your filter. Clear it to see all {count}.",
+      "clear": "Clear filters"
+    },
+    "deleteConfirm": {
+      "eyebrow": "delete entry",
+      "title": "Delete this memory?",
+      "body": "The assistant will immediately stop recalling it.",
+      "working": "Deleting…",
+      "confirm": "Delete"
+    },
+    "writeNote": {
+      "muted": "Shared writes are suspended for your account — reading is unaffected, and your private memory stays yours.",
+      "global": "Default write target for memories the assistant marks <b>org-wide</b>.",
+      "archived": "Read-only — archived scopes can't be written to.",
+      "project": "Writable by <b>admins</b> and members assigned to this project."
+    }
+  },
+  "editors": {
+    "scope": {
+      "renameAria": "Rename scope",
+      "newAria": "New scope",
+      "renameEyebrow": "rename scope",
+      "newEyebrow": "new project scope",
+      "renameTitle": "Rename scope",
+      "createTitle": "Create scope",
+      "save": "Save",
+      "create": "Create scope",
+      "nameLabel": "Display name",
+      "namePlaceholder": "e.g. Billing Platform",
+      "idLabel": "Scope id",
+      "idHint": "Stable, kebab-case. The assistant addresses the scope by this. Immutable after creation.",
+      "idPlaceholder": "billing-platform",
+      "banner": "New scopes start empty and writable by admins. Adjust who may write in <b>Settings → write-scope policy</b>.",
+      "renamed": "Scope renamed",
+      "created": "Scope {slug} created",
+      "saveFailed": "Save failed"
+    },
+    "entry": {
+      "editAria": "Edit entry",
+      "newAria": "New entry",
+      "eyebrowEdit": "{slug} · edit",
+      "eyebrowNew": "{slug} · new entry",
+      "editTitle": "Edit memory",
+      "newTitle": "New memory",
+      "editedAgo": "edited {time}",
+      "saveChanges": "Save changes",
+      "create": "Create entry",
+      "typeLabel": "Type",
+      "keyLabel": "Key",
+      "keyHint": "Optional stable identifier. Lowercase, dot-namespaced — the assistant looks entries up by this.",
+      "keyPlaceholder": "e.g. db.system-of-record",
+      "contentLabel": "Content",
+      "contentPlaceholder": "State it plainly, the way you'd want the assistant to recall it.",
+      "refLabel": "Reference",
+      "refHint": "Optional link to where this came from. Stored as metadata — never fetched, and no credentials in the URL.",
+      "refPlaceholder": "https://…",
+      "scopeLabel": "Scope",
+      "scopeOrg": "organization-wide",
+      "scopeProject": "project",
+      "updated": "Entry updated",
+      "created": "Entry created in {slug}",
+      "saveFailed": "Save failed"
     }
   }
 }
