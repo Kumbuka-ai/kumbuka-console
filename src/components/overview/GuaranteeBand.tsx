@@ -1,23 +1,21 @@
+import { getTranslations } from "next-intl/server";
 import { Icon } from "@/components/ui/Icon";
 
 /** Private-guarantee surface 2 of 5. */
-export function GuaranteeBand() {
+export async function GuaranteeBand() {
+  const t = await getTranslations("overview.guarantee");
   return (
     <div className="guarantee-band">
       <div className="gb-lock">
         <Icon name="lock" />
       </div>
       <div>
-        <h4>Private memory stays private</h4>
-        <p>
-          Every member has a private scope the assistant uses for them alone. It is owned by the
-          member and is never surfaced on this dashboard, in the scope browser, or through the
-          connector above.
-        </p>
+        <h4>{t("title")}</h4>
+        <p>{t("body")}</p>
       </div>
       <span className="gb-tag">
         <Icon name="ok" />
-        guaranteed by design
+        {t("tag")}
       </span>
     </div>
   );

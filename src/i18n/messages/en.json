@@ -40,5 +40,64 @@
     "digest": "digest · {digest}",
     "retry": "Retry",
     "signinAgain": "Sign in again"
+  },
+  "common": {
+    "copy": "Copy",
+    "copied": "Copied to clipboard"
+  },
+  "overview": {
+    "stat": {
+      "shared": "Shared memories",
+      "sharedSub": "<b>+{count}</b> this week",
+      "scopes": "Active scopes",
+      "scopesSub": "1 global · {count} project",
+      "members": "Members",
+      "membersInvited": "{count} invite pending",
+      "membersAllEnrolled": "all enrolled",
+      "lastWrite": "Last write",
+      "noActivity": "no activity"
+    },
+    "connector": {
+      "eyebrow": "connector",
+      "title": "Connect your AI client",
+      "lead": "Paste these into the assistant's MCP configuration. The client reads and writes shared memory through this endpoint, authenticated as the team.",
+      "endpoint": "Endpoint URL",
+      "clientId": "Client ID",
+      "clientSecret": "Client secret",
+      "noSecret": "None — public client (PKCE). Leave the secret field empty.",
+      "reachTitle": "What it can reach",
+      "reachBody": "Only the <b>shared</b> scopes you see here — <code>global</code> and the project scopes. Each member's <b>private</b> memory is never exposed through this connector.",
+      "step1": "Add the endpoint to your client's MCP servers.",
+      "step2Secret": "Authenticate with the client ID and secret.",
+      "step2Public": "Enter the client ID; leave the secret empty (public client, PKCE).",
+      "step3": "The assistant reads <code>global</code> first, then the active project scope."
+    },
+    "recent": {
+      "eyebrow": "recent activity · shared scopes",
+      "open": "Open browser →",
+      "viaAssistant": "via assistant"
+    },
+    "glance": {
+      "eyebrow": "scopes at a glance",
+      "fixed": "fixed"
+    },
+    "teamSection": {
+      "eyebrow": "team",
+      "manage": "Manage →",
+      "summary": "<b>{count} members</b> · {admins} admins",
+      "pendingSuffix": " · {count} pending"
+    },
+    "guarantee": {
+      "title": "Private memory stays private",
+      "body": "Every member has a private scope the assistant uses for them alone. It is owned by the member and is never surfaced on this dashboard, in the scope browser, or through the connector above.",
+      "tag": "guaranteed by design"
+    },
+    "assistant": {
+      "eyebrow": "project instructions",
+      "title": "Prime your assistant",
+      "lead": "Paste this into your Claude or ChatGPT <b>project instructions</b> so the assistant uses kumbuka from the first turn — loading the team's steering knowledge and recording new decisions as you work.",
+      "copied": "Instructions copied to clipboard",
+      "prompt": "You have access to kumbuka — our team's shared memory — through its MCP connector. Treat it as the source of truth for how this team works, and keep it up to date as we work.\n\nAt the start of each session:\n- Call memory_load_context to load the team's steering knowledge (decisions, conventions, constraints, glossary, status) and apply it without being told again.\n\nWhile you work:\n- Before answering about our setup, conventions, or past decisions, call memory_recall to check what is already recorded. Prefer recorded team knowledge over assumptions.\n- When we settle a decision, agree a convention, set a constraint, define a term, or note a status, call memory_remember to save it. Choose the right type (decision, convention, constraint, open_question, glossary, status) and keep each entry to a single clear statement — not a document.\n- If something important is missing or wrong, ask, then offer to remember the corrected answer.\n\nScopes:\n- Shared scopes (global and the project scopes) are visible to the whole team — never put secrets or sensitive personal data there.\n- Your private scope is yours alone; use it for personal working notes."
+    }
   }
 }
