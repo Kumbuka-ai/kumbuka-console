@@ -40,5 +40,64 @@
     "digest": "digest · {digest}",
     "retry": "Erneut versuchen",
     "signinAgain": "Erneut anmelden"
+  },
+  "common": {
+    "copy": "Kopieren",
+    "copied": "In die Zwischenablage kopiert"
+  },
+  "overview": {
+    "stat": {
+      "shared": "Geteilte Einträge",
+      "sharedSub": "<b>+{count}</b> diese Woche",
+      "scopes": "Aktive Scopes",
+      "scopesSub": "1 global · {count} Projekt",
+      "members": "Mitglieder",
+      "membersInvited": "{count} Einladungen offen",
+      "membersAllEnrolled": "alle aufgenommen",
+      "lastWrite": "Letzte Änderung",
+      "noActivity": "keine Aktivität"
+    },
+    "connector": {
+      "eyebrow": "connector",
+      "title": "Verbinde deinen KI-Client",
+      "lead": "Trage diese Werte in die MCP-Konfiguration des Assistenten ein. Der Client liest und schreibt geteiltes Gedächtnis über diesen Endpoint, authentifiziert als das Team.",
+      "endpoint": "Endpoint-URL",
+      "clientId": "Client-ID",
+      "clientSecret": "Client-Secret",
+      "noSecret": "Keins — öffentlicher Client (PKCE). Secret-Feld leer lassen.",
+      "reachTitle": "Worauf er zugreifen kann",
+      "reachBody": "Nur die <b>geteilten</b> Scopes, die du hier siehst — <code>global</code> und die Projekt-Scopes. Das <b>private</b> Gedächtnis jedes Mitglieds wird über diesen Connector nie zugänglich.",
+      "step1": "Füge den Endpoint zu den MCP-Servern deines Clients hinzu.",
+      "step2Secret": "Authentifiziere dich mit Client-ID und Secret.",
+      "step2Public": "Gib die Client-ID ein; lass das Secret leer (öffentlicher Client, PKCE).",
+      "step3": "Der Assistent liest zuerst <code>global</code>, dann den aktiven Projekt-Scope."
+    },
+    "recent": {
+      "eyebrow": "letzte Aktivität · geteilte Scopes",
+      "open": "Browser öffnen →",
+      "viaAssistant": "über Assistent"
+    },
+    "glance": {
+      "eyebrow": "Scopes auf einen Blick",
+      "fixed": "fest"
+    },
+    "teamSection": {
+      "eyebrow": "team",
+      "manage": "Verwalten →",
+      "summary": "<b>{count} Mitglieder</b> · {admins} Admins",
+      "pendingSuffix": " · {count} ausstehend"
+    },
+    "guarantee": {
+      "title": "Privates Gedächtnis bleibt privat",
+      "body": "Jedes Mitglied hat einen privaten Scope, den der Assistent nur für dieses Mitglied nutzt. Er gehört dem Mitglied und wird nie auf diesem Dashboard, im Scope-Browser oder über den Connector oben angezeigt.",
+      "tag": "garantiert per Design"
+    },
+    "assistant": {
+      "eyebrow": "Projekt-Anweisungen",
+      "title": "Bereite deinen Assistenten vor",
+      "lead": "Füge dies in die <b>Projekt-Anweisungen</b> deines Claude- oder ChatGPT-Projekts ein, damit der Assistent kumbuka ab dem ersten Zug nutzt — er lädt das steuernde Wissen des Teams und hält neue Entscheidungen fest, während du arbeitest.",
+      "copied": "Anweisungen in die Zwischenablage kopiert",
+      "prompt": "Du hast über den MCP-Connector Zugriff auf kumbuka — das geteilte Gedächtnis unseres Teams. Behandle es als verbindliche Quelle dafür, wie dieses Team arbeitet, und halte es während der Arbeit aktuell.\n\nZu Beginn jeder Sitzung:\n- Rufe memory_load_context auf, um das steuernde Wissen des Teams zu laden (Entscheidungen, Konventionen, Constraints, Glossar, Status) und wende es an, ohne erneut darauf hingewiesen zu werden.\n\nWährend der Arbeit:\n- Bevor du zu unserem Setup, unseren Konventionen oder früheren Entscheidungen antwortest, rufe memory_recall auf, um zu prüfen, was bereits festgehalten ist. Bevorzuge festgehaltenes Team-Wissen gegenüber Annahmen.\n- Wenn wir eine Entscheidung treffen, eine Konvention vereinbaren, ein Constraint setzen, einen Begriff definieren oder einen Status festhalten, rufe memory_remember auf, um es zu speichern. Wähle den richtigen Typ (decision, convention, constraint, open_question, glossary, status) und halte jeden Eintrag auf eine einzige klare Aussage begrenzt — kein Dokument.\n- Wenn etwas Wichtiges fehlt oder falsch ist, frage nach und biete dann an, die korrigierte Antwort zu speichern.\n\nScopes:\n- Geteilte Scopes (global und die Projekt-Scopes) sind für das ganze Team sichtbar — lege dort niemals Geheimnisse oder sensible personenbezogene Daten ab.\n- Dein privater Scope gehört dir allein; nutze ihn für persönliche Arbeitsnotizen."
+    }
   }
 }
