@@ -49,7 +49,7 @@
   },
   "overview": {
     "stat": {
-      "shared": "Geteilte Einträge",
+      "shared": "Geteilte Erinnerungen",
       "sharedSub": "<b>+{count}</b> diese Woche",
       "scopes": "Aktive Scopes",
       "scopesSub": "1 global · {count} Projekt",
@@ -60,7 +60,7 @@
       "noActivity": "keine Aktivität"
     },
     "connector": {
-      "eyebrow": "connector",
+      "eyebrow": "konnektor",
       "title": "Verbinde deinen KI-Client",
       "lead": "Trage diese Werte in die MCP-Konfiguration des Assistenten ein. Der Client liest und schreibt geteiltes Gedächtnis über diesen Endpoint, authentifiziert als das Team.",
       "endpoint": "Endpoint-URL",
@@ -68,7 +68,7 @@
       "clientSecret": "Client-Secret",
       "noSecret": "Keins — öffentlicher Client (PKCE). Secret-Feld leer lassen.",
       "reachTitle": "Worauf er zugreifen kann",
-      "reachBody": "Nur die <b>geteilten</b> Scopes, die du hier siehst — <code>global</code> und die Projekt-Scopes. Das <b>private</b> Gedächtnis jedes Mitglieds wird über diesen Connector nie zugänglich.",
+      "reachBody": "Nur die <b>geteilten</b> Scopes, die du hier siehst — <code>global</code> und die Projekt-Scopes. Das <b>private</b> Gedächtnis jedes Mitglieds wird über diesen Konnektor nie zugänglich.",
       "step1": "Füge den Endpoint zu den MCP-Servern deines Clients hinzu.",
       "step2Secret": "Authentifiziere dich mit Client-ID und Secret.",
       "step2Public": "Gib die Client-ID ein; lass das Secret leer (öffentlicher Client, PKCE).",
@@ -91,7 +91,7 @@
     },
     "guarantee": {
       "title": "Privates Gedächtnis bleibt privat",
-      "body": "Jedes Mitglied hat einen privaten Scope, den der Assistent nur für dieses Mitglied nutzt. Er gehört dem Mitglied und wird nie auf diesem Dashboard, im Scope-Browser oder über den Connector oben angezeigt.",
+      "body": "Jedes Mitglied hat einen privaten Scope, den der Assistent nur für dieses Mitglied nutzt. Er gehört dem Mitglied und wird nie auf diesem Dashboard, im Scope-Browser oder über den Konnektor oben angezeigt.",
       "tag": "garantiert per Design"
     },
     "assistant": {
@@ -99,7 +99,7 @@
       "title": "Bereite deinen Assistenten vor",
       "lead": "Füge dies in die <b>Projekt-Anweisungen</b> deines Claude- oder ChatGPT-Projekts ein, damit der Assistent kumbuka ab dem ersten Zug nutzt — er lädt das steuernde Wissen des Teams und hält neue Entscheidungen fest, während du arbeitest.",
       "copied": "Anweisungen in die Zwischenablage kopiert",
-      "prompt": "Du hast über den MCP-Connector Zugriff auf kumbuka — das geteilte Gedächtnis unseres Teams. Behandle es als verbindliche Quelle dafür, wie dieses Team arbeitet, und halte es während der Arbeit aktuell.\n\nZu Beginn jeder Sitzung:\n- Rufe memory_load_context auf, um das steuernde Wissen des Teams zu laden (Entscheidungen, Konventionen, Constraints, Glossar, Status) und wende es an, ohne erneut darauf hingewiesen zu werden.\n\nWährend der Arbeit:\n- Bevor du zu unserem Setup, unseren Konventionen oder früheren Entscheidungen antwortest, rufe memory_recall auf, um zu prüfen, was bereits festgehalten ist. Bevorzuge festgehaltenes Team-Wissen gegenüber Annahmen.\n- Wenn wir eine Entscheidung treffen, eine Konvention vereinbaren, ein Constraint setzen, einen Begriff definieren oder einen Status festhalten, rufe memory_remember auf, um es zu speichern. Wähle den richtigen Typ (decision, convention, constraint, open_question, glossary, status) und halte jeden Eintrag auf eine einzige klare Aussage begrenzt — kein Dokument.\n- Wenn etwas Wichtiges fehlt oder falsch ist, frage nach und biete dann an, die korrigierte Antwort zu speichern.\n\nScopes:\n- Geteilte Scopes (global und die Projekt-Scopes) sind für das ganze Team sichtbar — lege dort niemals Geheimnisse oder sensible personenbezogene Daten ab.\n- Dein privater Scope gehört dir allein; nutze ihn für persönliche Arbeitsnotizen."
+      "prompt": "Du hast über den MCP-Konnektor Zugriff auf kumbuka — das geteilte Gedächtnis unseres Teams. Behandle es als verbindliche Quelle dafür, wie dieses Team arbeitet, und halte es während der Arbeit aktuell.\n\nZu Beginn jeder Sitzung:\n- Rufe memory_load_context auf, um das steuernde Wissen des Teams zu laden (Entscheidungen, Konventionen, Vorgaben, Glossar, Status) und wende es an, ohne erneut darauf hingewiesen zu werden.\n\nWährend der Arbeit:\n- Bevor du zu unserem Setup, unseren Konventionen oder früheren Entscheidungen antwortest, rufe memory_recall auf, um zu prüfen, was bereits festgehalten ist. Bevorzuge festgehaltenes Team-Wissen gegenüber Annahmen.\n- Wenn wir eine Entscheidung treffen, eine Konvention vereinbaren, eine Vorgabe setzen, einen Begriff definieren oder einen Status festhalten, rufe memory_remember auf, um es zu speichern. Wähle den richtigen Typ (decision, convention, constraint, open_question, glossary, status) und halte jeden Eintrag auf eine einzige klare Aussage begrenzt — kein Dokument.\n- Wenn etwas Wichtiges fehlt oder falsch ist, frage nach und biete dann an, die korrigierte Antwort zu speichern.\n\nScopes:\n- Geteilte Scopes (global und die Projekt-Scopes) sind für das ganze Team sichtbar — lege dort niemals Geheimnisse oder sensible personenbezogene Daten ab.\n- Dein privater Scope gehört dir allein; nutze ihn für persönliche Arbeitsnotizen."
     }
   },
   "account": {
@@ -130,13 +130,13 @@
     "connections": {
       "eyebrow": "aktive Verbindungen",
       "title": "Wo du angemeldet bist",
-      "desc": "Jede aktive Verbindung zu Kumbuka — diese Konsole und jeder Assistenten-Connector. Beende jede, die du nicht kennst; der Zugriff dieser Sitzung wird sofort widerrufen.",
+      "desc": "Jede aktive Verbindung zu Kumbuka — diese Konsole und jeder Assistenten-Konnektor. Beende jede, die du nicht kennst; der Zugriff dieser Sitzung wird sofort widerrufen.",
       "loadError": "Deine aktiven Verbindungen konnten gerade nicht geladen werden.",
       "manageIdp": "Verwalte sie im Identity-Provider",
       "empty": "Keine weiteren aktiven Verbindungen.",
       "webConsole": "Web-Konsole",
-      "connector": "Assistenten-Connector",
-      "connectorAlias": "Assistenten-Connector · {alias}",
+      "connector": "Assistenten-Konnektor",
+      "connectorAlias": "Assistenten-Konnektor · {alias}",
       "session": "Sitzung",
       "thisDevice": "dieses Gerät",
       "activeAgo": "aktiv {time}",
@@ -150,7 +150,7 @@
       "title": "Nur für dich",
       "desc": "Der Bereich, den der Assistent mit dir nutzt und den niemand sonst erreichen kann.",
       "lockedTitle": "Privates Gedächtnis gehört dir allein",
-      "lockedBody": "Dein privater Scope gehört dir. Er wird in dieser Konsole nie angezeigt — weder dir noch Admins — und ist über den Connector nie erreichbar. Der Assistent liest und schreibt ihn nur in deinem Auftrag, aus deiner authentifizierten Sitzung.",
+      "lockedBody": "Dein privater Scope gehört dir. Er wird in dieser Konsole nie angezeigt — weder dir noch Admins — und ist über den Konnektor nie erreichbar. Der Assistent liest und schreibt ihn nur in deinem Auftrag, aus deiner authentifizierten Sitzung.",
       "enforced": "erzwungen"
     },
     "signout": {
@@ -282,8 +282,8 @@
       "members_desc": "Jedes Mitglied kann einen Projekt-Scope anlegen. Schneller für autonome Teams; erwarte mehr zu kuratierende Scopes."
     },
     "connector": {
-      "eyebrow": "Connector",
-      "title": "Connector-Details",
+      "eyebrow": "Konnektor",
+      "title": "Konnektor-Details",
       "desc": "Der Endpoint und die Client-ID, mit denen dein KI-Client das geteilte Gedächtnis erreicht.",
       "descRotate": " Rotiere das Secret, falls es geleakt sein könnte.",
       "endpoint": "Endpoint",
@@ -300,7 +300,7 @@
       "title": "Privates Gedächtnis",
       "desc": "Die eine Einstellung, die du nicht ändern kannst — und das ist Absicht.",
       "lockedTitle": "Private Scopes sind immer privat",
-      "lockedBody": "Das private Gedächtnis jedes Mitglieds gehört ihm und wird nie Admins, dieser Konsole oder dem Connector zugänglich gemacht. Es gibt keinen Schalter, um das abzuschalten — es wird vom Backend erzwungen, nicht durch Konfiguration.",
+      "lockedBody": "Das private Gedächtnis jedes Mitglieds gehört ihm und wird nie Admins, dieser Konsole oder dem Konnektor zugänglich gemacht. Es gibt keinen Schalter, um das abzuschalten — es wird vom Backend erzwungen, nicht durch Konfiguration.",
       "enforced": "erzwungen"
     },
     "savebar": {
@@ -327,7 +327,7 @@
   "entryTypes": {
     "decision": { "label": "Entscheidung", "description": "Eine getroffene Wahl und die Begründung, die sie festgelegt hat." },
     "convention": { "label": "Konvention", "description": "Wie das Team eine Sache macht — ein wiederkehrendes Muster." },
-    "constraint": { "label": "Constraint", "description": "Eine harte Regel von außerhalb des Teams (rechtlich, Performance, Vertrag)." },
+    "constraint": { "label": "Vorgabe", "description": "Eine harte Regel von außerhalb des Teams (rechtlich, Performance, Vertrag)." },
     "open_question": { "label": "Offene Frage", "description": "Eine bekannte Unbekannte, die auf Daten oder einen Stakeholder wartet." },
     "glossary": { "label": "Glossar", "description": "Ein Begriff, dessen Bedeutung das Team teilen muss." },
     "status": { "label": "Status", "description": "Aktueller Zustand von etwas — kurzlebig." }
@@ -401,7 +401,7 @@
     },
     "empty": {
       "title": "Noch keine Einträge",
-      "body": "Dieser Scope ist leer. Füge die erste Entscheidung, Konvention oder Constraint hinzu — oder lass den Assistenten eine schreiben, während das Team arbeitet.",
+      "body": "Dieser Scope ist leer. Füge die erste Entscheidung, Konvention oder Vorgabe hinzu — oder lass den Assistenten eine schreiben, während das Team arbeitet.",
       "newEntry": "Neuer Eintrag"
     },
     "noMatch": {
