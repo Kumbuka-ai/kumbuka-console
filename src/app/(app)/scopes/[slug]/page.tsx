@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { ApiError, listEntries, listScopes, listUsers } from "@/lib/api";
 import { requireSession } from "@/lib/api/session";
 import { ScopeScreen } from "@/components/scopes/ScopeScreen";
@@ -32,16 +33,17 @@ export default async function ScopeBrowserPage({
 
   const members = Object.fromEntries(users.map((u) => [u.subject, u.displayName]));
   const activeScopes = scopes.filter((s) => !s.archived).length;
+  const t = await getTranslations("header");
 
   return (
     <>
       <Topbar
-        title="Shared memory"
-        meta="scope browser"
+        title={t("scopes_title")}
+        meta={t("scopes_meta")}
         theme={theme}
         trailing={
           <span className="result-count" style={{ marginRight: 4 }}>
-            {activeScopes} active scopes
+            {t("scopes_active", { count: activeScopes })}
           </span>
         }
       />

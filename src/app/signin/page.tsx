@@ -2,6 +2,7 @@
  * /signin — the only public route. Triggers the BFF auth flow via a
  * top-level navigation to GET /api/auth/login (ADR-0009).
  */
+import { getTranslations } from "next-intl/server";
 import { Icon } from "@/components/ui/Icon";
 
 const ALLOWED_PATH = /^\/[A-Za-z0-9_\-/?&=.%]*$/;
@@ -20,6 +21,7 @@ export default async function SignInPage({
   const sp = await searchParams;
   const returnTo = safeReturnTo(sp.return_to);
   const loginHref = `/api/auth/login?return_to=${encodeURIComponent(returnTo)}`;
+  const t = await getTranslations("signin");
   return (
     <main
       style={{
@@ -51,7 +53,7 @@ export default async function SignInPage({
             kumbuka<span style={{ color: "var(--accent)" }}>.ai</span>
           </div>
         </div>
-        <span className="eyebrow">{"// "}memory console</span>
+        <span className="eyebrow">{"// "}{t("brandSub")}</span>
         <h1
           style={{
             fontFamily: "var(--font-display)",
@@ -61,16 +63,15 @@ export default async function SignInPage({
             margin: "var(--s12) 0 var(--s12)",
           }}
         >
-          Sign in to your team
+          {t("title")}
         </h1>
         <p style={{ color: "var(--c-muted)", fontSize: 14, lineHeight: 1.55, margin: 0 }}>
-          Authentication is handled by your identity provider. You&apos;ll be redirected, sign in there,
-          and land back here.
+          {t("lead")}
         </p>
         <div style={{ marginTop: "var(--s24)" }}>
           <a className="btn primary" href={loginHref} style={{ width: "100%", justifyContent: "center" }}>
             <Icon name="key" />
-            <span>Sign in with Keycloak</span>
+            <span>{t("cta")}</span>
           </a>
         </div>
         <div
@@ -85,8 +86,7 @@ export default async function SignInPage({
         >
           <Icon name="lock" />
           <div style={{ fontSize: 12.5, color: "var(--c-muted)", lineHeight: 1.5 }}>
-            Your private memory is never shared and never visible in this console — that&apos;s a
-            guarantee enforced by the backend, not by configuration.
+            {t("guarantee")}
           </div>
         </div>
       </div>

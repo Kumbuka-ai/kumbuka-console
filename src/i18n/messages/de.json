@@ -1,1 +1,44 @@
-{}
+{
+  "nav": {
+    "workspace": "Arbeitsbereich",
+    "overview": "Übersicht",
+    "scopes": "Scopes",
+    "team": "Team",
+    "settings": "Einstellungen",
+    "brandSub": "Gedächtnis-Konsole",
+    "accountTitle": "Kontoeinstellungen",
+    "accountSuffix": "(Konto)",
+    "signedIn": "angemeldet"
+  },
+  "roles": {
+    "admin": "Admin",
+    "member": "Mitglied"
+  },
+  "header": {
+    "overview_title": "Übersicht",
+    "overview_meta": "Dashboard",
+    "settings_title": "Einstellungen",
+    "settings_meta": "Konfiguration",
+    "team_title": "Team & Nutzer",
+    "team_meta": "Verzeichnis",
+    "account_title": "Konto",
+    "account_meta": "deine Einstellungen",
+    "scopes_title": "Geteiltes Gedächtnis",
+    "scopes_meta": "Scope-Browser",
+    "scopes_active": "{count} aktive Scopes"
+  },
+  "signin": {
+    "brandSub": "Gedächtnis-Konsole",
+    "title": "Bei deinem Team anmelden",
+    "lead": "Die Authentifizierung übernimmt dein Identity-Provider. Du wirst weitergeleitet, meldest dich dort an und landest wieder hier.",
+    "cta": "Mit Keycloak anmelden",
+    "guarantee": "Dein privates Gedächtnis wird nie geteilt und ist in dieser Konsole nie sichtbar — eine Garantie, die das Backend erzwingt, nicht die Konfiguration."
+  },
+  "appError": {
+    "title": "Backend vorübergehend nicht erreichbar",
+    "body": "Die Konsole konnte diese Seite nicht laden. Meist ist das nur ein kurzer Aussetzer — kurz warten und erneut versuchen. Bleibt es bestehen, ist das Backend möglicherweise nicht verfügbar.",
+    "digest": "digest · {digest}",
+    "retry": "Erneut versuchen",
+    "signinAgain": "Erneut anmelden"
+  }
+}

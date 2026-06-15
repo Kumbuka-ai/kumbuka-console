@@ -1,1 +1,44 @@
-{}
+{
+  "nav": {
+    "workspace": "Workspace",
+    "overview": "Overview",
+    "scopes": "Scopes",
+    "team": "Team",
+    "settings": "Settings",
+    "brandSub": "memory console",
+    "accountTitle": "Account settings",
+    "accountSuffix": "(account)",
+    "signedIn": "signed in"
+  },
+  "roles": {
+    "admin": "admin",
+    "member": "member"
+  },
+  "header": {
+    "overview_title": "Overview",
+    "overview_meta": "dashboard",
+    "settings_title": "Settings",
+    "settings_meta": "configuration",
+    "team_title": "Team & users",
+    "team_meta": "directory",
+    "account_title": "Account",
+    "account_meta": "your settings",
+    "scopes_title": "Shared memory",
+    "scopes_meta": "scope browser",
+    "scopes_active": "{count} active scopes"
+  },
+  "signin": {
+    "brandSub": "memory console",
+    "title": "Sign in to your team",
+    "lead": "Authentication is handled by your identity provider. You'll be redirected, sign in there, and land back here.",
+    "cta": "Sign in with Keycloak",
+    "guarantee": "Your private memory is never shared and never visible in this console — that's a guarantee enforced by the backend, not by configuration."
+  },
+  "appError": {
+    "title": "Backend temporarily unreachable",
+    "body": "The console couldn't load this page. This is usually a brief hiccup — give it a moment and retry. If it persists, the backend may be down.",
+    "digest": "digest · {digest}",
+    "retry": "Retry",
+    "signinAgain": "Sign in again"
+  }
+}
