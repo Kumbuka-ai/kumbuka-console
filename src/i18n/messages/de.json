@@ -352,7 +352,8 @@
     "entryMenu": {
       "edit": "Bearbeiten",
       "copyKey": "Key kopieren",
-      "delete": "Löschen"
+      "delete": "Löschen",
+      "protectedHint": "Dieser Eintrag ist für die korrekte Nutzung von Kumbuka notwendig und kann nicht gelöscht werden."
     },
     "toast": {
       "idCopied": "Scope-ID kopiert",
