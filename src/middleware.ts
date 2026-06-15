@@ -21,6 +21,10 @@ import { hasSessionCookie, mergeCookies } from "@/lib/auth/sessionCookies";
 
 const BACKEND = process.env.KUMBUKA_BACKEND_URL ?? "http://kumbuka-backend:8080";
 
+// Matches an existing kbk-locale cookie (de|en). When present we never reseed.
+const LOCALE_COOKIE_RE = /(?:^|;\s*)kbk-locale=(?:de|en)(?:;|$)/;
+const LOCALE_MAX_AGE = 60 * 60 * 24 * 365;
+
 export async function middleware(req: NextRequest) {
   const cookie = req.headers.get("cookie");
 
@@ -32,6 +36,11 @@ export async function middleware(req: NextRequest) {
   }
 
   let setCookies: string[] = [];
+  // #49: on a fresh device the browser has no kbk-locale cookie. Adopt the
+  // user's persisted user_account.locale from the /me probe so the console
+  // renders in their chosen language instead of the default — the cookie is
+  // the SSR source of truth (src/lib/locale.ts).
+  let seedLocale: "de" | "en" | null = null;
   try {
     const probe = await fetch(`${BACKEND}/api/auth/me`, {
       headers: {
@@ -43,19 +52,35 @@ export async function middleware(req: NextRequest) {
       cache: "no-store",
     });
     setCookies = probe.headers.getSetCookie();
+    if (!LOCALE_COOKIE_RE.test(cookie)) {
+      try {
+        const me = (await probe.json()) as { locale?: unknown };
+        if (me?.locale === "de" || me?.locale === "en") seedLocale = me.locale;
+      } catch {
+        // /me body unreadable — fall back to the default locale.
+      }
+    }
   } catch {
     // Backend unreachable — let the page's own fetch surface the error.
     return NextResponse.next();
   }
 
-  if (setCookies.length === 0) {
+  if (setCookies.length === 0 && !seedLocale) {
     return NextResponse.next();
   }
 
   const forwarded = new Headers(req.headers);
-  forwarded.set("cookie", mergeCookies(cookie, setCookies));
+  let merged = setCookies.length ? mergeCookies(cookie, setCookies) : cookie;
+  if (seedLocale) merged = `${merged}; kbk-locale=${seedLocale}`;
+  forwarded.set("cookie", merged);
   const res = NextResponse.next({ request: { headers: forwarded } });
   for (const sc of setCookies) res.headers.append("set-cookie", sc);
+  if (seedLocale) {
+    res.headers.append(
+      "set-cookie",
+      `kbk-locale=${seedLocale}; Path=/; Max-Age=${LOCALE_MAX_AGE}; SameSite=Lax`,
+    );
+  }
   return res;
 }
 
