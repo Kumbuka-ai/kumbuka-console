@@ -169,6 +169,7 @@ export function EntriesView({
         // System-seed entries are structurally undeletable (D-CORE-11 DB trigger);
         // grey out the action rather than let it fail server-side.
         disabled: readOnly || isSystemEntry(entry),
+        struck: isSystemEntry(entry),
         title: isSystemEntry(entry) ? t("entryMenu.protectedHint") : undefined,
         onSelect: () => setConfirmDel(entry),
       },
