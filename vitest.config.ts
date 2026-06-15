@@ -83,6 +83,10 @@ export default defineConfig({
         // secret rendering) and the mobile scope-pane toggle.
         "src/components/settings/SettingsForm.tsx",
         "src/components/scopes/ScopeScreen.tsx",
+        // Version footer: small but the only path that surfaces the
+        // running console + backend build to the operator UI.
+        "src/lib/version.ts",
+        "src/components/shell/Footer.tsx",
       ],
       exclude: [
         "**/*.test.*",
