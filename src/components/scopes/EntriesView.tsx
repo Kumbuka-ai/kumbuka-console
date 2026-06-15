@@ -17,6 +17,7 @@ import { deleteEntryAction } from "@/app/(app)/actions";
 import { relTime, absTime } from "@/lib/time";
 import {
   ENTRY_TYPE_ORDER,
+  SYSTEM_SUBJECT,
   type EntryType,
   type EntryView,
   type ScopeView,
@@ -34,7 +35,6 @@ type Sort = { col: SortCol; dir: "asc" | "desc" };
  * (DB trigger) — we surface that in the UI (disabled delete) and render the
  * author as "System" instead of the raw sentinel.
  */
-const SYSTEM_SUBJECT = "__system__";
 const SYSTEM_DISPLAY = "System";
 
 /** True for the protected system-seed entries (cannot be deleted). */

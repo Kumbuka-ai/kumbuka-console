@@ -45,7 +45,8 @@
     "copy": "Copy",
     "copied": "Copied to clipboard",
     "cancel": "Cancel",
-    "close": "Close"
+    "close": "Close",
+    "ok": "OK"
   },
   "overview": {
     "stat": {
