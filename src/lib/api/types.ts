@@ -42,6 +42,13 @@ export type ScopeView = {
 /** `source` = "console" (human via admin UI) or "mcp" (assistant) — see ADR-0008. */
 export type EntrySource = "console" | "mcp";
 
+/**
+ * Server-derived system identity (D-CORE-11). Authors the protected
+ * `how-to-kumbuka` seed mnemonics, which are structurally undeletable and
+ * read-only in the console (rendered as "System").
+ */
+export const SYSTEM_SUBJECT = "__system__";
+
 export type EntryView = {
   id: string;
   type: EntryType;

@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { SidePanel, Field } from "./SidePanel";
-import { ENTRY_TYPE_ORDER, type EntryType, type EntryView, type ScopeView } from "@/lib/api/types";
+import { ENTRY_TYPE_ORDER, SYSTEM_SUBJECT, type EntryType, type EntryView, type ScopeView } from "@/lib/api/types";
 import { createEntryAction, updateEntryAction } from "@/app/(app)/actions";
 import { relTime } from "@/lib/time";
 import { useToast } from "@/components/ui/Toast";
@@ -20,6 +20,9 @@ export function EntryEditor({
   onClose: () => void;
 }>) {
   const editing = !!entry;
+  // Protected D-CORE-11 system-seed entries are read-only: view the content,
+  // can't change type/key/content, no save/cancel — just an OK to close.
+  const locked = editing && entry?.authorSubject === SYSTEM_SUBJECT;
   const [type, setType] = useState<EntryType>(entry?.type ?? "decision");
   const [key, setKey] = useState(entry?.key ?? "");
   const [content, setContent] = useState(entry?.content ?? "");
@@ -66,22 +69,29 @@ export function EntryEditor({
       title={editing ? t("editTitle") : t("newTitle")}
       onClose={onClose}
       footer={
-        <>
-          {editing && entry ? (
-            <span
-              className="mono"
-              style={{ fontSize: 10.5, color: "var(--c-muted)", letterSpacing: ".04em" }}
-            >
-              {t("editedAgo", { time: relTime(entry.updatedAt) })}
-            </span>
-          ) : null}
-          <span className="spacer" />
-          <Button onClick={onClose}>{tCommon("cancel")}</Button>
-          <Button variant="primary" disabled={!canSave} onClick={submit}>
-            <Icon name="check" />
-            <span className="txt">{editing ? t("saveChanges") : t("create")}</span>
-          </Button>
-        </>
+        locked ? (
+          <>
+            <span className="spacer" />
+            <Button variant="primary" onClick={onClose}>{tCommon("ok")}</Button>
+          </>
+        ) : (
+          <>
+            {editing && entry ? (
+              <span
+                className="mono"
+                style={{ fontSize: 10.5, color: "var(--c-muted)", letterSpacing: ".04em" }}
+              >
+                {t("editedAgo", { time: relTime(entry.updatedAt) })}
+              </span>
+            ) : null}
+            <span className="spacer" />
+            <Button onClick={onClose}>{tCommon("cancel")}</Button>
+            <Button variant="primary" disabled={!canSave} onClick={submit}>
+              <Icon name="check" />
+              <span className="txt">{editing ? t("saveChanges") : t("create")}</span>
+            </Button>
+          </>
+        )
       }
     >
       <Field label={t("typeLabel")} required>
@@ -92,6 +102,7 @@ export function EntryEditor({
               type="button"
               className={`type-opt${type === et ? " on" : ""}`}
               style={{ ["--tc" as unknown as string]: `var(--type-${et})` }}
+              disabled={locked}
               onClick={() => setType(et)}
             >
               <span className="sw" />
@@ -118,6 +129,7 @@ export function EntryEditor({
           className="textarea"
           value={content}
           rows={6}
+          readOnly={locked}
           placeholder={t("contentPlaceholder")}
           onChange={(e) => setContent(e.target.value)}
         />
@@ -129,6 +141,7 @@ export function EntryEditor({
           type="url"
           value={reference}
           spellCheck={false}
+          readOnly={locked}
           placeholder={t("refPlaceholder")}
           onChange={(e) => setReference(e.target.value)}
         />
