@@ -25,6 +25,7 @@
  */
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { ErrorState } from "@/components/ui/State";
 
 export default function AppErrorBoundary({
@@ -40,19 +41,21 @@ export default function AppErrorBoundary({
     console.error("(app) error boundary caught:", error);
   }, [error]);
 
+  const t = useTranslations("appError");
+
   return (
     <main className="main">
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
         <ErrorState
-          title="Backend temporarily unreachable"
-          body="The console couldn't load this page. This is usually a brief hiccup — give it a moment and retry. If it persists, the backend may be down."
-          code={error.digest ? `digest · ${error.digest}` : undefined}
+          title={t("title")}
+          body={t("body")}
+          code={error.digest ? t("digest", { digest: error.digest }) : undefined}
         >
           <button type="button" onClick={reset} className="btn">
-            Retry
+            {t("retry")}
           </button>
           <a href="/signin" className="btn ghost">
-            Sign in again
+            {t("signinAgain")}
           </a>
         </ErrorState>
       </div>

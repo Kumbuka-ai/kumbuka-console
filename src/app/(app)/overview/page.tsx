@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Topbar } from "@/components/shell/Topbar";
 import { Icon } from "@/components/ui/Icon";
 import { TypeChip } from "@/components/ui/Chip";
@@ -47,9 +48,11 @@ export default async function OverviewPage() {
   const weekAgo = Date.now() - 7 * 24 * 3_600_000;
   const writesWeek = overview.recent.filter((r) => new Date(r.updatedAt).getTime() >= weekAgo).length;
 
+  const t = await getTranslations("header");
+
   return (
     <>
-      <Topbar title="Overview" meta="dashboard" theme={theme} />
+      <Topbar title={t("overview_title")} meta={t("overview_meta")} theme={theme} />
       <div className="page-scroll">
         <div className="page-pad">
           <div className="stat-strip">

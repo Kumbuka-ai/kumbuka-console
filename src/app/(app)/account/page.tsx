@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Topbar } from "@/components/shell/Topbar";
 import { AccountForm } from "@/components/account/AccountForm";
 import { requireSession } from "@/lib/api/session";
@@ -16,9 +17,10 @@ export default async function AccountPage() {
   } catch {
     sessions = null;
   }
+  const t = await getTranslations("header");
   return (
     <>
-      <Topbar title="Account" meta="your settings" theme={theme} />
+      <Topbar title={t("account_title")} meta={t("account_meta")} theme={theme} />
       <AccountForm session={session} sessions={sessions} />
     </>
   );

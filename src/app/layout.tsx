@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 import "./globals.css";
 import { ToastHost } from "@/components/ui/Toast";
 import { getTheme } from "@/lib/theme";
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const [theme, locale] = await Promise.all([getTheme(), getLocale()]);
+  const [theme, locale, messages] = await Promise.all([getTheme(), getLocale(), getMessages()]);
   return (
     <html lang={locale} data-theme={theme}>
       <head>
@@ -24,7 +25,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         />
       </head>
       <body>
-        <NextIntlClientProvider>
+        <NextIntlClientProvider messages={messages}>
           <ToastHost>{children}</ToastHost>
         </NextIntlClientProvider>
       </body>

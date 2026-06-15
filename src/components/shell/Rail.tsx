@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { Avatar, initialsOf } from "@/components/ui/Avatar";
 import type { ReactNode } from "react";
 import type { ScopeView, SessionView, UserView } from "@/lib/api/types";
 
-const NAV: { id: string; label: string; icon: IconName; href: string }[] = [
-  { id: "overview", label: "Overview", icon: "grid", href: "/overview" },
-  { id: "scopes", label: "Scopes", icon: "layers", href: "/scopes" },
-  { id: "team", label: "Team", icon: "users", href: "/team" },
-  { id: "settings", label: "Settings", icon: "settings", href: "/settings" },
+// `id` doubles as the nav.* message key (overview/scopes/team/settings).
+const NAV: { id: "overview" | "scopes" | "team" | "settings"; icon: IconName; href: string }[] = [
+  { id: "overview", icon: "grid", href: "/overview" },
+  { id: "scopes", icon: "layers", href: "/scopes" },
+  { id: "team", icon: "users", href: "/team" },
+  { id: "settings", icon: "settings", href: "/settings" },
 ];
 
 const ACTIVE_ROUTES: { prefix: string; id: string }[] = [
@@ -34,6 +36,8 @@ export function Rail({
   // Active route is derived client-side from the live pathname. (A server
   // layout cannot read the current path reliably — the old x-invoke-path /
   // x-url headers are no longer set, so the highlight was stuck on Overview.)
+  const t = useTranslations("nav");
+  const tRoles = useTranslations("roles");
   const pathname = usePathname() ?? "";
   const activeId = ACTIVE_ROUTES.find((r) => pathname.startsWith(r.prefix))?.id ?? "overview";
   const totalEntries = scopes.reduce((n, s) => n + s.entryCount, 0);
@@ -49,12 +53,12 @@ export function Rail({
           <div className="brand-name">
             kumbuka<span className="dot">.ai</span>
           </div>
-          <span className="brand-sub">memory console</span>
+          <span className="brand-sub">{t("brandSub")}</span>
         </div>
       </div>
 
       <div className="nav">
-        <div className="nav-label">Workspace</div>
+        <div className="nav-label">{t("workspace")}</div>
         {NAV.map((n) => {
           const active = activeId === n.id;
           let countNode: ReactNode = null;
@@ -68,7 +72,7 @@ export function Rail({
               aria-current={active ? "page" : undefined}
             >
               <Icon name={n.icon} />
-              <span className="txt">{n.label}</span>
+              <span className="txt">{t(n.id)}</span>
               {countNode}
             </Link>
           );
@@ -80,15 +84,15 @@ export function Rail({
           href="/account"
           className={`user-chip${activeId === "account" ? " active" : ""}`}
           aria-current={activeId === "account" ? "page" : undefined}
-          title="Account settings"
+          title={t("accountTitle")}
         >
           <Avatar initials={initials} />
           <div className="u-meta">
             <div className="u-name">
               {firstName}
-              <span className="acct-link">(account)</span>
+              <span className="acct-link">{t("accountSuffix")}</span>
             </div>
-            <div className="u-role">{session.role} · signed in</div>
+            <div className="u-role">{tRoles(session.role)} · {t("signedIn")}</div>
           </div>
           <span className="u-chev">
             <Icon name="chevRight" />
