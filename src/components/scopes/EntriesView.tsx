@@ -506,11 +506,8 @@ function AuthorCell({
 }>) {
   const t = useTranslations("scopes");
   const isAgent = entry.source === "mcp";
-  const name = isAgent
-    ? t("viaAssistant")
-    : isSystemEntry(entry)
-      ? SYSTEM_DISPLAY
-      : members.get(entry.authorSubject) ?? entry.authorSubject;
+  // authorName() already maps the __system__ sentinel → "System" and members → names.
+  const name = isAgent ? t("viaAssistant") : authorName(entry.authorSubject, members);
   return (
     <div className={`cell-author${isAgent ? " agent" : ""}`}>
       <Avatar
