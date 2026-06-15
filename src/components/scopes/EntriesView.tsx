@@ -28,7 +28,22 @@ const richB = (c: ReactNode) => <b>{c}</b>;
 type SortCol = "type" | "key" | "author" | "updated";
 type Sort = { col: SortCol; dir: "asc" | "desc" };
 
+/**
+ * Server-derived system identity (D-CORE-11): the author of the protected
+ * `how-to-kumbuka` seed mnemonics. These rows are structurally undeletable
+ * (DB trigger) — we surface that in the UI (disabled delete) and render the
+ * author as "System" instead of the raw sentinel.
+ */
+const SYSTEM_SUBJECT = "__system__";
+const SYSTEM_DISPLAY = "System";
+
+/** True for the protected system-seed entries (cannot be deleted). */
+function isSystemEntry(entry: { authorSubject: string }) {
+  return entry.authorSubject === SYSTEM_SUBJECT;
+}
+
 function authorName(subject: string, members: Map<string, string>) {
+  if (subject === SYSTEM_SUBJECT) return SYSTEM_DISPLAY;
   return members.get(subject) ?? subject;
 }
 
@@ -151,7 +166,10 @@ export function EntriesView({
         label: t("entryMenu.delete"),
         icon: "trash",
         danger: true,
-        disabled: readOnly,
+        // System-seed entries are structurally undeletable (D-CORE-11 DB trigger);
+        // grey out the action rather than let it fail server-side.
+        disabled: readOnly || isSystemEntry(entry),
+        title: isSystemEntry(entry) ? t("entryMenu.protectedHint") : undefined,
         onSelect: () => setConfirmDel(entry),
       },
     ]);
@@ -488,7 +506,11 @@ function AuthorCell({
 }>) {
   const t = useTranslations("scopes");
   const isAgent = entry.source === "mcp";
-  const name = isAgent ? t("viaAssistant") : members.get(entry.authorSubject) ?? entry.authorSubject;
+  const name = isAgent
+    ? t("viaAssistant")
+    : isSystemEntry(entry)
+      ? SYSTEM_DISPLAY
+      : members.get(entry.authorSubject) ?? entry.authorSubject;
   return (
     <div className={`cell-author${isAgent ? " agent" : ""}`}>
       <Avatar

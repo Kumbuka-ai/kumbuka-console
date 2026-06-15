@@ -16,6 +16,8 @@ export type MenuItem =
       onSelect: () => void;
       disabled?: boolean;
       danger?: boolean;
+      /** Native hover tooltip — e.g. why a disabled item can't be used. */
+      title?: string;
     };
 
 type Anchor = { x: number; y: number; placement?: "below" };
@@ -63,6 +65,8 @@ function Menu({ items, anchor, onClose }: Readonly<{ items: MenuItem[]; anchor: 
             role="menuitem"
             className={it.danger ? "danger" : undefined}
             disabled={it.disabled}
+            title={it.title}
+            aria-label={it.title ? `${it.label} — ${it.title}` : undefined}
             onClick={() => {
               onClose();
               it.onSelect();
