@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Topbar } from "@/components/shell/Topbar";
@@ -49,6 +50,10 @@ export default async function OverviewPage() {
   const writesWeek = overview.recent.filter((r) => new Date(r.updatedAt).getTime() >= weekAgo).length;
 
   const t = await getTranslations("header");
+  const to = await getTranslations("overview");
+  const mono = (c: ReactNode) => (
+    <span className="mono" style={{ color: "var(--c-ink-panel-text)" }}>{c}</span>
+  );
 
   return (
     <>
@@ -57,78 +62,66 @@ export default async function OverviewPage() {
         <div className="page-pad">
           <div className="stat-strip">
             <div className="stat">
-              <div className="s-label"><Icon name="ok" />Shared memories</div>
+              <div className="s-label"><Icon name="ok" />{to("stat.shared")}</div>
               <div className="s-num">{overview.entriesTotal}</div>
-              <div className="s-sub"><b>+{writesWeek}</b> this week</div>
+              <div className="s-sub">{to.rich("stat.sharedSub", { count: writesWeek, b: (c) => <b>{c}</b> })}</div>
             </div>
             <div className="stat">
-              <div className="s-label"><Icon name="layers" />Active scopes</div>
+              <div className="s-label"><Icon name="layers" />{to("stat.scopes")}</div>
               <div className="s-num">
                 {overview.scopesTotal}
                 <span className="unit">/ {overview.scopesTotal + overview.scopesArchived}</span>
               </div>
-              <div className="s-sub">1 global · {Math.max(0, overview.scopesTotal - 1)} project</div>
+              <div className="s-sub">{to("stat.scopesSub", { count: Math.max(0, overview.scopesTotal - 1) })}</div>
             </div>
             <div className="stat">
-              <div className="s-label"><Icon name="users" />Members</div>
+              <div className="s-label"><Icon name="users" />{to("stat.members")}</div>
               <div className="s-num">{users.filter((u) => u.status === "active").length}</div>
-              <div className="s-sub">{invited > 0 ? `${invited} invite pending` : "all enrolled"}</div>
+              <div className="s-sub">{invited > 0 ? to("stat.membersInvited", { count: invited }) : to("stat.membersAllEnrolled")}</div>
             </div>
             <div className="stat">
-              <div className="s-label"><Icon name="edit" />Last write</div>
+              <div className="s-label"><Icon name="edit" />{to("stat.lastWrite")}</div>
               <div className="s-num" style={{ fontSize: 28, paddingTop: 8 }}>
                 {overview.recent[0] ? relTime(overview.recent[0].updatedAt) : "—"}
               </div>
-              <div className="s-sub">{overview.recent[0]?.scopeSlug ?? "no activity"}</div>
+              <div className="s-sub">{overview.recent[0]?.scopeSlug ?? to("stat.noActivity")}</div>
             </div>
           </div>
 
           <div className="connector">
             <div className="conn-main">
-              <span className="eyebrow">{"// "}connector</span>
-              <h3>Connect your AI client</h3>
-              <p className="conn-lead">
-                Paste these into the assistant&apos;s MCP configuration. The client reads and writes
-                shared memory through this endpoint, authenticated as the team.
-              </p>
+              <span className="eyebrow">{"// "}{to("connector.eyebrow")}</span>
+              <h3>{to("connector.title")}</h3>
+              <p className="conn-lead">{to("connector.lead")}</p>
               <div className="conn-field">
-                <label>Endpoint URL</label>
+                <label>{to("connector.endpoint")}</label>
                 <CopyValue value={connector.mcpUrl} />
               </div>
               <div className="conn-field">
-                <label>Client ID</label>
+                <label>{to("connector.clientId")}</label>
                 <CopyValue value={connector.clientId} />
               </div>
               <div className="conn-field">
-                <label>Client secret</label>
+                <label>{to("connector.clientSecret")}</label>
                 {connector.clientSecretMasked ? (
                   <CopyValue value={connector.clientSecretMasked} masked />
                 ) : (
-                  <span className="conn-nosecret">None — public client (PKCE). Leave the secret field empty.</span>
+                  <span className="conn-nosecret">{to("connector.noSecret")}</span>
                 )}
               </div>
             </div>
             <div className="vr" />
             <div className="conn-side">
-              <div className="cs-title"><Icon name="ok" />What it can reach</div>
-              <p>
-                Only the <b>shared</b> scopes you see here —{" "}
-                <span className="mono" style={{ color: "var(--c-ink-panel-text)" }}>global</span> and
-                the project scopes. Each member&apos;s <b>private</b> memory is never exposed
-                through this connector.
-              </p>
+              <div className="cs-title"><Icon name="ok" />{to("connector.reachTitle")}</div>
+              <p>{to.rich("connector.reachBody", { b: (c) => <b>{c}</b>, code: mono })}</p>
               <ol className="cs-steps">
-                <li>Add the endpoint to your client&apos;s MCP servers.</li>
+                <li>{to("connector.step1")}</li>
                 <li>
                   {connector.clientSecretMasked
-                    ? "Authenticate with the client ID and secret."
-                    : "Enter the client ID; leave the secret empty (public client, PKCE)."}
+                    ? to("connector.step2Secret")
+                    : to("connector.step2Public")}
                 </li>
-                <li>
-                  The assistant reads{" "}
-                  <span className="mono" style={{ color: "var(--c-ink-panel-text)" }}>global</span>{" "}
-                  first, then the active project scope.
-                </li>
+                <li>{to.rich("connector.step3", { code: mono })}</li>
               </ol>
             </div>
           </div>
@@ -138,9 +131,9 @@ export default async function OverviewPage() {
           <div className="ov-split">
             <div>
               <div className="section-label">
-                <span className="eyebrow">{"// "}recent activity · shared scopes</span>
+                <span className="eyebrow">{"// "}{to("recent.eyebrow")}</span>
                 <span className="ln" />
-                <Link className="more" href="/scopes">Open browser →</Link>
+                <Link className="more" href="/scopes">{to("recent.open")}</Link>
               </div>
               <div className="feed">
                 {overview.recent.map((e) => (
@@ -166,7 +159,7 @@ export default async function OverviewPage() {
                           initials={initialsOf(memberMap.get(e.authorSubject))}
                         />
                         {e.source === "mcp"
-                          ? "via assistant"
+                          ? to("recent.viaAssistant")
                           : memberMap.get(e.authorSubject) ?? e.authorSubject}
                       </span>
                     </div>
@@ -177,7 +170,7 @@ export default async function OverviewPage() {
 
             <div>
               <div className="section-label">
-                <span className="eyebrow">{"// "}scopes at a glance</span>
+                <span className="eyebrow">{"// "}{to("glance.eyebrow")}</span>
                 <span className="ln" />
               </div>
               <div className="mini">
@@ -193,7 +186,7 @@ export default async function OverviewPage() {
                       <div className="mini-name">
                         <Icon name={s.kind === "global" ? "globe" : "folder"} />
                         <span className="nm">{s.slug}</span>
-                        {s.fixed ? <span className="scope-flag">fixed</span> : null}
+                        {s.fixed ? <span className="scope-flag">{to("glance.fixed")}</span> : null}
                       </div>
                       <div className="mini-count">{s.entryCount}</div>
                       <MiniBar scope={s} byType={byType} />
@@ -203,9 +196,9 @@ export default async function OverviewPage() {
               </div>
 
               <div className="section-label" style={{ marginTop: 28 }}>
-                <span className="eyebrow">{"// "}team</span>
+                <span className="eyebrow">{"// "}{to("teamSection.eyebrow")}</span>
                 <span className="ln" />
-                <Link className="more" href="/team">Manage →</Link>
+                <Link className="more" href="/team">{to("teamSection.manage")}</Link>
               </div>
               <div className="mem-summary">
                 <div className="mem-avs">
@@ -214,8 +207,8 @@ export default async function OverviewPage() {
                   ))}
                 </div>
                 <div className="mem-txt">
-                  <b>{users.length} members</b> · {admins} admins
-                  {invited > 0 ? ` · ${invited} pending` : ""}
+                  {to.rich("teamSection.summary", { count: users.length, admins, b: (c) => <b>{c}</b> })}
+                  {invited > 0 ? to("teamSection.pendingSuffix", { count: invited }) : ""}
                 </div>
               </div>
             </div>

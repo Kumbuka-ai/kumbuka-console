@@ -1,5 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+import en from "@/i18n/messages/en.json";
 import { ToastHost } from "@/components/ui/Toast";
 import { AssistantPrompt } from "./AssistantPrompt";
 
@@ -12,9 +14,11 @@ beforeEach(() => {
 
 function renderPrompt() {
   return render(
-    <ToastHost>
-      <AssistantPrompt />
-    </ToastHost>,
+    <NextIntlClientProvider locale="en" messages={en}>
+      <ToastHost>
+        <AssistantPrompt />
+      </ToastHost>
+    </NextIntlClientProvider>,
   );
 }
 
