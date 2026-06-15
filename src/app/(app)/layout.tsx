@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import { Rail } from "@/components/shell/Rail";
+import { Footer } from "@/components/shell/Footer";
 import { listScopes, listUsers } from "@/lib/api";
 import { requireSession } from "@/lib/api/session";
+import { fetchBackendVersion } from "@/lib/version";
 
 /**
  * Authenticated layout. Pulls the session (redirects to /signin on 401)
@@ -26,12 +28,21 @@ import { requireSession } from "@/lib/api/session";
  */
 export default async function AppLayout({ children }: Readonly<{ children: ReactNode }>) {
   const session = await requireSession();
-  const [scopes, users] = await Promise.all([listScopes(), listUsers()]);
+  // backendVersion runs alongside the data fetches — it's @PermitAll on
+  // the server and silently null-on-error, so it never blocks the layout.
+  const [scopes, users, backendVersion] = await Promise.all([
+    listScopes(),
+    listUsers(),
+    fetchBackendVersion(),
+  ]);
 
   return (
     <div className="app">
       <Rail session={session} scopes={scopes} users={users} />
-      <main className="main">{children}</main>
+      <main className="main">
+        {children}
+        <Footer backend={backendVersion} />
+      </main>
     </div>
   );
 }

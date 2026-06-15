@@ -223,6 +223,25 @@ button { font-family: inherit; }
    ============================================================ */
 .main { min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--c-page); }
 
+/* App-level version footer (kumbuka-console + kumbuka-server). Discreet
+   diagnostic affordance — never competes with content for attention. */
+.app-footer {
+  flex: 0 0 auto;
+  padding: 8px 22px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 11px;
+  color: var(--c-text-muted, #8a8c8e);
+  border-top: 1px solid var(--c-rail-line);
+  background: var(--c-page);
+}
+.app-footer code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: inherit;
+  color: var(--c-text, currentColor);
+}
+
 .topbar {
   display: flex; align-items: center; gap: 18px;
   padding: 0 26px; height: 60px; flex: none;
