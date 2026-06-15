@@ -18,6 +18,8 @@ export type MenuItem =
       danger?: boolean;
       /** Native hover tooltip — e.g. why a disabled item can't be used. */
       title?: string;
+      /** Strike through the label — signals an action that's structurally not allowed. */
+      struck?: boolean;
     };
 
 type Anchor = { x: number; y: number; placement?: "below" };
@@ -73,7 +75,7 @@ function Menu({ items, anchor, onClose }: Readonly<{ items: MenuItem[]; anchor: 
             }}
           >
             {it.icon ? <Icon name={it.icon} /> : null}
-            {it.label}
+            {it.struck ? <s>{it.label}</s> : it.label}
           </button>
         );
       })}
