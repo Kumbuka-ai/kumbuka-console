@@ -43,7 +43,8 @@
   },
   "common": {
     "copy": "Kopieren",
-    "copied": "In die Zwischenablage kopiert"
+    "copied": "In die Zwischenablage kopiert",
+    "cancel": "Abbrechen"
   },
   "overview": {
     "stat": {
@@ -250,6 +251,76 @@
       "memberHint": "Mitglieder lesen und schreiben geteilte Scopes gemäß der Schreib-Scope-Richtlinie.",
       "sent": "Einladung über Keycloak gesendet",
       "failed": "Einladung fehlgeschlagen"
+    }
+  },
+  "settings": {
+    "policy": {
+      "eyebrow": "Richtlinie",
+      "title": "Standard-Schreib-Scope",
+      "desc": "Wohin der Assistent einen neuen Eintrag schreibt, wenn ihm kein Scope genannt wird.",
+      "groupAria": "Standard-Schreib-Scope",
+      "tagRecommended": "empfohlen",
+      "tagBroad": "weit",
+      "ask_title": "Jedes Mal fragen",
+      "ask_desc": "Der Assistent schlägt einen Scope vor und das Mitglied bestätigt, bevor etwas geschrieben wird. Sicherster Standard für gemischte Teams.",
+      "project_title": "Aktiver Projekt-Scope",
+      "project_desc": "Schreibvorgänge landen in dem Projekt, in dem das Mitglied gerade arbeitet. Organisationsweite Fakten müssen manuell hochgestuft werden.",
+      "global_title": "Organisationsweit",
+      "global_desc": "Alles landet standardmäßig im globalen Scope. Einfach, aber die gemeinsame Basis wächst schnell — regelmäßig prüfen.",
+      "fallbackLabel": "Fallback-Scope, wenn kein Projekt aktiv ist",
+      "fallbackGlobal": "global — organisationsweit"
+    },
+    "create": {
+      "eyebrow": "Berechtigungen",
+      "title": "Wer Scopes anlegen darf",
+      "desc": "Projekt-Scopes teilen das geteilte Gedächtnis in Räume. Der <code>global</code>-Scope ist fest und kann nicht angelegt oder entfernt werden.",
+      "groupAria": "Scope-Erstellung",
+      "admins_title": "Nur Admins",
+      "admins_desc": "Nur Admins legen Projekt-Scopes an, benennen sie um und archivieren sie. Mitglieder lesen und schreiben darin.",
+      "members_title": "Admins & Mitglieder",
+      "members_desc": "Jedes Mitglied kann einen Projekt-Scope anlegen. Schneller für autonome Teams; erwarte mehr zu kuratierende Scopes."
+    },
+    "connector": {
+      "eyebrow": "Connector",
+      "title": "Connector-Details",
+      "desc": "Der Endpoint und die Client-ID, mit denen dein KI-Client das geteilte Gedächtnis erreicht.",
+      "descRotate": " Rotiere das Secret, falls es geleakt sein könnte.",
+      "endpoint": "Endpoint",
+      "copyEndpoint": "Endpoint kopieren",
+      "clientId": "Client-ID",
+      "copyClientId": "Client-ID kopieren",
+      "clientSecret": "Client-Secret",
+      "rotate": "Rotieren",
+      "noSecret": "Keins — öffentlicher Client (PKCE). Lass das Secret-Feld in deinem KI-Client leer.",
+      "idpBanner": "Die Identität wird an <idp>Keycloak</idp> delegiert. Mitglieder-Konten und Passwörter werden unter <b>Team</b> verwaltet, nicht hier."
+    },
+    "private": {
+      "eyebrow": "Garantie",
+      "title": "Privates Gedächtnis",
+      "desc": "Die eine Einstellung, die du nicht ändern kannst — und das ist Absicht.",
+      "lockedTitle": "Private Scopes sind immer privat",
+      "lockedBody": "Das private Gedächtnis jedes Mitglieds gehört ihm und wird nie Admins, dieser Konsole oder dem Connector zugänglich gemacht. Es gibt keinen Schalter, um das abzuschalten — es wird vom Backend erzwungen, nicht durch Konfiguration.",
+      "enforced": "erzwungen"
+    },
+    "savebar": {
+      "unsaved": "Ungespeicherte Änderungen",
+      "saved": "Alle Änderungen gespeichert",
+      "discard": "Verwerfen",
+      "save": "Speichern"
+    },
+    "rotate": {
+      "eyebrow": "Secret rotieren",
+      "title": "Client-Secret rotieren?",
+      "body": "Das aktuelle Secret funktioniert sofort nicht mehr. Jeder KI-Client, der es nutzt, muss vor dem nächsten Lesen oder Schreiben mit dem neuen Wert neu konfiguriert werden.",
+      "target": "Client-Secret · {clientId}",
+      "working": "Rotiere…",
+      "confirm": "Secret rotieren"
+    },
+    "toast": {
+      "saved": "Einstellungen gespeichert",
+      "saveFailed": "Speichern fehlgeschlagen",
+      "rotated": "Secret rotiert — kopiere den neuen Wert",
+      "rotateFailed": "Rotation fehlgeschlagen"
     }
   }
 }

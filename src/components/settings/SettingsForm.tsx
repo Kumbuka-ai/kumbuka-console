@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { Button, IconButton } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
@@ -14,7 +15,10 @@ import type {
   WritePolicy,
 } from "@/lib/api/types";
 
-const IDP_NAME = "Keycloak";
+// Module-scope rich-text renderers (not defined during render).
+const richB = (c: ReactNode) => <b>{c}</b>;
+const richMono = (c: ReactNode) => <span className="mono">{c}</span>;
+const richIdp = (c: ReactNode) => <span className="idp-name">{c}</span>;
 
 function RadioOpt({
   on,
@@ -67,6 +71,8 @@ export function SettingsForm({
   projectScopes: ScopeView[];
 }>) {
   const toast = useToast();
+  const t = useTranslations("settings");
+  const tCommon = useTranslations("common");
   const [writePolicy, setWritePolicy] = useState<WritePolicy>(initial.writePolicy);
   const [defaultScopeSlug, setDefaultScopeSlug] = useState<string | null>(initial.defaultScopeSlug);
   const [createScopes, setCreateScopes] = useState<CreateScopes>(initial.createScopes);
@@ -93,9 +99,9 @@ export function SettingsForm({
           defaultScopeSlug: next.defaultScopeSlug,
           createScopes: next.createScopes,
         });
-        toast.push({ message: "Settings saved" });
+        toast.push({ message: t("toast.saved") });
       } catch (err) {
-        toast.push({ message: err instanceof Error ? err.message : "Save failed" });
+        toast.push({ message: err instanceof Error ? err.message : t("toast.saveFailed") });
       }
     });
   };
@@ -108,7 +114,7 @@ export function SettingsForm({
 
   const copy = async (v: string) => {
     await navigator.clipboard?.writeText(v);
-    toast.push({ message: "Copied to clipboard" });
+    toast.push({ message: tCommon("copied") });
   };
 
   const doRotate = () => {
@@ -117,9 +123,9 @@ export function SettingsForm({
         const next = await rotateSecretAction();
         setSecretMasked(next.clientSecretMasked);
         setConfirmRotate(false);
-        toast.push({ message: "Secret rotated — copy the new value" });
+        toast.push({ message: t("toast.rotated") });
       } catch (err) {
-        toast.push({ message: err instanceof Error ? err.message : "Rotate failed" });
+        toast.push({ message: err instanceof Error ? err.message : t("toast.rotateFailed") });
       }
     });
   };
@@ -130,37 +136,37 @@ export function SettingsForm({
         {/* Write policy ------------------------------------------------ */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">{"// "}policy</span>
-            <h3>Default write scope</h3>
-            <p>Where the assistant writes a new memory when it isn&apos;t told which scope to use.</p>
+            <span className="eyebrow">{"// "}{t("policy.eyebrow")}</span>
+            <h3>{t("policy.title")}</h3>
+            <p>{t("policy.desc")}</p>
           </div>
           <div className="set-body">
-            <div className="radio-set" role="radiogroup" aria-label="Default write scope">
+            <div className="radio-set" role="radiogroup" aria-label={t("policy.groupAria")}>
               <RadioOpt
                 on={writePolicy === "ask"}
                 onClick={() => setWritePolicy("ask")}
-                title="Ask each time"
-                tag="recommended"
+                title={t("policy.ask_title")}
+                tag={t("policy.tagRecommended")}
                 tagAccent
-                desc="The assistant proposes a scope and the member confirms before anything is written. Safest default for mixed teams."
+                desc={t("policy.ask_desc")}
               />
               <RadioOpt
                 on={writePolicy === "project"}
                 onClick={() => setWritePolicy("project")}
-                title="Active project scope"
-                desc="Writes land in whichever project the member is currently working in. Org-wide facts must be promoted manually."
+                title={t("policy.project_title")}
+                desc={t("policy.project_desc")}
               />
               <RadioOpt
                 on={writePolicy === "global"}
                 onClick={() => setWritePolicy("global")}
-                title="Organization-wide"
-                tag="broad"
-                desc="Everything defaults to the global scope. Simple, but the shared baseline grows quickly — review regularly."
+                title={t("policy.global_title")}
+                tag={t("policy.tagBroad")}
+                desc={t("policy.global_desc")}
               />
             </div>
             {writePolicy === "project" ? (
               <div className="field" style={{ marginTop: 16 }}>
-                <label htmlFor="settings-fallback-scope">Fallback scope when no project is active</label>
+                <label htmlFor="settings-fallback-scope">{t("policy.fallbackLabel")}</label>
                 <div className="select-wrap">
                   <select
                     id="settings-fallback-scope"
@@ -170,7 +176,7 @@ export function SettingsForm({
                       setDefaultScopeSlug(e.target.value === "global" ? null : e.target.value)
                     }
                   >
-                    <option value="global">global — organization-wide</option>
+                    <option value="global">{t("policy.fallbackGlobal")}</option>
                     {projectScopes.map((s) => (
                       <option key={s.slug} value={s.slug}>
                         {s.slug}
@@ -187,29 +193,25 @@ export function SettingsForm({
         {/* Create scopes ---------------------------------------------- */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">{"// "}permissions</span>
-            <h3>Who may create scopes</h3>
-            <p>
-              Project scopes carve the shared memory into spaces. The{" "}
-              <span className="mono">global</span> scope is fixed and can&apos;t be created or
-              removed.
-            </p>
+            <span className="eyebrow">{"// "}{t("create.eyebrow")}</span>
+            <h3>{t("create.title")}</h3>
+            <p>{t.rich("create.desc", { code: richMono })}</p>
           </div>
           <div className="set-body">
-            <div className="radio-set" role="radiogroup" aria-label="Scope creation">
+            <div className="radio-set" role="radiogroup" aria-label={t("create.groupAria")}>
               <RadioOpt
                 on={createScopes === "admins"}
                 onClick={() => setCreateScopes("admins")}
-                title="Admins only"
-                tag="recommended"
+                title={t("create.admins_title")}
+                tag={t("policy.tagRecommended")}
                 tagAccent
-                desc="Only admins create, rename, and archive project scopes. Members read and write within them."
+                desc={t("create.admins_desc")}
               />
               <RadioOpt
                 on={createScopes === "members"}
                 onClick={() => setCreateScopes("members")}
-                title="Admins & members"
-                desc="Any member can spin up a project scope. Faster for autonomous teams; expect more scopes to curate."
+                title={t("create.members_title")}
+                desc={t("create.members_desc")}
               />
             </div>
           </div>
@@ -218,42 +220,42 @@ export function SettingsForm({
         {/* Connector --------------------------------------------------- */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">{"// "}connector</span>
-            <h3>Connector details</h3>
+            <span className="eyebrow">{"// "}{t("connector.eyebrow")}</span>
+            <h3>{t("connector.title")}</h3>
             <p>
-              The endpoint and client ID your AI client uses to reach shared memory.
-              {secretMasked ? " Rotate the secret if it may have leaked." : ""}
+              {t("connector.desc")}
+              {secretMasked ? t("connector.descRotate") : ""}
             </p>
           </div>
           <div className="set-body">
             <div className="conn-light">
               <div className="cl-row">
-                <span className="cl-label">Endpoint</span>
+                <span className="cl-label">{t("connector.endpoint")}</span>
                 <span className="cl-val">{connector.mcpUrl}</span>
-                <IconButton onClick={() => copy(connector.mcpUrl)} aria-label="Copy endpoint">
+                <IconButton onClick={() => copy(connector.mcpUrl)} aria-label={t("connector.copyEndpoint")}>
                   <Icon name="copy" />
                 </IconButton>
               </div>
               <div className="cl-row">
-                <span className="cl-label">Client ID</span>
+                <span className="cl-label">{t("connector.clientId")}</span>
                 <span className="cl-val">{connector.clientId}</span>
-                <IconButton onClick={() => copy(connector.clientId)} aria-label="Copy client id">
+                <IconButton onClick={() => copy(connector.clientId)} aria-label={t("connector.copyClientId")}>
                   <Icon name="copy" />
                 </IconButton>
               </div>
               {secretMasked ? (
                 <div className="cl-row">
-                  <span className="cl-label">Client secret</span>
+                  <span className="cl-label">{t("connector.clientSecret")}</span>
                   <span className="cl-val mask">{secretMasked}</span>
                   <Button variant="danger" size="sm" onClick={() => setConfirmRotate(true)}>
                     <Icon name="rotate" />
-                    <span className="txt">Rotate</span>
+                    <span className="txt">{t("connector.rotate")}</span>
                   </Button>
                 </div>
               ) : (
                 <div className="cl-row">
-                  <span className="cl-label">Client secret</span>
-                  <span className="cl-val">None — public client (PKCE). Leave the secret field empty in your AI client.</span>
+                  <span className="cl-label">{t("connector.clientSecret")}</span>
+                  <span className="cl-val">{t("connector.noSecret")}</span>
                 </div>
               )}
             </div>
@@ -262,10 +264,7 @@ export function SettingsForm({
               style={{ border: "1px solid var(--c-border)", padding: "13px 15px", marginTop: 14 }}
             >
               <Icon name="shield" />
-              <span>
-                Identity is delegated to <span className="idp-name">{IDP_NAME}</span>. Member
-                accounts and passwords are managed under <b>Team</b>, not here.
-              </span>
+              <span>{t.rich("connector.idpBanner", { idp: richIdp, b: richB })}</span>
             </div>
           </div>
         </div>
@@ -273,9 +272,9 @@ export function SettingsForm({
         {/* Private locked — surface 3 of 5 */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">{"// "}guarantee</span>
-            <h3>Private memory</h3>
-            <p>The one setting you can&apos;t change — and that&apos;s the point.</p>
+            <span className="eyebrow">{"// "}{t("private.eyebrow")}</span>
+            <h3>{t("private.title")}</h3>
+            <p>{t("private.desc")}</p>
           </div>
           <div className="set-body">
             <div className="set-locked">
@@ -283,40 +282,36 @@ export function SettingsForm({
                 <Icon name="lock" />
               </div>
               <div>
-                <div className="sl-title">Private scopes are always private</div>
-                <p>
-                  Each member&apos;s private memory is owned by them and is never exposed to
-                  admins, this console, or the connector. There is no switch to turn this off — it
-                  is enforced by the backend, not by configuration.
-                </p>
+                <div className="sl-title">{t("private.lockedTitle")}</div>
+                <p>{t("private.lockedBody")}</p>
               </div>
               <span className="sl-state">
-                <Icon name="lock" /> enforced
+                <Icon name="lock" /> {t("private.enforced")}
               </span>
             </div>
           </div>
         </div>
 
         <div className="set-savebar">
-          <span className="sb-note">{dirty ? "Unsaved changes" : "All changes saved"}</span>
+          <span className="sb-note">{dirty ? t("savebar.unsaved") : t("savebar.saved")}</span>
           <span className="spacer" />
           <Button disabled={!dirty || pending} onClick={discard}>
-            Discard
+            {t("savebar.discard")}
           </Button>
           <Button variant="primary" disabled={!dirty || pending} onClick={save}>
             <Icon name="check" />
-            <span className="txt">Save</span>
+            <span className="txt">{t("savebar.save")}</span>
           </Button>
         </div>
       </div>
 
       {confirmRotate ? (
         <ConfirmModal
-          eyebrow="rotate secret"
-          title="Rotate the client secret?"
-          body="The current secret stops working immediately. Any AI client using it must be reconfigured with the new value before it can read or write memory."
-          target={`client secret · ${connector.clientId}`}
-          confirmLabel={pending ? "Rotating…" : "Rotate secret"}
+          eyebrow={t("rotate.eyebrow")}
+          title={t("rotate.title")}
+          body={t("rotate.body")}
+          target={t("rotate.target", { clientId: connector.clientId })}
+          confirmLabel={pending ? t("rotate.working") : t("rotate.confirm")}
           confirmIcon="rotate"
           danger
           onCancel={() => setConfirmRotate(false)}

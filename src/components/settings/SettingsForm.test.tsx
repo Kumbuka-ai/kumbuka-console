@@ -1,5 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+import en from "@/i18n/messages/en.json";
 import { ToastHost } from "@/components/ui/Toast";
 import { SettingsForm } from "./SettingsForm";
 import type { ConnectorView, ScopeView, SettingsView } from "@/lib/api/types";
@@ -37,9 +39,11 @@ function connector(overrides: Partial<ConnectorView> = {}): ConnectorView {
 
 function renderForm(conn: ConnectorView, projectScopes: ScopeView[] = []) {
   return render(
-    <ToastHost>
-      <SettingsForm initial={SETTINGS} connector={conn} projectScopes={projectScopes} />
-    </ToastHost>,
+    <NextIntlClientProvider locale="en" messages={en}>
+      <ToastHost>
+        <SettingsForm initial={SETTINGS} connector={conn} projectScopes={projectScopes} />
+      </ToastHost>
+    </NextIntlClientProvider>,
   );
 }
 
