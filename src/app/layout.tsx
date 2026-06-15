@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
 import "./globals.css";
 import { ToastHost } from "@/components/ui/Toast";
 import { getTheme } from "@/lib/theme";
+import { getLocale } from "@/lib/locale";
 
 export const metadata: Metadata = {
   title: `${process.env.NEXT_PUBLIC_APP_NAME ?? "kumbuka.ai"} · Console`,
@@ -10,9 +12,9 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const theme = await getTheme();
+  const [theme, locale] = await Promise.all([getTheme(), getLocale()]);
   return (
-    <html lang="en" data-theme={theme}>
+    <html lang={locale} data-theme={theme}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -22,7 +24,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         />
       </head>
       <body>
-        <ToastHost>{children}</ToastHost>
+        <NextIntlClientProvider>
+          <ToastHost>{children}</ToastHost>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

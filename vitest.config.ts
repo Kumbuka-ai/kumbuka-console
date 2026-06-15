@@ -53,6 +53,8 @@ export default defineConfig({
       include: [
         "src/lib/time.ts",
         "src/lib/theme.ts",
+        "src/lib/locale.ts",
+        "src/i18n/config.ts",
         "src/lib/api/client.ts",
         "src/lib/api/session.ts",
         "src/lib/api/impl-live.ts",
