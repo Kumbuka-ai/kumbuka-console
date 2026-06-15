@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+import en from "@/i18n/messages/en.json";
 import type { ScopeView } from "@/lib/api/types";
 
 // EntriesView is a client module whose import chain reaches server actions.
@@ -23,24 +25,32 @@ const scope = (kind: ScopeView["kind"], archived = false): ScopeView => ({
   createdAt: "2026-01-01T00:00:00Z",
 });
 
+function renderNote(props: { scope: ScopeView; isArchived: boolean; callerMuted: boolean }) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={en}>
+      <WriteNote {...props} />
+    </NextIntlClientProvider>,
+  );
+}
+
 describe("WriteNote (D-CORE-2)", () => {
   it("muted takes precedence: a calm suspension notice", () => {
-    render(<WriteNote scope={scope("project")} isArchived={false} callerMuted />);
+    renderNote({ scope: scope("project"), isArchived: false, callerMuted: true });
     expect(screen.getByText(/shared writes are suspended for your account/i)).toBeTruthy();
   });
 
   it("global scope → org-wide write target", () => {
-    render(<WriteNote scope={scope("global")} isArchived={false} callerMuted={false} />);
+    renderNote({ scope: scope("global"), isArchived: false, callerMuted: false });
     expect(screen.getByText(/org-wide/i)).toBeTruthy();
   });
 
   it("archived scope → read-only", () => {
-    render(<WriteNote scope={scope("project", true)} isArchived callerMuted={false} />);
+    renderNote({ scope: scope("project", true), isArchived: true, callerMuted: false });
     expect(screen.getByText(/read-only/i)).toBeTruthy();
   });
 
   it("default project → writable by admins + members", () => {
-    render(<WriteNote scope={scope("project")} isArchived={false} callerMuted={false} />);
+    renderNote({ scope: scope("project"), isArchived: false, callerMuted: false });
     expect(screen.getByText(/writable by/i)).toBeTruthy();
   });
 });

@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState, useTransition, type MouseEvent } from "react";
+import { useMemo, useState, useTransition, type MouseEvent, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { Seg, SegButton } from "@/components/ui/Seg";
@@ -15,12 +16,14 @@ import { ConfirmModal } from "@/components/editors/ConfirmModal";
 import { deleteEntryAction } from "@/app/(app)/actions";
 import { relTime, absTime } from "@/lib/time";
 import {
-  ENTRY_TYPES,
   ENTRY_TYPE_ORDER,
   type EntryType,
   type EntryView,
   type ScopeView,
 } from "@/lib/api/types";
+
+// Module-scope rich-text renderer (not defined during render).
+const richB = (c: ReactNode) => <b>{c}</b>;
 
 type SortCol = "type" | "key" | "author" | "updated";
 type Sort = { col: SortCol; dir: "asc" | "desc" };
@@ -46,6 +49,8 @@ export function EntriesView({
   const params = useSearchParams();
   const toast = useToast();
   const menu = useMenu();
+  const t = useTranslations("scopes");
+  const tTypes = useTranslations("entryTypes");
 
   const layout = (params.get("layout") as "table" | "cards" | null) ?? "table";
   const density = params.get("density") === "compact";
@@ -131,19 +136,19 @@ export function EntriesView({
 
   const openRowMenu = (e: MouseEvent, entry: EntryView) =>
     menu.open(e, [
-      { label: "Edit", icon: "edit", disabled: readOnly, onSelect: () => setEditor({ entry }) },
+      { label: t("entryMenu.edit"), icon: "edit", disabled: readOnly, onSelect: () => setEditor({ entry }) },
       {
-        label: "Copy key",
+        label: t("entryMenu.copyKey"),
         icon: "copy",
         disabled: !entry.key,
         onSelect: async () => {
           if (entry.key) await navigator.clipboard?.writeText(entry.key);
-          toast.push({ message: "Key copied" });
+          toast.push({ message: t("toast.keyCopied") });
         },
       },
       { kind: "sep" },
       {
-        label: "Delete",
+        label: t("entryMenu.delete"),
         icon: "trash",
         danger: true,
         disabled: readOnly,
@@ -157,10 +162,10 @@ export function EntriesView({
     start(async () => {
       try {
         await deleteEntryAction(scope.slug, target.id);
-        toast.push({ message: "Entry deleted" });
+        toast.push({ message: t("toast.entryDeleted") });
         setConfirmDel(null);
       } catch (err) {
-        toast.push({ message: err instanceof Error ? err.message : "Delete failed" });
+        toast.push({ message: err instanceof Error ? err.message : t("toast.deleteFailed") });
       }
     });
   };
@@ -168,9 +173,9 @@ export function EntriesView({
   const activeFilters = types.length > 0 || query.trim().length > 0;
   const isArchived = scope.archived;
 
-  let kindLabel = "project";
-  if (scope.kind === "global") kindLabel = "global · fixed";
-  else if (isArchived) kindLabel = "archived";
+  let kindLabel = t("kind.project");
+  if (scope.kind === "global") kindLabel = t("kind.globalFixed");
+  else if (isArchived) kindLabel = t("kind.archived");
 
   return (
     <>
@@ -193,7 +198,7 @@ export function EntriesView({
                 onClick={() => setEditor({ entry: null })}
               >
                 <Icon name="plus" />
-                <span className="txt">New entry</span>
+                <span className="txt">{t("newEntry")}</span>
               </Button>
             </div>
           </div>
@@ -209,48 +214,48 @@ export function EntriesView({
             <input
               defaultValue={query}
               onChange={(e) => setParam("q", e.target.value || null)}
-              placeholder="Search keys & content…"
-              aria-label="Search entries"
+              placeholder={t("searchPlaceholder")}
+              aria-label={t("searchAria")}
             />
           </div>
           <div className="typefilters">
-            {ENTRY_TYPE_ORDER.map((t) => {
-              const on = types.includes(t);
+            {ENTRY_TYPE_ORDER.map((et) => {
+              const on = types.includes(et);
               return (
                 <button
-                  key={t}
+                  key={et}
                   type="button"
                   className={`tf${on ? " on" : ""}`}
-                  style={{ ["--tc" as unknown as string]: `var(--type-${t})` }}
-                  onClick={() => toggleType(t)}
+                  style={{ ["--tc" as unknown as string]: `var(--type-${et})` }}
+                  onClick={() => toggleType(et)}
                   aria-pressed={on}
                 >
                   <span className="sw" />
-                  {ENTRY_TYPES[t].label}
-                  <span className="cnt">{counts[t]}</span>
+                  {tTypes(`${et}.label`)}
+                  <span className="cnt">{counts[et]}</span>
                 </button>
               );
             })}
           </div>
           <div className="toolbar-right">
             <span className="result-count">
-              {rows.length} {rows.length === 1 ? "entry" : "entries"}
+              {t("resultCount", { count: rows.length })}
             </span>
-            <Seg ariaLabel="Layout">
-              <SegButton on={layout === "table"} onClick={() => setParam("layout", "table")} title="Table">
+            <Seg ariaLabel={t("layout.aria")}>
+              <SegButton on={layout === "table"} onClick={() => setParam("layout", "table")} title={t("layout.table")}>
                 <Icon name="grid" />
               </SegButton>
-              <SegButton on={layout === "cards"} onClick={() => setParam("layout", "cards")} title="Cards">
+              <SegButton on={layout === "cards"} onClick={() => setParam("layout", "cards")} title={t("layout.cards")}>
                 <Icon name="layers" />
               </SegButton>
             </Seg>
             {layout === "table" ? (
-              <Seg ariaLabel="Density">
-                <SegButton on={!density} onClick={() => setParam("density", null)} title="Comfortable">
-                  Comfort
+              <Seg ariaLabel={t("density.aria")}>
+                <SegButton on={!density} onClick={() => setParam("density", null)} title={t("density.comfort")}>
+                  {t("density.comfort")}
                 </SegButton>
-                <SegButton on={density} onClick={() => setParam("density", "compact")} title="Compact">
-                  Compact
+                <SegButton on={density} onClick={() => setParam("density", "compact")} title={t("density.compact")}>
+                  {t("density.compact")}
                 </SegButton>
               </Seg>
             ) : null}
@@ -260,20 +265,20 @@ export function EntriesView({
         <div className="entries-body">
           {syncError ? (
             <ErrorState
-              title="Couldn't reach this scope"
-              body={`The backend returned a sync error while loading ${scope.slug}. The assistant's last-known copy may be stale.`}
-              code={`503 · upstream_sync_failed · scope/${scope.slug}`}
+              title={t("syncError.title")}
+              body={t("syncError.body", { slug: scope.slug })}
+              code={t("syncError.code", { slug: scope.slug })}
             >
               <Button variant="primary" onClick={() => router.refresh()}>
                 <Icon name="rotate" />
-                <span>Retry</span>
+                <span>{t("syncError.retry")}</span>
               </Button>
             </ErrorState>
           ) : rows.length === 0 && !activeFilters ? (
             <EmptyState
               icon="inbox"
-              title="No memories yet"
-              body="This scope is empty. Add the first decision, convention, or constraint — or let the assistant write one as the team works."
+              title={t("empty.title")}
+              body={t("empty.body")}
             >
               <Button
                 variant="primary"
@@ -281,14 +286,14 @@ export function EntriesView({
                 onClick={() => setEditor({ entry: null })}
               >
                 <Icon name="plus" />
-                <span>New entry</span>
+                <span>{t("empty.newEntry")}</span>
               </Button>
             </EmptyState>
           ) : rows.length === 0 && activeFilters ? (
             <EmptyState
               icon="search"
-              title="Nothing matches"
-              body={`No entries in ${scope.slug} match your filter. Clear it to see all ${entries.length}.`}
+              title={t("noMatch.title")}
+              body={t("noMatch.body", { slug: scope.slug, count: entries.length })}
             >
               <Button
                 onClick={() => {
@@ -297,19 +302,19 @@ export function EntriesView({
                 }}
               >
                 <Icon name="x" />
-                <span>Clear filters</span>
+                <span>{t("noMatch.clear")}</span>
               </Button>
             </EmptyState>
           ) : layout === "table" ? (
             <table className={`etable${density ? " compact" : ""}`}>
               <thead>
                 <tr>
-                  <Th id="type" label="Type" sort={sort} setSort={setSort} className="col-type" />
-                  <Th id="key" label="Key" sort={sort} setSort={setSort} className="col-key" />
-                  <th>Content</th>
-                  <Th id="author" label="Author" sort={sort} setSort={setSort} className="col-author" />
-                  <Th id="updated" label="Updated" sort={sort} setSort={setSort} className="col-updated" />
-                  <th className="col-actions" aria-label="Actions" />
+                  <Th id="type" label={t("th.type")} sort={sort} setSort={setSort} className="col-type" />
+                  <Th id="key" label={t("th.key")} sort={sort} setSort={setSort} className="col-key" />
+                  <th>{t("th.content")}</th>
+                  <Th id="author" label={t("th.author")} sort={sort} setSort={setSort} className="col-author" />
+                  <Th id="updated" label={t("th.updated")} sort={sort} setSort={setSort} className="col-updated" />
+                  <th className="col-actions" aria-label={t("th.actionsAria")} />
                 </tr>
               </thead>
               <tbody>
@@ -339,7 +344,7 @@ export function EntriesView({
                     <td className="col-actions">
                       <button
                         className="row-menu-btn"
-                        aria-label="Entry actions"
+                        aria-label={t("entryActionsAria")}
                         onClick={(ev) => {
                           ev.stopPropagation();
                           openRowMenu(ev, e);
@@ -374,7 +379,7 @@ export function EntriesView({
                     {e.key ? (
                       <span className="key-pill">{e.key}</span>
                     ) : (
-                      <span className="key-pill empty">no key</span>
+                      <span className="key-pill empty">{t("noKey")}</span>
                     )}
                     <span className="spacer" />
                     <span className="updated" title={absTime(e.updatedAt)}>
@@ -395,13 +400,13 @@ export function EntriesView({
                         style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, color: "var(--c-muted)" }}
                       >
                         <Icon name="link" />
-                        <span>reference</span>
+                        <span>{t("reference")}</span>
                       </a>
                     ) : null}
                   </div>
                   <button
                     className="row-menu-btn"
-                    aria-label="Entry actions"
+                    aria-label={t("entryActionsAria")}
                     onClick={(ev) => {
                       ev.stopPropagation();
                       openRowMenu(ev, e);
@@ -423,11 +428,11 @@ export function EntriesView({
       ) : null}
       {confirmDel ? (
         <ConfirmModal
-          eyebrow="delete entry"
-          title="Delete this memory?"
-          body="The assistant will immediately stop recalling it."
+          eyebrow={t("deleteConfirm.eyebrow")}
+          title={t("deleteConfirm.title")}
+          body={t("deleteConfirm.body")}
           target={confirmDel.key ?? confirmDel.content.slice(0, 60) + "…"}
-          confirmLabel={pending ? "Deleting…" : "Delete"}
+          confirmLabel={pending ? t("deleteConfirm.working") : t("deleteConfirm.confirm")}
           confirmIcon="trash"
           danger
           onCancel={() => setConfirmDel(null)}
@@ -481,8 +486,9 @@ function AuthorCell({
   members: Map<string, string>;
   compact?: boolean;
 }>) {
+  const t = useTranslations("scopes");
   const isAgent = entry.source === "mcp";
-  const name = isAgent ? "via assistant" : members.get(entry.authorSubject) ?? entry.authorSubject;
+  const name = isAgent ? t("viaAssistant") : members.get(entry.authorSubject) ?? entry.authorSubject;
   return (
     <div className={`cell-author${isAgent ? " agent" : ""}`}>
       <Avatar
@@ -514,27 +520,15 @@ export function WriteNote({
   isArchived,
   callerMuted,
 }: Readonly<{ scope: ScopeView; isArchived: boolean; callerMuted: boolean }>) {
+  const t = useTranslations("scopes.writeNote");
   if (callerMuted) {
-    return (
-      <span>
-        Shared writes are suspended for your account — reading is unaffected, and your private memory
-        stays yours.
-      </span>
-    );
+    return <span>{t("muted")}</span>;
   }
   if (scope.kind === "global") {
-    return (
-      <span>
-        Default write target for memories the assistant marks <b>org-wide</b>.
-      </span>
-    );
+    return <span>{t.rich("global", { b: richB })}</span>;
   }
   if (isArchived) {
-    return <span>Read-only — archived scopes can&apos;t be written to.</span>;
+    return <span>{t("archived")}</span>;
   }
-  return (
-    <span>
-      Writable by <b>admins</b> and members assigned to this project.
-    </span>
-  );
+  return <span>{t.rich("project", { b: richB })}</span>;
 }

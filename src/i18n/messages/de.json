@@ -44,7 +44,8 @@
   "common": {
     "copy": "Kopieren",
     "copied": "In die Zwischenablage kopiert",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "close": "Schließen"
   },
   "overview": {
     "stat": {
@@ -321,6 +322,152 @@
       "saveFailed": "Speichern fehlgeschlagen",
       "rotated": "Secret rotiert — kopiere den neuen Wert",
       "rotateFailed": "Rotation fehlgeschlagen"
+    }
+  },
+  "entryTypes": {
+    "decision": { "label": "Entscheidung", "description": "Eine getroffene Wahl und die Begründung, die sie festgelegt hat." },
+    "convention": { "label": "Konvention", "description": "Wie das Team eine Sache macht — ein wiederkehrendes Muster." },
+    "constraint": { "label": "Constraint", "description": "Eine harte Regel von außerhalb des Teams (rechtlich, Performance, Vertrag)." },
+    "open_question": { "label": "Offene Frage", "description": "Eine bekannte Unbekannte, die auf Daten oder einen Stakeholder wartet." },
+    "glossary": { "label": "Glossar", "description": "Ein Begriff, dessen Bedeutung das Team teilen muss." },
+    "status": { "label": "Status", "description": "Aktueller Zustand von etwas — kurzlebig." }
+  },
+  "scopes": {
+    "toggle": "Scopes",
+    "browseAria": "Scopes durchsuchen",
+    "closeBrowser": "Scope-Browser schließen",
+    "paneEyebrow": "scopes",
+    "newScope": "Neuer Scope",
+    "projects": "Projekt-Scopes",
+    "archived": "Archiviert",
+    "fixed": "fest",
+    "sync": "sync",
+    "rowActionsAria": "Aktionen für Scope {slug}",
+    "menu": {
+      "rename": "Umbenennen",
+      "copyId": "Scope-ID kopieren",
+      "restore": "Wiederherstellen",
+      "archive": "Archivieren"
+    },
+    "entryMenu": {
+      "edit": "Bearbeiten",
+      "copyKey": "Key kopieren",
+      "delete": "Löschen"
+    },
+    "toast": {
+      "idCopied": "Scope-ID kopiert",
+      "restoreNyi": "Wiederherstellen ist in diesem Build nicht implementiert",
+      "archived": "Scope {slug} archiviert",
+      "archiveFailed": "Archivieren fehlgeschlagen",
+      "keyCopied": "Key kopiert",
+      "entryDeleted": "Eintrag gelöscht",
+      "deleteFailed": "Löschen fehlgeschlagen"
+    },
+    "archiveConfirm": {
+      "eyebrow": "Scope archivieren",
+      "title": "{slug} archivieren?",
+      "body": "Der Scope und seine {count} Einträge werden schreibgeschützt. Der Assistent schreibt nicht mehr hinein. Du kannst ihn später wiederherstellen.",
+      "working": "Archiviere…",
+      "confirm": "Archivieren"
+    },
+    "private": {
+      "title": "Privat",
+      "titleAttr": "Private Erinnerungen gehören jedem Nutzer selbst und sind aus dieser Konsole nicht zugänglich.",
+      "tag": "pro Nutzer · hier nicht sichtbar",
+      "body": "Jedes Mitglied hat einen <b>privaten</b> Gedächtnis-Scope. Er gehört ihm und wird dieser Konsole nie zugänglich gemacht — weder Admins noch über die API-Oberfläche, die du verwaltest.",
+      "foot": "garantiert per Design"
+    },
+    "kind": {
+      "globalFixed": "global · fest",
+      "archived": "archiviert",
+      "project": "Projekt"
+    },
+    "newEntry": "Neuer Eintrag",
+    "searchPlaceholder": "Keys & Inhalte suchen…",
+    "searchAria": "Einträge suchen",
+    "resultCount": "{count, plural, one {# Eintrag} other {# Einträge}}",
+    "layout": { "aria": "Layout", "table": "Tabelle", "cards": "Karten" },
+    "density": { "aria": "Dichte", "comfort": "Komfort", "compact": "Kompakt" },
+    "th": { "type": "Typ", "key": "Key", "content": "Inhalt", "author": "Autor", "updated": "Aktualisiert", "actionsAria": "Aktionen" },
+    "entryActionsAria": "Eintrags-Aktionen",
+    "noKey": "kein Key",
+    "reference": "Referenz",
+    "viaAssistant": "über Assistent",
+    "syncError": {
+      "title": "Scope nicht erreichbar",
+      "body": "Das Backend meldete beim Laden von {slug} einen Sync-Fehler. Die letzte bekannte Kopie des Assistenten ist möglicherweise veraltet.",
+      "code": "503 · upstream_sync_failed · scope/{slug}",
+      "retry": "Erneut versuchen"
+    },
+    "empty": {
+      "title": "Noch keine Einträge",
+      "body": "Dieser Scope ist leer. Füge die erste Entscheidung, Konvention oder Constraint hinzu — oder lass den Assistenten eine schreiben, während das Team arbeitet.",
+      "newEntry": "Neuer Eintrag"
+    },
+    "noMatch": {
+      "title": "Nichts gefunden",
+      "body": "Keine Einträge in {slug} passen zu deinem Filter. Setz ihn zurück, um alle {count} zu sehen.",
+      "clear": "Filter zurücksetzen"
+    },
+    "deleteConfirm": {
+      "eyebrow": "Eintrag löschen",
+      "title": "Diese Erinnerung löschen?",
+      "body": "Der Assistent ruft sie sofort nicht mehr ab.",
+      "working": "Lösche…",
+      "confirm": "Löschen"
+    },
+    "writeNote": {
+      "muted": "Geteilte Schreibzugriffe sind für dein Konto ausgesetzt — Lesen ist unberührt, und dein privates Gedächtnis bleibt deins.",
+      "global": "Standard-Schreibziel für Erinnerungen, die der Assistent als <b>organisationsweit</b> markiert.",
+      "archived": "Schreibgeschützt — archivierte Scopes können nicht beschrieben werden.",
+      "project": "Beschreibbar von <b>Admins</b> und Mitgliedern, die diesem Projekt zugewiesen sind."
+    }
+  },
+  "editors": {
+    "scope": {
+      "renameAria": "Scope umbenennen",
+      "newAria": "Neuer Scope",
+      "renameEyebrow": "Scope umbenennen",
+      "newEyebrow": "neuer Projekt-Scope",
+      "renameTitle": "Scope umbenennen",
+      "createTitle": "Scope erstellen",
+      "save": "Speichern",
+      "create": "Scope erstellen",
+      "nameLabel": "Anzeigename",
+      "namePlaceholder": "z. B. Billing Platform",
+      "idLabel": "Scope-ID",
+      "idHint": "Stabil, kebab-case. Der Assistent adressiert den Scope darüber. Nach dem Anlegen unveränderlich.",
+      "idPlaceholder": "billing-platform",
+      "banner": "Neue Scopes starten leer und sind von Admins beschreibbar. Wer schreiben darf, stellst du unter <b>Einstellungen → Schreib-Scope-Richtlinie</b> ein.",
+      "renamed": "Scope umbenannt",
+      "created": "Scope {slug} erstellt",
+      "saveFailed": "Speichern fehlgeschlagen"
+    },
+    "entry": {
+      "editAria": "Eintrag bearbeiten",
+      "newAria": "Neuer Eintrag",
+      "eyebrowEdit": "{slug} · bearbeiten",
+      "eyebrowNew": "{slug} · neuer Eintrag",
+      "editTitle": "Erinnerung bearbeiten",
+      "newTitle": "Neue Erinnerung",
+      "editedAgo": "bearbeitet {time}",
+      "saveChanges": "Änderungen speichern",
+      "create": "Eintrag erstellen",
+      "typeLabel": "Typ",
+      "keyLabel": "Key",
+      "keyHint": "Optionaler stabiler Bezeichner. Kleinbuchstaben, punkt-namespaced — der Assistent schlägt Einträge darüber nach.",
+      "keyPlaceholder": "z. B. db.system-of-record",
+      "contentLabel": "Inhalt",
+      "contentPlaceholder": "Formuliere es klar, so wie der Assistent es abrufen soll.",
+      "refLabel": "Referenz",
+      "refHint": "Optionaler Link zur Herkunft. Wird als Metadaten gespeichert — nie abgerufen, keine Zugangsdaten in der URL.",
+      "refPlaceholder": "https://…",
+      "scopeLabel": "Scope",
+      "scopeOrg": "organisationsweit",
+      "scopeProject": "Projekt",
+      "updated": "Eintrag aktualisiert",
+      "created": "Eintrag in {slug} erstellt",
+      "saveFailed": "Speichern fehlgeschlagen"
     }
   }
 }

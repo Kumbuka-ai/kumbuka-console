@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { ScopesPane } from "./ScopesPane";
 import { EntriesView } from "./EntriesView";
 import { Icon } from "@/components/ui/Icon";
@@ -30,21 +31,22 @@ export function ScopeScreen({
   callerMuted?: boolean;
 }>) {
   const [paneOpen, setPaneOpen] = useState(false);
+  const t = useTranslations("scopes");
   return (
     <div className="scope-screen">
       <button
         className="scope-pane-toggle"
         type="button"
         onClick={() => setPaneOpen(true)}
-        aria-label="Browse scopes"
+        aria-label={t("browseAria")}
       >
         <Icon name="layers" />
-        <span>Scopes</span>
+        <span>{t("toggle")}</span>
       </button>
       {paneOpen ? (
         <button
           className="scope-pane-backdrop"
-          aria-label="Close scope browser"
+          aria-label={t("closeBrowser")}
           onClick={() => setPaneOpen(false)}
         />
       ) : null}

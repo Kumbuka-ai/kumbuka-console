@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 
 export function SidePanel({
@@ -21,6 +22,7 @@ export function SidePanel({
   onClose: () => void;
 }>) {
   const ref = useRef<HTMLDivElement>(null);
+  const t = useTranslations("common");
   useEffect(() => {
     const focusable = ref.current?.querySelector<HTMLElement>(
       "input, textarea, button, [tabindex]:not([tabindex='-1'])",
@@ -49,7 +51,7 @@ export function SidePanel({
             <span className="eyebrow">{"// "}{eyebrow}</span>
             <h3>{title}</h3>
           </div>
-          <button className="iconbtn x" onClick={onClose} aria-label="Close" type="button">
+          <button className="iconbtn x" onClick={onClose} aria-label={t("close")} type="button">
             <Icon name="x" />
           </button>
         </div>
