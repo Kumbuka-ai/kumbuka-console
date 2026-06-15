@@ -1,16 +1,12 @@
+import { useTranslations } from "next-intl";
 import type { UserStatus as Status } from "@/lib/api/types";
 
-const LABEL: Record<Status, string> = {
-  active: "Active",
-  disabled: "Disabled",
-  invited: "Invite sent",
-};
-
 export function UserStatus({ status }: Readonly<{ status: Status }>) {
+  const t = useTranslations("team.status");
   return (
     <span className={`ustatus ${status}`}>
       <span className="dot" />
-      {LABEL[status]}
+      {t(status)}
     </span>
   );
 }

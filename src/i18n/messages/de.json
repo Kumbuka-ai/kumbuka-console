@@ -157,5 +157,99 @@
       "desc": "Beende deine Konsolen-Sitzung und melde dich bei Keycloak ab.",
       "button": "Abmelden"
     }
+  },
+  "team": {
+    "idpBanner": "Konten werden in <idp>Keycloak</idp> verwaltet. <b>Anlegen</b>, <b>Deaktivieren</b> und <b>Rollen</b>-Änderungen hier werden ins Verzeichnis durchgeschrieben — sie sind nicht lokal in dieser Konsole. Das <b>private</b> Gedächtnis jedes Mitglieds bleibt seins.",
+    "searchPlaceholder": "Name oder E-Mail suchen…",
+    "searchAria": "Mitglieder suchen",
+    "filterAria": "Nach Rolle filtern",
+    "filterAll": "Alle",
+    "filterAdmins": "Admins",
+    "filterMembers": "Mitglieder",
+    "resultCount": "{shown} von {total}",
+    "inviteBtn": "Mitglied einladen",
+    "colMember": "Mitglied",
+    "colRole": "Rolle",
+    "colStatus": "Status",
+    "colLastActive": "Zuletzt aktiv",
+    "actionsAria": "Aktionen",
+    "rowActionsAria": "Aktionen für {name}",
+    "you": "du",
+    "mutedBadge": "stummgeschaltet",
+    "mutedTitle": "Geteilte Schreibzugriffe ausgesetzt",
+    "never": "nie",
+    "emptyTitle": "Keine passenden Mitglieder",
+    "emptyBody": "Passe die Suche oder den Rollenfilter an.",
+    "menu": {
+      "makeMember": "Zu Mitglied machen",
+      "makeAdmin": "Zu Admin machen",
+      "muteMember": "Mitglied stummschalten",
+      "unmuteMember": "Stummschaltung aufheben",
+      "enableAccount": "Konto aktivieren",
+      "disableAccount": "Konto deaktivieren"
+    },
+    "toast": {
+      "nowMember": "{name} ist jetzt Mitglied",
+      "nowAdmin": "{name} ist jetzt Admin",
+      "muted": "{name} stummgeschaltet",
+      "unmuted": "Stummschaltung von {name} aufgehoben",
+      "enabled": "{name} aktiviert",
+      "disabled": "{name} deaktiviert",
+      "updateFailed": "Aktualisierung fehlgeschlagen"
+    },
+    "status": {
+      "active": "Aktiv",
+      "disabled": "Deaktiviert",
+      "invited": "Einladung gesendet"
+    },
+    "confirmAction": {
+      "enable": "Aktivieren",
+      "disable": "Deaktivieren",
+      "mute": "Stummschalten",
+      "unmute": "Aufheben",
+      "working": "Arbeite…"
+    },
+    "confirm": {
+      "enable": {
+        "eyebrow": "Konto aktivieren",
+        "title": "{name} aktivieren?",
+        "body": "Sie erhalten sofort wieder Konsolen- und API-Zugriff. Ihr privates Gedächtnis wurde nie angetastet."
+      },
+      "disable": {
+        "eyebrow": "Konto deaktivieren",
+        "title": "{name} deaktivieren?",
+        "body": "Sie verlieren sofort Konsolen- und API-Zugriff. Keycloak setzt das Konto aus; ihr privates Gedächtnis bleibt unangetastet und ihres."
+      },
+      "mute": {
+        "eyebrow": "Mitglied stummschalten",
+        "title": "{name} stummschalten?",
+        "body": "Geteilte Schreibzugriffe werden ausgesetzt — in dieser Konsole und über den Assistenten. Lesen bleibt unberührt, und ihr privates Gedächtnis bleibt vollständig ihres. Jederzeit umkehrbar."
+      },
+      "unmute": {
+        "eyebrow": "Stummschaltung aufheben",
+        "title": "Stummschaltung von {name} aufheben?",
+        "body": "Geteilte Schreibzugriffe werden sofort wieder aktiv — in dieser Konsole und über den Assistenten."
+      }
+    },
+    "inviteDialog": {
+      "ariaLabel": "Mitglied einladen",
+      "eyebrow": "team · bereitstellen",
+      "title": "Ein Mitglied einladen",
+      "cancel": "Abbrechen",
+      "send": "Einladung senden",
+      "banner": "Dies legt das Konto in <idp>Keycloak</idp> an und verschickt einen Anmelde-Link per E-Mail. Hier wird kein Passwort gesetzt. Das <b>private</b> Gedächtnis bleibt ihres und ist in dieser Konsole nie sichtbar.",
+      "emailLabel": "E-Mail",
+      "emailHint": "Muss zur Verzeichnis-Domain des Identity-Providers passen.",
+      "emailPlaceholder": "name@kumbuka.ai",
+      "nameLabel": "Anzeigename",
+      "namePlaceholder": "Optional — wird sonst aus dem IdP übernommen",
+      "roleLabel": "Rolle",
+      "member": "Mitglied",
+      "admin": "Admin",
+      "adminHint": "Admins verwalten Scopes, Mitglieder und Einstellungen. Sie sehen niemals das private Gedächtnis von jemandem.",
+      "memberHint": "Mitglieder lesen und schreiben geteilte Scopes gemäß der Schreib-Scope-Richtlinie.",
+      "sent": "Einladung über Keycloak gesendet",
+      "failed": "Einladung fehlgeschlagen"
+    }
   }
 }
