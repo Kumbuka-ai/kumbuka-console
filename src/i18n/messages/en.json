@@ -157,5 +157,99 @@
       "desc": "End your console session and log out at Keycloak.",
       "button": "Sign out"
     }
+  },
+  "team": {
+    "idpBanner": "Accounts are managed in <idp>Keycloak</idp>. <b>Create</b>, <b>disable</b>, and <b>role</b> changes here write through to the directory — they are not local to this console. Each member's <b>private</b> memory remains theirs.",
+    "searchPlaceholder": "Search name or email…",
+    "searchAria": "Search members",
+    "filterAria": "Filter by role",
+    "filterAll": "All",
+    "filterAdmins": "Admins",
+    "filterMembers": "Members",
+    "resultCount": "{shown} of {total}",
+    "inviteBtn": "Invite member",
+    "colMember": "Member",
+    "colRole": "Role",
+    "colStatus": "Status",
+    "colLastActive": "Last active",
+    "actionsAria": "Actions",
+    "rowActionsAria": "Actions for {name}",
+    "you": "you",
+    "mutedBadge": "muted",
+    "mutedTitle": "Shared writes suspended",
+    "never": "never",
+    "emptyTitle": "No members match",
+    "emptyBody": "Adjust the search or role filter.",
+    "menu": {
+      "makeMember": "Make member",
+      "makeAdmin": "Make admin",
+      "muteMember": "Mute member",
+      "unmuteMember": "Unmute member",
+      "enableAccount": "Enable account",
+      "disableAccount": "Disable account"
+    },
+    "toast": {
+      "nowMember": "{name} is now a member",
+      "nowAdmin": "{name} is now an admin",
+      "muted": "{name} muted",
+      "unmuted": "{name} unmuted",
+      "enabled": "{name} enabled",
+      "disabled": "{name} disabled",
+      "updateFailed": "Update failed"
+    },
+    "status": {
+      "active": "Active",
+      "disabled": "Disabled",
+      "invited": "Invite sent"
+    },
+    "confirmAction": {
+      "enable": "Enable",
+      "disable": "Disable",
+      "mute": "Mute",
+      "unmute": "Unmute",
+      "working": "Working…"
+    },
+    "confirm": {
+      "enable": {
+        "eyebrow": "enable account",
+        "title": "Enable {name}?",
+        "body": "They regain console and API access immediately. Their private memory was never touched."
+      },
+      "disable": {
+        "eyebrow": "disable account",
+        "title": "Disable {name}?",
+        "body": "They lose console and API access immediately. Keycloak suspends the account; their private memory is untouched and stays theirs."
+      },
+      "mute": {
+        "eyebrow": "mute member",
+        "title": "Mute {name}?",
+        "body": "Shared writes are suspended — on this console and through the assistant. Reading is unaffected, and their private memory stays fully theirs. Reversible anytime."
+      },
+      "unmute": {
+        "eyebrow": "unmute member",
+        "title": "Unmute {name}?",
+        "body": "Shared writes resume immediately — on this console and through the assistant."
+      }
+    },
+    "inviteDialog": {
+      "ariaLabel": "Invite member",
+      "eyebrow": "team · provision",
+      "title": "Invite a member",
+      "cancel": "Cancel",
+      "send": "Send invite",
+      "banner": "This creates the account in <idp>Keycloak</idp> and emails an enrolment link. No password is set here. Their <b>private</b> memory remains theirs and is never visible in this console.",
+      "emailLabel": "Email",
+      "emailHint": "Must match the identity provider's directory domain.",
+      "emailPlaceholder": "name@kumbuka.ai",
+      "nameLabel": "Display name",
+      "namePlaceholder": "Optional — pulled from the IdP if blank",
+      "roleLabel": "Role",
+      "member": "Member",
+      "admin": "Admin",
+      "adminHint": "Admins manage scopes, members, and settings. They never see anyone's private memory.",
+      "memberHint": "Members read and write shared scopes per the write-scope policy.",
+      "sent": "Invite sent via Keycloak",
+      "failed": "Invite failed"
+    }
   }
 }

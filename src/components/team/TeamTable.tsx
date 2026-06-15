@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition, type MouseEvent, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { Seg, SegButton } from "@/components/ui/Seg";
@@ -17,60 +18,38 @@ import { relTime } from "@/lib/time";
 import { updateUserAction } from "@/app/(app)/actions";
 import type { UserView } from "@/lib/api/types";
 
-const IDP_NAME = "Keycloak";
+// Module-scope rich-text renderers (not defined during render).
+const richB = (c: ReactNode) => <b>{c}</b>;
+const richIdp = (c: ReactNode) => <span className="idp-name">{c}</span>;
 
 type ConfirmAction = "disable" | "enable" | "mute" | "unmute";
 
-const CONFIRM_LABELS: Record<ConfirmAction, string> = {
-  enable: "Enable",
-  disable: "Disable",
-  mute: "Mute",
-  unmute: "Unmute",
+// Visual chrome per action; the copy lives in the team.confirm messages.
+const CONFIRM_CHROME: Record<ConfirmAction, { icon: "shield" | "eyeOff"; danger: boolean }> = {
+  enable: { icon: "shield", danger: false },
+  disable: { icon: "eyeOff", danger: true },
+  mute: { icon: "eyeOff", danger: false },
+  unmute: { icon: "shield", danger: false },
 };
 
-function confirmLabelFor(pending: boolean, action: ConfirmAction): string {
-  return pending ? "Working…" : CONFIRM_LABELS[action];
-}
+type ConfirmT = ReturnType<typeof useTranslations>;
 
-/** Copy + chrome for the confirm modal, by action. Flat lookup, no nested ternary. */
+/**
+ * Copy + chrome for the confirm modal, by action. The text is resolved through
+ * a next-intl translator for the "team.confirm" namespace (passed in, since
+ * this is a plain function — exported for unit tests).
+ */
 export function confirmCopy(
   action: ConfirmAction,
   name: string,
+  t: ConfirmT,
 ): { eyebrow: string; title: string; body: string; icon: "shield" | "eyeOff"; danger: boolean } {
-  switch (action) {
-    case "enable":
-      return {
-        eyebrow: "enable account",
-        title: `Enable ${name}?`,
-        body: "They regain console and API access immediately. Their private memory was never touched.",
-        icon: "shield",
-        danger: false,
-      };
-    case "disable":
-      return {
-        eyebrow: "disable account",
-        title: `Disable ${name}?`,
-        body: `They lose console and API access immediately. ${IDP_NAME} suspends the account; their private memory is untouched and stays theirs.`,
-        icon: "eyeOff",
-        danger: true,
-      };
-    case "mute":
-      return {
-        eyebrow: "mute member",
-        title: `Mute ${name}?`,
-        body: "Shared writes are suspended — on this console and through the assistant. Reading is unaffected, and their private memory stays fully theirs. Reversible anytime.",
-        icon: "eyeOff",
-        danger: false,
-      };
-    case "unmute":
-      return {
-        eyebrow: "unmute member",
-        title: `Unmute ${name}?`,
-        body: "Shared writes resume immediately — on this console and through the assistant.",
-        icon: "shield",
-        danger: false,
-      };
-  }
+  return {
+    eyebrow: t(`${action}.eyebrow`),
+    title: t(`${action}.title`, { name }),
+    body: t(`${action}.body`),
+    ...CONFIRM_CHROME[action],
+  };
 }
 
 export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
@@ -78,6 +57,8 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
   const params = useSearchParams();
   const toast = useToast();
   const menu = useMenu();
+  const t = useTranslations("team");
+  const tc = useTranslations("team.confirm");
   const [inviting, setInviting] = useState(false);
   const [confirm, setConfirm] = useState<{
     user: UserView;
@@ -111,7 +92,7 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
     const lastAdminGuard = u.role === "admin" && adminCount <= 1;
     menu.open(e, [
       {
-        label: u.role === "admin" ? "Make member" : "Make admin",
+        label: u.role === "admin" ? t("menu.makeMember") : t("menu.makeAdmin"),
         icon: "user",
         disabled: lastAdminGuard && u.role === "admin",
         onSelect: () =>
@@ -119,22 +100,25 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
             try {
               await updateUserAction(u.id, { role: u.role === "admin" ? "member" : "admin" });
               toast.push({
-                message: `${u.displayName} is now ${u.role === "admin" ? "a member" : "an admin"}`,
+                message:
+                  u.role === "admin"
+                    ? t("toast.nowMember", { name: u.displayName })
+                    : t("toast.nowAdmin", { name: u.displayName }),
               });
             } catch (err) {
-              toast.push({ message: err instanceof Error ? err.message : "Update failed" });
+              toast.push({ message: err instanceof Error ? err.message : t("toast.updateFailed") });
             }
           }),
       },
       { kind: "sep" },
       u.muted
         ? {
-            label: "Unmute member",
+            label: t("menu.unmuteMember"),
             icon: "edit",
             onSelect: () => setConfirm({ user: u, action: "unmute" }),
           }
         : {
-            label: "Mute member",
+            label: t("menu.muteMember"),
             icon: "eyeOff",
             disabled: u.self,   // you can't mute yourself
             onSelect: () => setConfirm({ user: u, action: "mute" }),
@@ -142,12 +126,12 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
       { kind: "sep" },
       u.status === "disabled"
         ? {
-            label: "Enable account",
+            label: t("menu.enableAccount"),
             icon: "shield",
             onSelect: () => setConfirm({ user: u, action: "enable" }),
           }
         : {
-            label: "Disable account",
+            label: t("menu.disableAccount"),
             icon: "eyeOff",
             danger: true,
             disabled: u.self || (u.role === "admin" && lastAdminGuard),
@@ -163,28 +147,33 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
       try {
         if (action === "mute" || action === "unmute") {
           await updateUserAction(user.id, { muted: action === "mute" });
-          toast.push({ message: `${user.displayName} ${action === "mute" ? "muted" : "unmuted"}` });
+          toast.push({
+            message: t(action === "mute" ? "toast.muted" : "toast.unmuted", { name: user.displayName }),
+          });
         } else {
           await updateUserAction(user.id, { status: action === "enable" ? "active" : "disabled" });
-          toast.push({ message: `${user.displayName} ${action === "enable" ? "enabled" : "disabled"}` });
+          toast.push({
+            message: t(action === "enable" ? "toast.enabled" : "toast.disabled", { name: user.displayName }),
+          });
         }
         setConfirm(null);
       } catch (err) {
-        toast.push({ message: err instanceof Error ? err.message : "Update failed" });
+        toast.push({ message: err instanceof Error ? err.message : t("toast.updateFailed") });
       }
     });
   };
 
   let confirmModal: ReactNode = null;
   if (confirm) {
-    const c = confirmCopy(confirm.action, confirm.user.displayName);
+    const c = confirmCopy(confirm.action, confirm.user.displayName, tc);
+    const confirmLabel = pending ? t("confirmAction.working") : t(`confirmAction.${confirm.action}`);
     confirmModal = (
       <ConfirmModal
         eyebrow={c.eyebrow}
         title={c.title}
         body={c.body}
         target={confirm.user.email}
-        confirmLabel={confirmLabelFor(pending, confirm.action)}
+        confirmLabel={confirmLabel}
         confirmIcon={c.icon}
         danger={c.danger}
         onCancel={() => setConfirm(null)}
@@ -197,11 +186,7 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
     <div className="team-screen">
       <div className="idp-banner">
         <Icon name="shield" />
-        <span>
-          Accounts are managed in <span className="idp-name">{IDP_NAME}</span>. <b>Create</b>,{" "}
-          <b>disable</b>, and <b>role</b> changes here write through to the directory — they are
-          not local to this console. Each member&apos;s <b>private</b> memory remains theirs.
-        </span>
+        <span>{t.rich("idpBanner", { idp: richIdp, b: richB })}</span>
       </div>
 
       <div className="team-toolbar">
@@ -210,43 +195,43 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
           <input
             defaultValue={query}
             onChange={(e) => setParam("q", e.target.value || null)}
-            placeholder="Search name or email…"
-            aria-label="Search members"
+            placeholder={t("searchPlaceholder")}
+            aria-label={t("searchAria")}
           />
         </div>
-        <Seg ariaLabel="Filter by role">
+        <Seg ariaLabel={t("filterAria")}>
           <SegButton on={roleFilter === "all"} onClick={() => setParam("role", null)}>
-            All
+            {t("filterAll")}
           </SegButton>
           <SegButton on={roleFilter === "admin"} onClick={() => setParam("role", "admin")}>
-            Admins
+            {t("filterAdmins")}
           </SegButton>
           <SegButton on={roleFilter === "member"} onClick={() => setParam("role", "member")}>
-            Members
+            {t("filterMembers")}
           </SegButton>
         </Seg>
         <span className="result-count">
-          {rows.length} of {users.length}
+          {t("resultCount", { shown: rows.length, total: users.length })}
         </span>
         <span className="spacer" />
         <Button variant="primary" onClick={() => setInviting(true)}>
           <Icon name="mail" />
-          <span className="txt">Invite member</span>
+          <span className="txt">{t("inviteBtn")}</span>
         </Button>
       </div>
 
       <div className="team-body">
         {rows.length === 0 ? (
-          <EmptyState icon="users" title="No members match" body="Adjust the search or role filter." />
+          <EmptyState icon="users" title={t("emptyTitle")} body={t("emptyBody")} />
         ) : (
           <table className="utable">
             <thead>
               <tr>
-                <th style={{ width: "38%" }}>Member</th>
-                <th style={{ width: 140 }}>Role</th>
-                <th style={{ width: 150 }}>Status</th>
-                <th style={{ width: 150 }}>Last active</th>
-                <th style={{ width: 56 }} aria-label="Actions" />
+                <th style={{ width: "38%" }}>{t("colMember")}</th>
+                <th style={{ width: 140 }}>{t("colRole")}</th>
+                <th style={{ width: 150 }}>{t("colStatus")}</th>
+                <th style={{ width: 150 }}>{t("colLastActive")}</th>
+                <th style={{ width: 56 }} aria-label={t("actionsAria")} />
               </tr>
             </thead>
             <tbody>
@@ -260,7 +245,7 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
                           {u.displayName}
                           {u.self ? (
                             <span className="scope-flag" style={{ marginLeft: 9 }}>
-                              you
+                              {t("you")}
                             </span>
                           ) : null}
                         </div>
@@ -272,8 +257,8 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
                     <span className="role-cell">
                       <RoleBadge role={u.role} />
                       {u.muted ? (
-                        <span className="mute-badge mono" title="Shared writes suspended">
-                          muted
+                        <span className="mute-badge mono" title={t("mutedTitle")}>
+                          {t("mutedBadge")}
                         </span>
                       ) : null}
                     </span>
@@ -282,13 +267,13 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
                     <UserStatus status={u.status} />
                   </td>
                   <td>
-                    <span className="u-last">{u.lastSeenAt ? relTime(u.lastSeenAt) : "never"}</span>
+                    <span className="u-last">{u.lastSeenAt ? relTime(u.lastSeenAt) : t("never")}</span>
                   </td>
                   <td>
                     <button
                       className="row-menu-btn"
                       style={{ opacity: 1 }}
-                      aria-label={`Actions for ${u.displayName}`}
+                      aria-label={t("rowActionsAria", { name: u.displayName })}
                       onClick={(ev) => openUserMenu(ev, u)}
                       type="button"
                     >
