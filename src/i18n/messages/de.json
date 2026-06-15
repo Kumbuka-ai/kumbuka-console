@@ -99,5 +99,63 @@
       "copied": "Anweisungen in die Zwischenablage kopiert",
       "prompt": "Du hast über den MCP-Connector Zugriff auf kumbuka — das geteilte Gedächtnis unseres Teams. Behandle es als verbindliche Quelle dafür, wie dieses Team arbeitet, und halte es während der Arbeit aktuell.\n\nZu Beginn jeder Sitzung:\n- Rufe memory_load_context auf, um das steuernde Wissen des Teams zu laden (Entscheidungen, Konventionen, Constraints, Glossar, Status) und wende es an, ohne erneut darauf hingewiesen zu werden.\n\nWährend der Arbeit:\n- Bevor du zu unserem Setup, unseren Konventionen oder früheren Entscheidungen antwortest, rufe memory_recall auf, um zu prüfen, was bereits festgehalten ist. Bevorzuge festgehaltenes Team-Wissen gegenüber Annahmen.\n- Wenn wir eine Entscheidung treffen, eine Konvention vereinbaren, ein Constraint setzen, einen Begriff definieren oder einen Status festhalten, rufe memory_remember auf, um es zu speichern. Wähle den richtigen Typ (decision, convention, constraint, open_question, glossary, status) und halte jeden Eintrag auf eine einzige klare Aussage begrenzt — kein Dokument.\n- Wenn etwas Wichtiges fehlt oder falsch ist, frage nach und biete dann an, die korrigierte Antwort zu speichern.\n\nScopes:\n- Geteilte Scopes (global und die Projekt-Scopes) sind für das ganze Team sichtbar — lege dort niemals Geheimnisse oder sensible personenbezogene Daten ab.\n- Dein privater Scope gehört dir allein; nutze ihn für persönliche Arbeitsnotizen."
     }
+  },
+  "account": {
+    "verified": "von Keycloak verifiziert",
+    "openIdp": "Identity-Provider öffnen",
+    "profile": {
+      "eyebrow": "Profil",
+      "title": "Anzeigename",
+      "desc": "Wie dein Name neben den Einträgen erscheint, die du in dieser Konsole verfasst.",
+      "placeholder": "Anzeigename",
+      "hint": "Deine E-Mail und Anmeldedaten werden von Keycloak verwaltet — nutze den Link oben, um sie zu ändern.",
+      "discard": "Verwerfen",
+      "save": "Speichern",
+      "updated": "Profil aktualisiert",
+      "saveFailed": "Speichern fehlgeschlagen"
+    },
+    "security": {
+      "eyebrow": "Sicherheit",
+      "title": "Anmeldung & Zugangsdaten",
+      "desc": "Passwort, Zwei-Faktor-Authentifizierung und Passkeys werden in der Keycloak-Kontoverwaltung verwaltet.",
+      "password_title": "Passwort",
+      "password_sub": "Ändere dein Passwort oder richte Wiederherstellungsoptionen ein.",
+      "twofa_title": "Zwei-Faktor-Authentifizierung",
+      "twofa_sub": "Authenticator-App oder Einmalcodes per E-Mail.",
+      "passkey_title": "Passkey",
+      "passkey_sub": "Melde dich mit einem Hardware-Schlüssel oder Plattform-Authenticator an."
+    },
+    "connections": {
+      "eyebrow": "aktive Verbindungen",
+      "title": "Wo du angemeldet bist",
+      "desc": "Jede aktive Verbindung zu Kumbuka — diese Konsole und jeder Assistenten-Connector. Beende jede, die du nicht kennst; der Zugriff dieser Sitzung wird sofort widerrufen.",
+      "loadError": "Deine aktiven Verbindungen konnten gerade nicht geladen werden.",
+      "manageIdp": "Verwalte sie im Identity-Provider",
+      "empty": "Keine weiteren aktiven Verbindungen.",
+      "webConsole": "Web-Konsole",
+      "connector": "Assistenten-Connector",
+      "connectorAlias": "Assistenten-Connector · {alias}",
+      "session": "Sitzung",
+      "thisDevice": "dieses Gerät",
+      "activeAgo": "aktiv {time}",
+      "useSignout": "unten abmelden",
+      "end": "Beenden",
+      "ended": "Verbindung beendet",
+      "endFailed": "Verbindung konnte nicht beendet werden"
+    },
+    "private": {
+      "eyebrow": "dein privates Gedächtnis",
+      "title": "Nur für dich",
+      "desc": "Der Bereich, den der Assistent mit dir nutzt und den niemand sonst erreichen kann.",
+      "lockedTitle": "Privates Gedächtnis gehört dir allein",
+      "lockedBody": "Dein privater Scope gehört dir. Er wird in dieser Konsole nie angezeigt — weder dir noch Admins — und ist über den Connector nie erreichbar. Der Assistent liest und schreibt ihn nur in deinem Auftrag, aus deiner authentifizierten Sitzung.",
+      "enforced": "erzwungen"
+    },
+    "signout": {
+      "eyebrow": "Sitzung",
+      "title": "Abmelden",
+      "desc": "Beende deine Konsolen-Sitzung und melde dich bei Keycloak ab.",
+      "button": "Abmelden"
+    }
   }
 }

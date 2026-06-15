@@ -1,7 +1,18 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+import en from "@/i18n/messages/en.json";
 import { AccountForm } from "./AccountForm";
 import type { ActiveSession, SessionView } from "@/lib/api/types";
+
+// Render under a fixed `en` provider so these assertions stay in English.
+function renderAccount(props: { session: SessionView; sessions: ActiveSession[] | null }) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={en}>
+      <AccountForm {...props} />
+    </NextIntlClientProvider>,
+  );
+}
 
 // Server actions + toast are the two cross-cutting deps; stub them so the
 // test sees only AccountForm's own job — rendering the caller's connections
@@ -55,7 +66,7 @@ describe("AccountForm — active connections (D-CORE-8)", () => {
   });
 
   it("lists the caller's connections, labelling client + marking the current one", () => {
-    render(<AccountForm session={SESSION} sessions={SESSIONS} />);
+    renderAccount({ session: SESSION, sessions: SESSIONS });
     expect(screen.getByText(/Web console/)).toBeTruthy();
     expect(screen.getByText(/Assistant connector/)).toBeTruthy();
     // The connector alias is surfaced as part of the label.
@@ -66,7 +77,7 @@ describe("AccountForm — active connections (D-CORE-8)", () => {
 
   it("terminating a non-current session delegates by id", async () => {
     terminateMock.mockResolvedValue(undefined);
-    render(<AccountForm session={SESSION} sessions={SESSIONS} />);
+    renderAccount({ session: SESSION, sessions: SESSIONS });
 
     // Exactly one End button — for the non-current connector session.
     const endBtn = screen.getByRole("button", { name: /End/ });
@@ -76,12 +87,12 @@ describe("AccountForm — active connections (D-CORE-8)", () => {
   });
 
   it("falls back to the identity-provider link when sessions can't be loaded", () => {
-    render(<AccountForm session={SESSION} sessions={null} />);
+    renderAccount({ session: SESSION, sessions: null });
     expect(screen.getByText(/Manage them in the identity provider/)).toBeTruthy();
   });
 
   it("shows an empty state when there are no other connections", () => {
-    render(<AccountForm session={SESSION} sessions={[]} />);
+    renderAccount({ session: SESSION, sessions: [] });
     expect(screen.getByText(/No other active connections/)).toBeTruthy();
   });
 });
