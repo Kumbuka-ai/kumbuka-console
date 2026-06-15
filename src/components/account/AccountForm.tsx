@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { Avatar, initialsOf } from "@/components/ui/Avatar";
@@ -24,6 +25,8 @@ export function AccountForm({
   const [savedName, setSavedName] = useState(initial);
   const [pending, start] = useTransition();
   const toast = useToast();
+  const t = useTranslations("account");
+  const tRoles = useTranslations("roles");
 
   const dirty = displayName.trim() !== savedName && displayName.trim().length > 0;
 
@@ -33,9 +36,9 @@ export function AccountForm({
       try {
         const next = await updateMeAction({ displayName: displayName.trim() });
         setSavedName(next.displayName ?? "");
-        toast.push({ message: "Profile updated" });
+        toast.push({ message: t("profile.updated") });
       } catch (err) {
-        toast.push({ message: err instanceof Error ? err.message : "Save failed" });
+        toast.push({ message: err instanceof Error ? err.message : t("profile.saveFailed") });
       }
     });
   };
@@ -57,26 +60,26 @@ export function AccountForm({
             <div className="ai-meta">
               <span className="verified">
                 <Icon name="ok" />
-                verified by Keycloak
+                {t("verified")}
               </span>
               <span className="rolebadge">
                 <span className="dot" />
-                {session.role}
+                {tRoles(session.role)}
               </span>
             </div>
           </div>
           <a className="btn" href={kc} target="_blank" rel="noreferrer">
             <Icon name="external" />
-            <span className="txt">Open identity provider</span>
+            <span className="txt">{t("openIdp")}</span>
           </a>
         </div>
 
         {/* Display name (the only in-app editable field) --------------- */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">{"// "}profile</span>
-            <h3>Display name</h3>
-            <p>How your name appears next to entries you author in this console.</p>
+            <span className="eyebrow">{"// "}{t("profile.eyebrow")}</span>
+            <h3>{t("profile.title")}</h3>
+            <p>{t("profile.desc")}</p>
           </div>
           <div className="set-body">
             <div className="field">
@@ -84,21 +87,18 @@ export function AccountForm({
                 className="input"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Display name"
-                aria-label="Display name"
+                placeholder={t("profile.placeholder")}
+                aria-label={t("profile.placeholder")}
               />
-              <span className="hint">
-                Your email and login credentials are managed by Keycloak — use the link above to
-                change them.
-              </span>
+              <span className="hint">{t("profile.hint")}</span>
             </div>
             <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
               <Button disabled={!dirty || pending} onClick={() => setDisplayName(savedName)}>
-                Discard
+                {t("profile.discard")}
               </Button>
               <Button variant="primary" disabled={!dirty || pending} onClick={save}>
                 <Icon name="check" />
-                <span className="txt">Save</span>
+                <span className="txt">{t("profile.save")}</span>
               </Button>
             </div>
           </div>
@@ -107,32 +107,29 @@ export function AccountForm({
         {/* Credentials / MFA / Passkey — link-outs --------------------- */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">{"// "}security</span>
-            <h3>Sign-in & credentials</h3>
-            <p>
-              Password, two-factor authentication, and passkeys are managed in the Keycloak account
-              console.
-            </p>
+            <span className="eyebrow">{"// "}{t("security.eyebrow")}</span>
+            <h3>{t("security.title")}</h3>
+            <p>{t("security.desc")}</p>
           </div>
           <div className="set-body">
             <div className="methods">
               <LinkOutMethod
                 href={`${kc}#/security/signingin`}
                 icon="key"
-                title="Password"
-                sub="Change your password or set up recovery options."
+                title={t("security.password_title")}
+                sub={t("security.password_sub")}
               />
               <LinkOutMethod
                 href={`${kc}#/security/signingin`}
                 icon="phone"
-                title="Two-factor authentication"
-                sub="Authenticator app or one-time codes by email."
+                title={t("security.twofa_title")}
+                sub={t("security.twofa_sub")}
               />
               <LinkOutMethod
                 href={`${kc}#/security/signingin`}
                 icon="shield"
-                title="Passkey"
-                sub="Sign in with a hardware key or platform authenticator."
+                title={t("security.passkey_title")}
+                sub={t("security.passkey_sub")}
               />
             </div>
           </div>
@@ -141,12 +138,9 @@ export function AccountForm({
         {/* Active connections (D-CORE-8) — inline list + terminate ------ */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">{"// "}active connections</span>
-            <h3>Where you&apos;re signed in</h3>
-            <p>
-              Every active connection to Kumbuka — this console and any assistant connector. End any
-              you don&apos;t recognise; that session&apos;s access is revoked immediately.
-            </p>
+            <span className="eyebrow">{"// "}{t("connections.eyebrow")}</span>
+            <h3>{t("connections.title")}</h3>
+            <p>{t("connections.desc")}</p>
           </div>
           <div className="set-body">
             <ConnectionsBody sessions={sessions} kcUrl={kc} />
@@ -156,9 +150,9 @@ export function AccountForm({
         {/* Private guarantee — surface 4 of 5 -------------------------- */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">{"// "}your private memory</span>
-            <h3>Yours alone</h3>
-            <p>The space the assistant uses with you that nobody else can reach.</p>
+            <span className="eyebrow">{"// "}{t("private.eyebrow")}</span>
+            <h3>{t("private.title")}</h3>
+            <p>{t("private.desc")}</p>
           </div>
           <div className="set-body">
             <div className="set-locked">
@@ -166,15 +160,11 @@ export function AccountForm({
                 <Icon name="lock" />
               </div>
               <div>
-                <div className="sl-title">Private memory is yours alone</div>
-                <p>
-                  Your private scope is owned by you. It is never shown in this console — not to
-                  you, not to admins — and is never reachable through the connector. The assistant
-                  reads and writes it only on your behalf, from your authenticated session.
-                </p>
+                <div className="sl-title">{t("private.lockedTitle")}</div>
+                <p>{t("private.lockedBody")}</p>
               </div>
               <span className="sl-state">
-                <Icon name="lock" /> enforced
+                <Icon name="lock" /> {t("private.enforced")}
               </span>
             </div>
           </div>
@@ -183,14 +173,14 @@ export function AccountForm({
         {/* Sign out --------------------------------------------------- */}
         <div className="set-block">
           <div className="set-intro">
-            <span className="eyebrow">{"// "}session</span>
-            <h3>Sign out</h3>
-            <p>End your console session and log out at Keycloak.</p>
+            <span className="eyebrow">{"// "}{t("signout.eyebrow")}</span>
+            <h3>{t("signout.title")}</h3>
+            <p>{t("signout.desc")}</p>
           </div>
           <div className="set-body">
             <a className="btn danger" href="/api/auth/logout">
               <Icon name="logout" />
-              <span className="txt">Sign out</span>
+              <span className="txt">{t("signout.button")}</span>
             </a>
           </div>
         </div>
@@ -226,18 +216,27 @@ function LinkOutMethod({
   );
 }
 
-/** Turn the OAuth client ids on a session into a human label + icon. */
-function describeClients(clients: string[]): { icon: "monitor" | "bot" | "link"; label: string } {
+/**
+ * Classify the OAuth client ids on a session into an icon + a translation
+ * descriptor. The visible label is resolved in SessionRow (where the i18n hook
+ * lives) so this stays a pure, hook-free helper.
+ */
+type ClientDesc =
+  | { icon: "bot"; kind: "connector"; alias?: string }
+  | { icon: "monitor"; kind: "console" }
+  | { icon: "link"; kind: "other"; fallback: string | null };
+
+function describeClients(clients: string[]): ClientDesc {
   if (clients.some((c) => c.startsWith("kumbuka-connector"))) {
     const alias = clients
       .find((c) => c.startsWith("kumbuka-connector-"))
       ?.slice("kumbuka-connector-".length);
-    return { icon: "bot", label: alias ? `Assistant connector · ${alias}` : "Assistant connector" };
+    return { icon: "bot", kind: "connector", alias };
   }
   if (clients.includes("kumbuka-admin")) {
-    return { icon: "monitor", label: "Web console" };
+    return { icon: "monitor", kind: "console" };
   }
-  return { icon: "link", label: clients[0] ?? "Session" };
+  return { icon: "link", kind: "other", fallback: clients[0] ?? null };
 }
 
 /**
@@ -248,13 +247,14 @@ function ConnectionsBody({
   sessions,
   kcUrl,
 }: Readonly<{ sessions: ActiveSession[] | null; kcUrl: string }>) {
+  const t = useTranslations("account.connections");
   if (sessions === null) {
     return (
       <div className="field">
         <span className="hint">
-          Couldn&apos;t load your active connections right now.{" "}
+          {t("loadError")}{" "}
           <a href={`${kcUrl}#/security/device-activity`} target="_blank" rel="noreferrer">
-            Manage them in the identity provider
+            {t("manageIdp")}
           </a>
           {"."}
         </span>
@@ -264,7 +264,7 @@ function ConnectionsBody({
   if (sessions.length === 0) {
     return (
       <div className="field">
-        <span className="hint">No other active connections.</span>
+        <span className="hint">{t("empty")}</span>
       </div>
     );
   }
@@ -280,16 +280,22 @@ function ConnectionsBody({
 function SessionRow({ session }: Readonly<{ session: ActiveSession }>) {
   const [pending, start] = useTransition();
   const toast = useToast();
-  const { icon, label } = describeClients(session.clients);
+  const t = useTranslations("account.connections");
+  const d = describeClients(session.clients);
+  const icon = d.icon;
+  let label: string;
+  if (d.kind === "connector") label = d.alias ? t("connectorAlias", { alias: d.alias }) : t("connector");
+  else if (d.kind === "console") label = t("webConsole");
+  else label = d.fallback ?? t("session");
 
   const terminate = () => {
     if (pending) return;
     start(async () => {
       try {
         await terminateSessionAction(session.id);
-        toast.push({ message: "Connection ended" });
+        toast.push({ message: t("ended") });
       } catch (err) {
-        toast.push({ message: err instanceof Error ? err.message : "Couldn't end the connection" });
+        toast.push({ message: err instanceof Error ? err.message : t("endFailed") });
       }
     });
   };
@@ -302,21 +308,21 @@ function SessionRow({ session }: Readonly<{ session: ActiveSession }>) {
       <div>
         <div className="s-dev">
           {label}
-          {session.current ? <span className="s-cur">this device</span> : null}
+          {session.current ? <span className="s-cur">{t("thisDevice")}</span> : null}
         </div>
         <div className="s-meta">
           {session.ipAddress ? <span className="mono">{session.ipAddress}</span> : null}
           {session.ipAddress && session.lastAccessAt ? " · " : null}
-          {session.lastAccessAt ? <span>active {relTime(session.lastAccessAt)}</span> : null}
+          {session.lastAccessAt ? <span>{t("activeAgo", { time: relTime(session.lastAccessAt) })}</span> : null}
         </div>
       </div>
       {session.current ? (
         <span className="s-revoke" aria-disabled="true">
-          use Sign out below
+          {t("useSignout")}
         </span>
       ) : (
         <button type="button" className="s-revoke" onClick={terminate} disabled={pending}>
-          End
+          {t("end")}
         </button>
       )}
     </div>

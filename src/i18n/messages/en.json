@@ -99,5 +99,63 @@
       "copied": "Instructions copied to clipboard",
       "prompt": "You have access to kumbuka — our team's shared memory — through its MCP connector. Treat it as the source of truth for how this team works, and keep it up to date as we work.\n\nAt the start of each session:\n- Call memory_load_context to load the team's steering knowledge (decisions, conventions, constraints, glossary, status) and apply it without being told again.\n\nWhile you work:\n- Before answering about our setup, conventions, or past decisions, call memory_recall to check what is already recorded. Prefer recorded team knowledge over assumptions.\n- When we settle a decision, agree a convention, set a constraint, define a term, or note a status, call memory_remember to save it. Choose the right type (decision, convention, constraint, open_question, glossary, status) and keep each entry to a single clear statement — not a document.\n- If something important is missing or wrong, ask, then offer to remember the corrected answer.\n\nScopes:\n- Shared scopes (global and the project scopes) are visible to the whole team — never put secrets or sensitive personal data there.\n- Your private scope is yours alone; use it for personal working notes."
     }
+  },
+  "account": {
+    "verified": "verified by Keycloak",
+    "openIdp": "Open identity provider",
+    "profile": {
+      "eyebrow": "profile",
+      "title": "Display name",
+      "desc": "How your name appears next to entries you author in this console.",
+      "placeholder": "Display name",
+      "hint": "Your email and login credentials are managed by Keycloak — use the link above to change them.",
+      "discard": "Discard",
+      "save": "Save",
+      "updated": "Profile updated",
+      "saveFailed": "Save failed"
+    },
+    "security": {
+      "eyebrow": "security",
+      "title": "Sign-in & credentials",
+      "desc": "Password, two-factor authentication, and passkeys are managed in the Keycloak account console.",
+      "password_title": "Password",
+      "password_sub": "Change your password or set up recovery options.",
+      "twofa_title": "Two-factor authentication",
+      "twofa_sub": "Authenticator app or one-time codes by email.",
+      "passkey_title": "Passkey",
+      "passkey_sub": "Sign in with a hardware key or platform authenticator."
+    },
+    "connections": {
+      "eyebrow": "active connections",
+      "title": "Where you're signed in",
+      "desc": "Every active connection to Kumbuka — this console and any assistant connector. End any you don't recognise; that session's access is revoked immediately.",
+      "loadError": "Couldn't load your active connections right now.",
+      "manageIdp": "Manage them in the identity provider",
+      "empty": "No other active connections.",
+      "webConsole": "Web console",
+      "connector": "Assistant connector",
+      "connectorAlias": "Assistant connector · {alias}",
+      "session": "Session",
+      "thisDevice": "this device",
+      "activeAgo": "active {time}",
+      "useSignout": "use Sign out below",
+      "end": "End",
+      "ended": "Connection ended",
+      "endFailed": "Couldn't end the connection"
+    },
+    "private": {
+      "eyebrow": "your private memory",
+      "title": "Yours alone",
+      "desc": "The space the assistant uses with you that nobody else can reach.",
+      "lockedTitle": "Private memory is yours alone",
+      "lockedBody": "Your private scope is owned by you. It is never shown in this console — not to you, not to admins — and is never reachable through the connector. The assistant reads and writes it only on your behalf, from your authenticated session.",
+      "enforced": "enforced"
+    },
+    "signout": {
+      "eyebrow": "session",
+      "title": "Sign out",
+      "desc": "End your console session and log out at Keycloak.",
+      "button": "Sign out"
+    }
   }
 }
