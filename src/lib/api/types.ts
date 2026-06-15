@@ -7,6 +7,8 @@
  * deliberately excludes `private` so an unsafe scope cannot type-check.
  */
 
+import type { Locale } from "@/i18n/config";
+
 export type ScopeKind = "global" | "project";
 
 export const ENTRY_TYPE_ORDER = [
@@ -175,6 +177,12 @@ export type SessionView = {
   loginUrl?: string;
   /** D-CORE-2: the caller's own mute state — drives the member notice + gating. */
   muted: boolean;
+  /**
+   * #49: the user's persisted UI language (user_account.locale, Flyway V11).
+   * Optional for forward-compat with mock/older payloads; the cookie is the
+   * SSR source of truth and is seeded from this on a fresh device.
+   */
+  locale?: Locale;
 };
 
 /**
@@ -205,6 +213,6 @@ export type UpdateSettingsRequest = {
   defaultScopeSlug?: string | null;
   createScopes?: CreateScopes;
 };
-export type UpdateMeRequest = { displayName?: string };
+export type UpdateMeRequest = { displayName?: string; locale?: Locale };
 export type InviteUserRequest = { email: string; displayName?: string; role: UserRole };
 export type UpdateUserRequest = { role?: UserRole; status?: UserStatus; muted?: boolean };

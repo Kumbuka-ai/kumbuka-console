@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { setTheme as persistTheme, type Theme } from "@/lib/theme";
+import { setLocale as persistLocaleCookie } from "@/lib/locale";
+import type { Locale } from "@/i18n/config";
 import {
   archiveScope,
   createEntry,
@@ -28,6 +30,21 @@ import type {
 
 export async function setThemeAction(t: Theme) {
   await persistTheme(t);
+}
+
+/**
+ * #49: switch UI language. The cookie is the SSR source of truth (applied
+ * immediately); persisting to user_account.locale is best-effort so the
+ * choice follows the user across devices — a backend hiccup must not block
+ * the local switch.
+ */
+export async function setLocaleAction(l: Locale) {
+  await persistLocaleCookie(l);
+  try {
+    await updateMe({ locale: l });
+  } catch {
+    // Cookie already applied; the backend will catch up on the next change.
+  }
 }
 
 // Scopes ---------------------------------------------------------------

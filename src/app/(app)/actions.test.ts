@@ -4,9 +4,10 @@ vi.mock("server-only", () => ({}));
 
 // Mock @/lib/theme + @/lib/api so we can assert delegation +
 // revalidatePath cache-busting without standing up the real BFF.
-const { revalidatePathMock, apiMocks, persistThemeMock } = vi.hoisted(() => ({
+const { revalidatePathMock, apiMocks, persistThemeMock, persistLocaleMock } = vi.hoisted(() => ({
   revalidatePathMock: vi.fn(),
   persistThemeMock: vi.fn(),
+  persistLocaleMock: vi.fn(),
   apiMocks: {
     createScope: vi.fn(),
     renameScope: vi.fn(),
@@ -29,6 +30,9 @@ vi.mock("next/cache", () => ({
 vi.mock("@/lib/theme", () => ({
   setTheme: (t: string) => persistThemeMock(t),
 }));
+vi.mock("@/lib/locale", () => ({
+  setLocale: (l: string) => persistLocaleMock(l),
+}));
 vi.mock("@/lib/api", () => apiMocks);
 
 import {
@@ -39,6 +43,7 @@ import {
   inviteUserAction,
   renameScopeAction,
   rotateSecretAction,
+  setLocaleAction,
   setThemeAction,
   terminateSessionAction,
   updateEntryAction,
@@ -51,6 +56,7 @@ describe("Server Actions — delegation + cache invalidation", () => {
   beforeEach(() => {
     revalidatePathMock.mockReset();
     persistThemeMock.mockReset();
+    persistLocaleMock.mockReset();
     for (const fn of Object.values(apiMocks)) fn.mockReset();
   });
 
@@ -60,6 +66,22 @@ describe("Server Actions — delegation + cache invalidation", () => {
     await setThemeAction("dark");
     expect(persistThemeMock).toHaveBeenCalledWith("dark");
     expect(revalidatePathMock).not.toHaveBeenCalled();
+  });
+
+  // ---------- locale (#49) ----------------------------------------------
+
+  it("setLocaleAction writes the cookie AND persists to user_account.locale via updateMe", async () => {
+    apiMocks.updateMe.mockResolvedValue({ locale: "en" });
+    await setLocaleAction("en");
+    expect(persistLocaleMock).toHaveBeenCalledWith("en");
+    expect(apiMocks.updateMe).toHaveBeenCalledWith({ locale: "en" });
+  });
+
+  it("setLocaleAction still applies the cookie when the backend persist fails (best-effort)", async () => {
+    apiMocks.updateMe.mockRejectedValue(new Error("BFF down"));
+    await expect(setLocaleAction("de")).resolves.toBeUndefined();
+    expect(persistLocaleMock).toHaveBeenCalledWith("de");
+    expect(apiMocks.updateMe).toHaveBeenCalledWith({ locale: "de" });
   });
 
   // ---------- scopes -----------------------------------------------------
