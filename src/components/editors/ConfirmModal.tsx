@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 
@@ -25,6 +26,7 @@ export function ConfirmModal({
   onCancel: () => void;
   onConfirm: () => void;
 }>) {
+  const t = useTranslations("common");
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onCancel();
@@ -47,7 +49,7 @@ export function ConfirmModal({
           {target ? <div className="target">{target}</div> : null}
         </div>
         <div className="modal-foot">
-          <Button onClick={onCancel}>Cancel</Button>
+          <Button onClick={onCancel}>{t("cancel")}</Button>
           <Button variant={danger ? "danger" : "primary"} onClick={onConfirm}>
             {confirmIcon ? <Icon name={confirmIcon} /> : null}
             <span className="txt">{confirmLabel}</span>

@@ -43,7 +43,8 @@
   },
   "common": {
     "copy": "Copy",
-    "copied": "Copied to clipboard"
+    "copied": "Copied to clipboard",
+    "cancel": "Cancel"
   },
   "overview": {
     "stat": {
@@ -250,6 +251,76 @@
       "memberHint": "Members read and write shared scopes per the write-scope policy.",
       "sent": "Invite sent via Keycloak",
       "failed": "Invite failed"
+    }
+  },
+  "settings": {
+    "policy": {
+      "eyebrow": "policy",
+      "title": "Default write scope",
+      "desc": "Where the assistant writes a new memory when it isn't told which scope to use.",
+      "groupAria": "Default write scope",
+      "tagRecommended": "recommended",
+      "tagBroad": "broad",
+      "ask_title": "Ask each time",
+      "ask_desc": "The assistant proposes a scope and the member confirms before anything is written. Safest default for mixed teams.",
+      "project_title": "Active project scope",
+      "project_desc": "Writes land in whichever project the member is currently working in. Org-wide facts must be promoted manually.",
+      "global_title": "Organization-wide",
+      "global_desc": "Everything defaults to the global scope. Simple, but the shared baseline grows quickly — review regularly.",
+      "fallbackLabel": "Fallback scope when no project is active",
+      "fallbackGlobal": "global — organization-wide"
+    },
+    "create": {
+      "eyebrow": "permissions",
+      "title": "Who may create scopes",
+      "desc": "Project scopes carve the shared memory into spaces. The <code>global</code> scope is fixed and can't be created or removed.",
+      "groupAria": "Scope creation",
+      "admins_title": "Admins only",
+      "admins_desc": "Only admins create, rename, and archive project scopes. Members read and write within them.",
+      "members_title": "Admins & members",
+      "members_desc": "Any member can spin up a project scope. Faster for autonomous teams; expect more scopes to curate."
+    },
+    "connector": {
+      "eyebrow": "connector",
+      "title": "Connector details",
+      "desc": "The endpoint and client ID your AI client uses to reach shared memory.",
+      "descRotate": " Rotate the secret if it may have leaked.",
+      "endpoint": "Endpoint",
+      "copyEndpoint": "Copy endpoint",
+      "clientId": "Client ID",
+      "copyClientId": "Copy client id",
+      "clientSecret": "Client secret",
+      "rotate": "Rotate",
+      "noSecret": "None — public client (PKCE). Leave the secret field empty in your AI client.",
+      "idpBanner": "Identity is delegated to <idp>Keycloak</idp>. Member accounts and passwords are managed under <b>Team</b>, not here."
+    },
+    "private": {
+      "eyebrow": "guarantee",
+      "title": "Private memory",
+      "desc": "The one setting you can't change — and that's the point.",
+      "lockedTitle": "Private scopes are always private",
+      "lockedBody": "Each member's private memory is owned by them and is never exposed to admins, this console, or the connector. There is no switch to turn this off — it is enforced by the backend, not by configuration.",
+      "enforced": "enforced"
+    },
+    "savebar": {
+      "unsaved": "Unsaved changes",
+      "saved": "All changes saved",
+      "discard": "Discard",
+      "save": "Save"
+    },
+    "rotate": {
+      "eyebrow": "rotate secret",
+      "title": "Rotate the client secret?",
+      "body": "The current secret stops working immediately. Any AI client using it must be reconfigured with the new value before it can read or write memory.",
+      "target": "client secret · {clientId}",
+      "working": "Rotating…",
+      "confirm": "Rotate secret"
+    },
+    "toast": {
+      "saved": "Settings saved",
+      "saveFailed": "Save failed",
+      "rotated": "Secret rotated — copy the new value",
+      "rotateFailed": "Rotate failed"
     }
   }
 }
