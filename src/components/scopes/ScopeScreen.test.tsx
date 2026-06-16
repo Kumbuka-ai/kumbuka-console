@@ -10,8 +10,20 @@ import type { EntryView, ScopeView } from "@/lib/api/types";
 // next/navigation + the toast context. The stubs surface just the contract
 // ScopeScreen drives: ScopesPane.mobileOpen and ScopesPane.onClose.
 vi.mock("./ScopesPane", () => ({
-  ScopesPane: ({ mobileOpen, onClose }: { mobileOpen: boolean; onClose: () => void }) => (
-    <aside data-testid="scopes-pane" data-mobile-open={mobileOpen}>
+  ScopesPane: ({
+    mobileOpen,
+    onClose,
+    canCreateScopes,
+  }: {
+    mobileOpen: boolean;
+    onClose: () => void;
+    canCreateScopes?: boolean;
+  }) => (
+    <aside
+      data-testid="scopes-pane"
+      data-mobile-open={mobileOpen}
+      data-can-create={canCreateScopes}
+    >
       <button type="button" onClick={onClose}>
         pane-close
       </button>
@@ -34,7 +46,7 @@ const SCOPE: ScopeView = {
 };
 const ENTRIES: EntryView[] = [];
 
-function renderScreen() {
+function renderScreen(props: Partial<{ canCreateScopes: boolean }> = {}) {
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
       <ScopeScreen
@@ -43,6 +55,7 @@ function renderScreen() {
         scope={SCOPE}
         entries={ENTRIES}
         members={{}}
+        {...props}
       />
     </NextIntlClientProvider>,
   );
@@ -83,5 +96,15 @@ describe("ScopeScreen — mobile pane toggle", () => {
     fireEvent.click(screen.getByRole("button", { name: "pane-close" }));
 
     expect(pane().getAttribute("data-mobile-open")).toBe("false");
+  });
+
+  it("forwards canCreateScopes to the pane (gates the '+' affordance)", () => {
+    renderScreen({ canCreateScopes: false });
+    expect(pane().getAttribute("data-can-create")).toBe("false");
+  });
+
+  it("defaults canCreateScopes to true when not provided", () => {
+    renderScreen();
+    expect(pane().getAttribute("data-can-create")).toBe("true");
   });
 });

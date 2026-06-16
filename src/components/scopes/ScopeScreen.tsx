@@ -21,6 +21,7 @@ export function ScopeScreen({
   members,
   syncError,
   callerMuted,
+  canCreateScopes = true,
 }: Readonly<{
   scopes: ScopeView[];
   activeSlug: string;
@@ -29,6 +30,7 @@ export function ScopeScreen({
   members: Record<string, string>;
   syncError?: boolean;
   callerMuted?: boolean;
+  canCreateScopes?: boolean;
 }>) {
   const [paneOpen, setPaneOpen] = useState(false);
   const t = useTranslations("scopes");
@@ -55,6 +57,7 @@ export function ScopeScreen({
         activeSlug={activeSlug}
         mobileOpen={paneOpen}
         onClose={() => setPaneOpen(false)}
+        canCreateScopes={canCreateScopes}
       />
       <EntriesView
         scope={scope}

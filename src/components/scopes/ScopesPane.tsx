@@ -78,12 +78,20 @@ export function ScopesPane({
   activeSlug,
   mobileOpen = false,
   onClose,
+  canCreateScopes = true,
 }: Readonly<{
   scopes: ScopeView[];
   activeSlug: string;
   /** On narrow viewports the pane is an overlay toggled open by the parent. */
   mobileOpen?: boolean;
   onClose?: () => void;
+  /**
+   * Whether the caller may create scopes (admin, or member when the tenant's
+   * createScopes setting allows it). Hides the "+" affordance otherwise — the
+   * backend enforces this regardless, so this is purely about not offering an
+   * action that would fail.
+   */
+  canCreateScopes?: boolean;
 }>) {
   const [creating, setCreating] = useState(false);
   const [renaming, setRenaming] = useState<ScopeView | null>(null);
@@ -153,15 +161,17 @@ export function ScopesPane({
               <Icon name="x" />
             </button>
           ) : null}
-          <button
-            className="addscope"
-            onClick={() => setCreating(true)}
-            aria-label={t("newScope")}
-            title={t("newScope")}
-            type="button"
-          >
-            <Icon name="plus" />
-          </button>
+          {canCreateScopes ? (
+            <button
+              className="addscope"
+              onClick={() => setCreating(true)}
+              aria-label={t("newScope")}
+              title={t("newScope")}
+              type="button"
+            >
+              <Icon name="plus" />
+            </button>
+          ) : null}
         </div>
 
         <div className="scope-list">
