@@ -39,7 +39,7 @@ export function Rail({
   // Team management is admin-only (P0 read-authz: the roster API is locked
   // to admins). Hide the Team nav for members — defense-in-depth on top of
   // the server gate, so a member never lands on a page that would 403.
-  const nav = NAV.filter((n) => n.id !== "team" || isAdmin);
+  const navItems = NAV.filter((n) => n.id !== "team" || isAdmin);
   // Active route is derived client-side from the live pathname. (A server
   // layout cannot read the current path reliably — the old x-invoke-path /
   // x-url headers are no longer set, so the highlight was stuck on Overview.)
@@ -69,7 +69,7 @@ export function Rail({
 
       <div className="nav">
         <div className="nav-label">{t("workspace")}</div>
-        {nav.map((n) => {
+        {navItems.map((n) => {
           const active = activeId === n.id;
           let countNode: ReactNode = null;
           if (n.id === "scopes") countNode = <span className="nav-count">{totalEntries}</span>;
