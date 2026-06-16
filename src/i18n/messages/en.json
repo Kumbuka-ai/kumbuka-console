@@ -105,7 +105,6 @@
   },
   "account": {
     "verified": "verified by Keycloak",
-    "openIdp": "Open identity provider",
     "profile": {
       "eyebrow": "profile",
       "title": "Display name",
@@ -488,5 +487,13 @@
       "created": "Entry created in {slug}",
       "saveFailed": "Save failed"
     }
+  },
+  "entryError": {
+    "muted": "Your account is muted — shared-scope writes are suspended. Ask a team admin to lift the mute.",
+    "onlyAdmins": "Only admins can edit this.",
+    "protected": "This entry is protected and can't be changed.",
+    "validation": "This entry couldn't be saved: {reason}",
+    "validationFallback": "some fields are invalid",
+    "generic": "Couldn't save this entry. Please try again."
   }
 }

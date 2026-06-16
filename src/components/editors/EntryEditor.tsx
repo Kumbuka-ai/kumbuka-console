@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { SidePanel, Field } from "./SidePanel";
 import { ENTRY_TYPE_ORDER, SYSTEM_SUBJECT, type EntryType, type EntryView, type ScopeView } from "@/lib/api/types";
 import { createEntryAction, updateEntryAction } from "@/app/(app)/actions";
+import { entryWriteErrorMessage } from "@/lib/entryWriteError";
 import { relTime } from "@/lib/time";
 import { useToast } from "@/components/ui/Toast";
 
@@ -30,6 +31,7 @@ export function EntryEditor({
   const [pending, start] = useTransition();
   const toast = useToast();
   const t = useTranslations("editors.entry");
+  const tErr = useTranslations("entryError");
   const tCommon = useTranslations("common");
   const tTypes = useTranslations("entryTypes");
 
@@ -38,27 +40,27 @@ export function EntryEditor({
   const submit = () => {
     if (!canSave) return;
     start(async () => {
-      try {
-        if (editing && entry) {
-          await updateEntryAction(scope.slug, entry.id, {
-            type,
-            content: content.trim(),
-            reference: reference.trim(), // "" clears, a URL sets it
-          });
-          toast.push({ message: t("updated") });
-        } else {
-          await createEntryAction(scope.slug, {
-            type,
-            key: key.trim() || undefined,
-            content: content.trim(),
-            reference: reference.trim() || undefined,
-          });
-          toast.push({ message: t("created", { slug: scope.slug }) });
-        }
-        onClose();
-      } catch (err) {
-        toast.push({ message: err instanceof Error ? err.message : t("saveFailed") });
+      const res =
+        editing && entry
+          ? await updateEntryAction(scope.slug, entry.id, {
+              type,
+              content: content.trim(),
+              reference: reference.trim(), // "" clears, a URL sets it
+            })
+          : await createEntryAction(scope.slug, {
+              type,
+              key: key.trim() || undefined,
+              content: content.trim(),
+              reference: reference.trim() || undefined,
+            });
+      if (!res.ok) {
+        // Typed backend errors are surfaced as a translated toast — never let
+        // a non-2xx bubble into the Server-Components render (SESSION-017).
+        toast.push({ message: entryWriteErrorMessage(res, tErr) });
+        return;
       }
+      toast.push({ message: editing ? t("updated") : t("created", { slug: scope.slug }) });
+      onClose();
     });
   };
 

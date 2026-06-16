@@ -5,12 +5,15 @@ import { setTheme as persistTheme, type Theme } from "@/lib/theme";
 import { setLocale as persistLocaleCookie } from "@/lib/locale";
 import type { Locale } from "@/i18n/config";
 import {
+  ApiAuthError,
+  ApiError,
   archiveScope,
   cancelInvite,
   createEntry,
   createScope,
   deleteEntry,
   eraseUser,
+  getSession,
   inviteUser,
   renameScope,
   resendInvite,
@@ -24,12 +27,48 @@ import {
 import type {
   CreateEntryRequest,
   CreateScopeRequest,
+  EntryActionResult,
   InviteUserRequest,
   UpdateEntryRequest,
   UpdateMeRequest,
   UpdateSettingsRequest,
   UpdateUserRequest,
 } from "@/lib/api/types";
+
+/**
+ * Map a backend write failure to a typed result the form can translate.
+ * Without this, a non-2xx bubbles as an uncaught Server-Components render
+ * error that production redacts to a generic message (SESSION_016/017).
+ * ApiAuthError is re-thrown so the session-expiry → /signin redirect still
+ * fires.
+ */
+async function entryWriteFailure(err: unknown): Promise<Extract<EntryActionResult, { ok: false }>> {
+  if (err instanceof ApiAuthError) throw err;
+  if (err instanceof ApiError) {
+    if (err.status === 403) {
+      // After widening entry writes to members server-side, a 403 means the
+      // caller is muted (D-CORE-2) — distinguish it from the admin-only path.
+      let muted = false;
+      try {
+        muted = (await getSession()).muted;
+      } catch {
+        /* fall back to the admin-only message */
+      }
+      return { ok: false, reason: muted ? "muted" : "forbidden" };
+    }
+    if (err.status === 409) {
+      const code = (err.body as { code?: string } | undefined)?.code;
+      if (code === "PROTECTED_UPSERT_BLOCKED" || code === "PROTECTED_DELETE_BLOCKED") {
+        return { ok: false, reason: "protected" };
+      }
+    }
+    if (err.status === 400) {
+      const message = (err.body as { message?: string } | undefined)?.message;
+      return { ok: false, reason: "validation", detail: message };
+    }
+  }
+  return { ok: false, reason: "generic" };
+}
 
 export async function setThemeAction(t: Theme) {
   await persistTheme(t);
@@ -70,21 +109,38 @@ export async function archiveScopeAction(slug: string) {
 }
 
 // Entries --------------------------------------------------------------
-export async function createEntryAction(slug: string, req: CreateEntryRequest) {
-  const out = await createEntry(slug, req);
+export async function createEntryAction(slug: string, req: CreateEntryRequest): Promise<EntryActionResult> {
+  try {
+    await createEntry(slug, req);
+  } catch (err) {
+    return entryWriteFailure(err);
+  }
   revalidatePath(`/scopes/${slug}`);
   revalidatePath("/overview");
-  return out;
+  return { ok: true };
 }
-export async function updateEntryAction(slug: string, id: string, req: UpdateEntryRequest) {
-  const out = await updateEntry(slug, id, req);
+export async function updateEntryAction(
+  slug: string,
+  id: string,
+  req: UpdateEntryRequest,
+): Promise<EntryActionResult> {
+  try {
+    await updateEntry(slug, id, req);
+  } catch (err) {
+    return entryWriteFailure(err);
+  }
   revalidatePath(`/scopes/${slug}`);
-  return out;
+  return { ok: true };
 }
-export async function deleteEntryAction(slug: string, id: string) {
-  await deleteEntry(slug, id);
+export async function deleteEntryAction(slug: string, id: string): Promise<EntryActionResult> {
+  try {
+    await deleteEntry(slug, id);
+  } catch (err) {
+    return entryWriteFailure(err);
+  }
   revalidatePath(`/scopes/${slug}`);
   revalidatePath("/overview");
+  return { ok: true };
 }
 
 // Users ----------------------------------------------------------------

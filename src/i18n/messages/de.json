@@ -105,7 +105,6 @@
   },
   "account": {
     "verified": "von Keycloak verifiziert",
-    "openIdp": "Identity-Provider öffnen",
     "profile": {
       "eyebrow": "Profil",
       "title": "Anzeigename",
@@ -488,5 +487,13 @@
       "created": "Eintrag in {slug} erstellt",
       "saveFailed": "Speichern fehlgeschlagen"
     }
+  },
+  "entryError": {
+    "muted": "Dein Konto ist stummgeschaltet — Schreibzugriffe auf geteilte Scopes sind ausgesetzt. Bitte eine Team-Admin, die Stummschaltung aufzuheben.",
+    "onlyAdmins": "Nur Admins können das bearbeiten.",
+    "protected": "Dieser Eintrag ist geschützt und kann nicht geändert werden.",
+    "validation": "Dieser Eintrag konnte nicht gespeichert werden: {reason}",
+    "validationFallback": "einige Felder sind ungültig",
+    "generic": "Eintrag konnte nicht gespeichert werden. Bitte versuche es erneut."
   }
 }

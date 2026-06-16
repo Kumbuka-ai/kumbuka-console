@@ -4,28 +4,52 @@ vi.mock("server-only", () => ({}));
 
 // Mock @/lib/theme + @/lib/api so we can assert delegation +
 // revalidatePath cache-busting without standing up the real BFF.
-const { revalidatePathMock, apiMocks, persistThemeMock, persistLocaleMock } = vi.hoisted(() => ({
-  revalidatePathMock: vi.fn(),
-  persistThemeMock: vi.fn(),
-  persistLocaleMock: vi.fn(),
-  apiMocks: {
-    createScope: vi.fn(),
-    renameScope: vi.fn(),
-    archiveScope: vi.fn(),
-    createEntry: vi.fn(),
-    updateEntry: vi.fn(),
-    deleteEntry: vi.fn(),
-    inviteUser: vi.fn(),
-    updateUser: vi.fn(),
-    eraseUser: vi.fn(),
-    resendInvite: vi.fn(),
-    cancelInvite: vi.fn(),
-    updateSettings: vi.fn(),
-    rotateConnectorSecret: vi.fn(),
-    updateMe: vi.fn(),
-    terminateSession: vi.fn(),
-  },
-}));
+const { revalidatePathMock, apiMocks, persistThemeMock, persistLocaleMock, ApiError, ApiAuthError } =
+  vi.hoisted(() => {
+    class ApiError extends Error {
+      status: number;
+      body: unknown;
+      constructor(status: number, message: string, body?: unknown) {
+        super(message);
+        this.status = status;
+        this.body = body;
+        this.name = "ApiError";
+      }
+    }
+    class ApiAuthError extends Error {
+      loginUrl: string;
+      constructor(loginUrl: string) {
+        super("Unauthenticated");
+        this.loginUrl = loginUrl;
+        this.name = "ApiAuthError";
+      }
+    }
+    return {
+      revalidatePathMock: vi.fn(),
+      persistThemeMock: vi.fn(),
+      persistLocaleMock: vi.fn(),
+      ApiError,
+      ApiAuthError,
+      apiMocks: {
+        createScope: vi.fn(),
+        renameScope: vi.fn(),
+        archiveScope: vi.fn(),
+        createEntry: vi.fn(),
+        updateEntry: vi.fn(),
+        deleteEntry: vi.fn(),
+        getSession: vi.fn(),
+        inviteUser: vi.fn(),
+        updateUser: vi.fn(),
+        eraseUser: vi.fn(),
+        resendInvite: vi.fn(),
+        cancelInvite: vi.fn(),
+        updateSettings: vi.fn(),
+        rotateConnectorSecret: vi.fn(),
+        updateMe: vi.fn(),
+        terminateSession: vi.fn(),
+      },
+    };
+  });
 
 vi.mock("next/cache", () => ({
   revalidatePath: (p: string) => revalidatePathMock(p),
@@ -36,7 +60,7 @@ vi.mock("@/lib/theme", () => ({
 vi.mock("@/lib/locale", () => ({
   setLocale: (l: string) => persistLocaleMock(l),
 }));
-vi.mock("@/lib/api", () => apiMocks);
+vi.mock("@/lib/api", () => ({ ...apiMocks, ApiError, ApiAuthError }));
 
 import {
   archiveScopeAction,
@@ -125,10 +149,10 @@ describe("Server Actions — delegation + cache invalidation", () => {
 
   // ---------- entries ----------------------------------------------------
 
-  it("createEntryAction targets the scope page + overview", async () => {
+  it("createEntryAction targets the scope page + overview and reports success", async () => {
     apiMocks.createEntry.mockResolvedValue({ id: "e1" });
     const out = await createEntryAction("alpha", { type: "decision", content: "x" });
-    expect(out).toEqual({ id: "e1" });
+    expect(out).toEqual({ ok: true });
     expect(revalidatePathMock).toHaveBeenCalledWith("/scopes/alpha");
     expect(revalidatePathMock).toHaveBeenCalledWith("/overview");
   });
@@ -142,10 +166,71 @@ describe("Server Actions — delegation + cache invalidation", () => {
 
   it("deleteEntryAction revalidates scope + overview", async () => {
     apiMocks.deleteEntry.mockResolvedValue(undefined);
-    await deleteEntryAction("alpha", "e1");
+    const out = await deleteEntryAction("alpha", "e1");
+    expect(out).toEqual({ ok: true });
     expect(apiMocks.deleteEntry).toHaveBeenCalledWith("alpha", "e1");
     expect(revalidatePathMock).toHaveBeenCalledWith("/scopes/alpha");
     expect(revalidatePathMock).toHaveBeenCalledWith("/overview");
+  });
+
+  // ---------- entries: typed backend errors (SESSION-017) ----------------
+  // A non-2xx must become a typed result, never throw into the render.
+
+  it("maps a 403 from a muted member to reason=muted (no revalidation)", async () => {
+    apiMocks.createEntry.mockRejectedValue(new ApiError(403, "forbidden"));
+    apiMocks.getSession.mockResolvedValue({ muted: true });
+    const out = await createEntryAction("alpha", { type: "decision", content: "x" });
+    expect(out).toEqual({ ok: false, reason: "muted" });
+    expect(revalidatePathMock).not.toHaveBeenCalled();
+  });
+
+  it("maps a 403 for a non-muted caller to reason=forbidden (admin-only path)", async () => {
+    apiMocks.updateEntry.mockRejectedValue(new ApiError(403, "forbidden"));
+    apiMocks.getSession.mockResolvedValue({ muted: false });
+    const out = await updateEntryAction("alpha", "e1", { content: "v2" });
+    expect(out).toEqual({ ok: false, reason: "forbidden" });
+  });
+
+  it("maps a 409 PROTECTED_UPSERT_BLOCKED to reason=protected", async () => {
+    apiMocks.createEntry.mockRejectedValue(
+      new ApiError(409, "conflict", { code: "PROTECTED_UPSERT_BLOCKED" }),
+    );
+    const out = await createEntryAction("alpha", { type: "convention", content: "x" });
+    expect(out).toEqual({ ok: false, reason: "protected" });
+  });
+
+  it("maps a 409 PROTECTED_DELETE_BLOCKED to reason=protected", async () => {
+    apiMocks.deleteEntry.mockRejectedValue(
+      new ApiError(409, "conflict", { code: "PROTECTED_DELETE_BLOCKED" }),
+    );
+    const out = await deleteEntryAction("alpha", "e1");
+    expect(out).toEqual({ ok: false, reason: "protected" });
+  });
+
+  it("maps a 400 to reason=validation carrying the backend reason", async () => {
+    apiMocks.createEntry.mockRejectedValue(
+      new ApiError(400, "bad request", { message: "content exceeds 1500 characters" }),
+    );
+    const out = await createEntryAction("alpha", { type: "decision", content: "x".repeat(1501) });
+    expect(out).toEqual({
+      ok: false,
+      reason: "validation",
+      detail: "content exceeds 1500 characters",
+    });
+  });
+
+  it("maps any other non-2xx to reason=generic", async () => {
+    apiMocks.createEntry.mockRejectedValue(new ApiError(500, "boom"));
+    const out = await createEntryAction("alpha", { type: "decision", content: "x" });
+    expect(out).toEqual({ ok: false, reason: "generic" });
+  });
+
+  it("re-throws ApiAuthError so the session-expiry → /signin redirect still fires", async () => {
+    apiMocks.createEntry.mockRejectedValue(new ApiAuthError("/signin"));
+    await expect(createEntryAction("alpha", { type: "decision", content: "x" })).rejects.toBeInstanceOf(
+      ApiAuthError,
+    );
+    expect(revalidatePathMock).not.toHaveBeenCalled();
   });
 
   // ---------- users ------------------------------------------------------

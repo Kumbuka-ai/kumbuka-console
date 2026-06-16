@@ -14,6 +14,7 @@ import { EmptyState, ErrorState } from "@/components/ui/State";
 import { EntryEditor } from "@/components/editors/EntryEditor";
 import { ConfirmModal } from "@/components/editors/ConfirmModal";
 import { deleteEntryAction } from "@/app/(app)/actions";
+import { entryWriteErrorMessage } from "@/lib/entryWriteError";
 import { relTime, absTime } from "@/lib/time";
 import {
   ENTRY_TYPE_ORDER,
@@ -65,6 +66,7 @@ export function EntriesView({
   const toast = useToast();
   const menu = useMenu();
   const t = useTranslations("scopes");
+  const tErr = useTranslations("entryError");
   const tTypes = useTranslations("entryTypes");
 
   const layout = (params.get("layout") as "table" | "cards" | null) ?? "table";
@@ -179,13 +181,14 @@ export function EntriesView({
     if (!confirmDel) return;
     const target = confirmDel;
     start(async () => {
-      try {
-        await deleteEntryAction(scope.slug, target.id);
-        toast.push({ message: t("toast.entryDeleted") });
-        setConfirmDel(null);
-      } catch (err) {
-        toast.push({ message: err instanceof Error ? err.message : t("toast.deleteFailed") });
+      const res = await deleteEntryAction(scope.slug, target.id);
+      if (!res.ok) {
+        // Typed backend error → translated toast; keep the modal open.
+        toast.push({ message: entryWriteErrorMessage(res, tErr) });
+        return;
       }
+      toast.push({ message: t("toast.entryDeleted") });
+      setConfirmDel(null);
     });
   };
 

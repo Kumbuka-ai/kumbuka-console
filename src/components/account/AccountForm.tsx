@@ -68,10 +68,6 @@ export function AccountForm({
               </span>
             </div>
           </div>
-          <a className="btn" href={kc} target="_blank" rel="noreferrer">
-            <Icon name="external" />
-            <span className="txt">{t("openIdp")}</span>
-          </a>
         </div>
 
         {/* Display name (the only in-app editable field) --------------- */}
