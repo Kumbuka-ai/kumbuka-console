@@ -35,6 +35,33 @@ import type {
   UpdateUserRequest,
 } from "@/lib/api/types";
 
+type WriteFailure = Extract<EntryActionResult, { ok: false }>;
+
+const PROTECTED_CODES = new Set(["PROTECTED_UPSERT_BLOCKED", "PROTECTED_DELETE_BLOCKED"]);
+
+// After widening entry writes to members server-side, a 403 means the caller is
+// muted (D-CORE-2) — distinguish it from the admin-only path via their session.
+async function resolveForbidden(): Promise<WriteFailure> {
+  let muted = false;
+  try {
+    muted = (await getSession()).muted;
+  } catch {
+    /* fall back to the admin-only message */
+  }
+  return { ok: false, reason: muted ? "muted" : "forbidden" };
+}
+
+function mapApiError(err: ApiError): WriteFailure {
+  const body = err.body as { code?: string; message?: string } | undefined;
+  if (err.status === 409 && body?.code && PROTECTED_CODES.has(body.code)) {
+    return { ok: false, reason: "protected" };
+  }
+  if (err.status === 400) {
+    return { ok: false, reason: "validation", detail: body?.message };
+  }
+  return { ok: false, reason: "generic" };
+}
+
 /**
  * Map a backend write failure to a typed result the form can translate.
  * Without this, a non-2xx bubbles as an uncaught Server-Components render
@@ -42,32 +69,11 @@ import type {
  * ApiAuthError is re-thrown so the session-expiry → /signin redirect still
  * fires.
  */
-async function entryWriteFailure(err: unknown): Promise<Extract<EntryActionResult, { ok: false }>> {
+async function entryWriteFailure(err: unknown): Promise<WriteFailure> {
   if (err instanceof ApiAuthError) throw err;
-  if (err instanceof ApiError) {
-    if (err.status === 403) {
-      // After widening entry writes to members server-side, a 403 means the
-      // caller is muted (D-CORE-2) — distinguish it from the admin-only path.
-      let muted = false;
-      try {
-        muted = (await getSession()).muted;
-      } catch {
-        /* fall back to the admin-only message */
-      }
-      return { ok: false, reason: muted ? "muted" : "forbidden" };
-    }
-    if (err.status === 409) {
-      const code = (err.body as { code?: string } | undefined)?.code;
-      if (code === "PROTECTED_UPSERT_BLOCKED" || code === "PROTECTED_DELETE_BLOCKED") {
-        return { ok: false, reason: "protected" };
-      }
-    }
-    if (err.status === 400) {
-      const message = (err.body as { message?: string } | undefined)?.message;
-      return { ok: false, reason: "validation", detail: message };
-    }
-  }
-  return { ok: false, reason: "generic" };
+  if (!(err instanceof ApiError)) return { ok: false, reason: "generic" };
+  if (err.status === 403) return resolveForbidden();
+  return mapApiError(err);
 }
 
 export async function setThemeAction(t: Theme) {
