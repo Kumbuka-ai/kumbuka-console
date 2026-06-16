@@ -6,11 +6,14 @@ import { setLocale as persistLocaleCookie } from "@/lib/locale";
 import type { Locale } from "@/i18n/config";
 import {
   archiveScope,
+  cancelInvite,
   createEntry,
   createScope,
   deleteEntry,
+  eraseUser,
   inviteUser,
   renameScope,
+  resendInvite,
   rotateConnectorSecret,
   updateEntry,
   terminateSession,
@@ -94,6 +97,21 @@ export async function updateUserAction(id: string, req: UpdateUserRequest) {
   const out = await updateUser(id, req);
   revalidatePath("/team");
   return out;
+}
+export async function eraseUserAction(id: string, typedConfirm: string) {
+  const out = await eraseUser(id, typedConfirm);
+  revalidatePath("/team");
+  revalidatePath("/overview");
+  return out;
+}
+export async function resendInviteAction(id: string) {
+  await resendInvite(id);
+  revalidatePath("/team");
+}
+export async function cancelInviteAction(id: string) {
+  await cancelInvite(id);
+  revalidatePath("/team");
+  revalidatePath("/overview");
 }
 
 // Settings -------------------------------------------------------------

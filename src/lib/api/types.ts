@@ -217,3 +217,16 @@ export type UpdateSettingsRequest = {
 export type UpdateMeRequest = { displayName?: string; locale?: Locale };
 export type InviteUserRequest = { email: string; displayName?: string; role: UserRole };
 export type UpdateUserRequest = { role?: UserRole; status?: UserStatus; muted?: boolean };
+
+/**
+ * Outcome of a member erasure (D-OPS-16). Counts only — never content. The UI
+ * uses it for the success toast; the authoritative effect is server-side.
+ */
+export type EraseResult = {
+  id: string;
+  email: string;
+  privatePurged: number;
+  sharedTombstoned: number;
+  scopesTombstoned: number;
+  keycloakRemoved: boolean;
+};

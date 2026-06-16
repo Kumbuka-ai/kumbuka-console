@@ -11,6 +11,7 @@ import type {
   CreateEntryRequest,
   CreateScopeRequest,
   EntryView,
+  EraseResult,
   InviteUserRequest,
   OverviewView,
   RawUserView,
@@ -95,6 +96,25 @@ export async function updateUser(id: string, req: UpdateUserRequest): Promise<Us
     body,
   });
   return deriveUserView(raw);
+}
+/**
+ * Permanently erase a member (D-OPS-16). `typedConfirm` echoes the member's
+ * email and is re-validated server-side; the purge is by subject and never
+ * surfaces content (P1).
+ */
+export async function eraseUser(id: string, typedConfirm: string): Promise<EraseResult> {
+  return serverFetch<EraseResult>(`/api/users/${encodeURIComponent(id)}/erase`, {
+    method: "POST",
+    body: { typedConfirm },
+  });
+}
+/** Re-send the enrolment email for a member still in `invited` status. */
+export async function resendInvite(id: string): Promise<void> {
+  await serverFetch<void>(`/api/users/${encodeURIComponent(id)}/resend-invite`, { method: "POST" });
+}
+/** Cancel a pending invite — deletes the never-accepted Keycloak user. */
+export async function cancelInvite(id: string): Promise<void> {
+  await serverFetch<void>(`/api/users/${encodeURIComponent(id)}`, { method: "DELETE" });
 }
 
 // ---------- Settings ---------------------------------------------------

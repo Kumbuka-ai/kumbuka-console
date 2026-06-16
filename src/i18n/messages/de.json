@@ -189,7 +189,10 @@
       "muteMember": "Mitglied stummschalten",
       "unmuteMember": "Stummschaltung aufheben",
       "enableAccount": "Konto aktivieren",
-      "disableAccount": "Konto deaktivieren"
+      "disableAccount": "Konto deaktivieren",
+      "reInvite": "Einladung erneut senden",
+      "cancelInvite": "Einladung zurückziehen",
+      "removeMember": "Mitglied entfernen…"
     },
     "toast": {
       "nowMember": "{name} ist jetzt Mitglied",
@@ -198,7 +201,21 @@
       "unmuted": "Stummschaltung von {name} aufgehoben",
       "enabled": "{name} aktiviert",
       "disabled": "{name} deaktiviert",
+      "reInvited": "Einladung erneut an {name} gesendet",
+      "inviteCancelled": "Einladung für {name} zurückgezogen",
+      "erased": "{name} gelöscht",
       "updateFailed": "Aktualisierung fehlgeschlagen"
+    },
+    "erase": {
+      "eyebrow": "endgültige Löschung",
+      "title": "{name} entfernen?",
+      "body": "Das private Gedächtnis wird gelöscht. Geteilte und globale Einträge, die diese Person verfasst hat, bleiben erhalten, aber die Urheberschaft wird auf den anonymen Ehemaliges-Mitglied-Marker umgeschrieben. Das Keycloak-Konto wird gelöscht. Das ist DSGVO-Löschung — nicht die umkehrbare Deaktivierung.",
+      "permanent": "Dies kann nicht rückgängig gemacht werden.",
+      "typePrompt": "E-Mail des Mitglieds zur Bestätigung eingeben:",
+      "typeAria": "E-Mail des Mitglieds zur Bestätigung der Löschung eingeben",
+      "cancel": "Abbrechen",
+      "confirm": "Mitglied löschen",
+      "working": "Wird gelöscht…"
     },
     "status": {
       "active": "Aktiv",

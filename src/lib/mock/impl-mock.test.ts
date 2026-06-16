@@ -217,6 +217,32 @@ describe("impl-mock — users", () => {
     await expect(mock.updateUser("no-id", { role: "member" })).rejects.toThrow(/no user/);
   });
 
+  it("eraseUser removes the user and returns the email, refuses unknown id", async () => {
+    const u = await mock.inviteUser({ email: "erase@x", role: "member" });
+    const before = (await mock.listUsers()).length;
+    const res = await mock.eraseUser(u.id, "erase@x");
+    expect(res.email).toBe("erase@x");
+    expect(res.keycloakRemoved).toBe(true);
+    expect((await mock.listUsers()).length).toBe(before - 1);
+
+    await expect(mock.eraseUser("no-id", "x")).rejects.toThrow(/no user/);
+  });
+
+  it("resendInvite resolves for a known id, refuses unknown id", async () => {
+    const u = await mock.inviteUser({ email: "re@x", role: "member" });
+    await expect(mock.resendInvite(u.id)).resolves.toBeUndefined();
+    await expect(mock.resendInvite("no-id")).rejects.toThrow(/no user/);
+  });
+
+  it("cancelInvite removes the pending user, refuses unknown id", async () => {
+    const u = await mock.inviteUser({ email: "cancel@x", role: "member" });
+    const before = (await mock.listUsers()).length;
+    await mock.cancelInvite(u.id);
+    expect((await mock.listUsers()).length).toBe(before - 1);
+
+    await expect(mock.cancelInvite("no-id")).rejects.toThrow(/no user/);
+  });
+
   it("updateUser toggles the muted flag (D-CORE-2), leaving role/status intact", async () => {
     const u = await mock.inviteUser({ email: "mute@x", role: "member" });
     expect(u.muted).toBe(false);
