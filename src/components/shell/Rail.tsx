@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { Avatar, initialsOf } from "@/components/ui/Avatar";
 import type { ReactNode } from "react";
-import type { ScopeView, SessionView, UserView } from "@/lib/api/types";
+import type { ScopeView, SessionView } from "@/lib/api/types";
 
 // `id` doubles as the nav.* message key (overview/scopes/team/settings).
 const NAV: { id: "overview" | "scopes" | "team" | "settings"; icon: IconName; href: string }[] = [
@@ -27,12 +27,19 @@ const ACTIVE_ROUTES: { prefix: string; id: string }[] = [
 export function Rail({
   session,
   scopes,
-  users,
+  memberCount,
 }: Readonly<{
   session: SessionView;
   scopes: ScopeView[];
-  users: UserView[];
+  /** Team size for the nav badge. Sourced from the member-safe directory
+   *  (not the admin-only roster) so the rail renders for members too. */
+  memberCount: number;
 }>) {
+  const isAdmin = session.role === "admin";
+  // Team management is admin-only (P0 read-authz: the roster API is locked
+  // to admins). Hide the Team nav for members — defense-in-depth on top of
+  // the server gate, so a member never lands on a page that would 403.
+  const nav = NAV.filter((n) => n.id !== "team" || isAdmin);
   // Active route is derived client-side from the live pathname. (A server
   // layout cannot read the current path reliably — the old x-invoke-path /
   // x-url headers are no longer set, so the highlight was stuck on Overview.)
@@ -66,7 +73,7 @@ export function Rail({
           const active = activeId === n.id;
           let countNode: ReactNode = null;
           if (n.id === "scopes") countNode = <span className="nav-count">{totalEntries}</span>;
-          else if (n.id === "team") countNode = <span className="nav-count">{users.length}</span>;
+          else if (n.id === "team") countNode = <span className="nav-count">{memberCount}</span>;
           return (
             <Link
               key={n.id}

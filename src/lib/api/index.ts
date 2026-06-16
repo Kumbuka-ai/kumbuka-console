@@ -31,6 +31,7 @@ export const {
   updateEntry,
   deleteEntry,
   listUsers,
+  listDirectory,
   inviteUser,
   updateUser,
   eraseUser,

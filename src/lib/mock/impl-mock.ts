@@ -12,6 +12,7 @@ import type {
   EntryView,
   EraseResult,
   InviteUserRequest,
+  MemberDirectoryEntry,
   OverviewView,
   ScopeView,
   SessionView,
@@ -190,6 +191,9 @@ export async function deleteEntry(slug: string, id: string): Promise<void> {
 // ---------- Users ------------------------------------------------------
 export async function listUsers(): Promise<UserView[]> {
   return state.users.map((u) => ({ ...u }));
+}
+export async function listDirectory(): Promise<MemberDirectoryEntry[]> {
+  return state.users.map((u) => ({ subject: u.subject, displayName: u.displayName }));
 }
 export async function inviteUser(req: InviteUserRequest): Promise<UserView> {
   const fresh: UserView = {

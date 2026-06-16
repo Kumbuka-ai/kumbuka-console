@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { ApiError, listEntries, listScopes, listUsers } from "@/lib/api";
+import { ApiError, listEntries, listScopes, listDirectory } from "@/lib/api";
 import { requireSession } from "@/lib/api/session";
 import { ScopeScreen } from "@/components/scopes/ScopeScreen";
 import { Topbar } from "@/components/shell/Topbar";
@@ -12,9 +12,9 @@ export default async function ScopeBrowserPage({
   params: Promise<{ slug: string }>;
 }>) {
   const { slug } = await params;
-  const [scopes, users, theme, session] = await Promise.all([
+  const [scopes, directory, theme, session] = await Promise.all([
     listScopes(),
-    listUsers(),
+    listDirectory(),   // member-safe author-name resolution (not the roster)
     getTheme(),
     requireSession(),
   ]);
@@ -31,7 +31,7 @@ export default async function ScopeBrowserPage({
     else throw err;
   }
 
-  const members = Object.fromEntries(users.map((u) => [u.subject, u.displayName]));
+  const members = Object.fromEntries(directory.map((u) => [u.subject, u.displayName ?? u.subject]));
   const activeScopes = scopes.filter((s) => !s.archived).length;
   const t = await getTranslations("header");
 

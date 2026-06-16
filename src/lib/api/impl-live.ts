@@ -13,6 +13,7 @@ import type {
   EntryView,
   EraseResult,
   InviteUserRequest,
+  MemberDirectoryEntry,
   OverviewView,
   RawUserView,
   ScopeView,
@@ -73,6 +74,15 @@ export const deleteEntry = (slug: string, id: string) =>
 export async function listUsers(): Promise<UserView[]> {
   const raw = await serverFetch<RawUserView[]>("/api/users");
   return raw.map((r) => deriveUserView(r));
+}
+/**
+ * Member-safe directory (subject + displayName only). Use this — not
+ * `listUsers` — wherever a non-admin page needs to resolve author names
+ * (layout rail, overview feed, scope authorship). `listUsers` is admin-only
+ * (P0 read-authz): calling it as a member 403s.
+ */
+export async function listDirectory(): Promise<MemberDirectoryEntry[]> {
+  return serverFetch<MemberDirectoryEntry[]>("/api/users/directory");
 }
 export async function inviteUser(req: InviteUserRequest): Promise<UserView> {
   // Backend's invite payload still uses firstName/lastName.

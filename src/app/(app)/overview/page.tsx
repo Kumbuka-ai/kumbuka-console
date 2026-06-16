@@ -8,7 +8,7 @@ import { Avatar, initialsOf } from "@/components/ui/Avatar";
 import { CopyValue } from "@/components/overview/CopyValue";
 import { AssistantPrompt } from "@/components/overview/AssistantPrompt";
 import { GuaranteeBand } from "@/components/overview/GuaranteeBand";
-import { getConnector, getOverview, listScopes, listUsers } from "@/lib/api";
+import { getConnector, getOverview, listScopes, listUsers, listDirectory } from "@/lib/api";
 import { ENTRY_TYPE_ORDER, type ScopeView } from "@/lib/api/types";
 import { absTime, relTime } from "@/lib/time";
 import { getTheme } from "@/lib/theme";
@@ -40,18 +40,24 @@ function MiniBar({ scope, byType }: Readonly<{ scope: ScopeView; byType: Record<
 }
 
 export default async function OverviewPage() {
-  const [overview, scopes, users, connector, theme] = await Promise.all([
+  const [overview, scopes, directory, roster, connector, theme] = await Promise.all([
     getOverview(),
     listScopes(),
-    listUsers(),
+    listDirectory(),                 // member-safe: names + count + avatars
+    listUsers().catch(() => null),   // roster (role/status) is admin-only → null for members (403)
     getConnector(),
     getTheme(),
   ]);
 
-  const memberMap = new Map(users.map((u) => [u.subject, u.displayName]));
+  // Author/avatar resolution comes from the member-safe directory; the
+  // role/status breakdown comes from the admin-only roster (null for members,
+  // so those stats degrade gracefully rather than 403-ing the page).
+  const memberMap = new Map(directory.map((u) => [u.subject, u.displayName ?? u.subject]));
+  const memberCount = directory.length;
   const live = scopes.filter((s) => !s.archived);
-  const invited = users.filter((u) => u.status === "invited").length;
-  const admins = users.filter((u) => u.role === "admin").length;
+  const invited = roster ? roster.filter((u) => u.status === "invited").length : 0;
+  const admins = roster ? roster.filter((u) => u.role === "admin").length : 0;
+  const activeCount = roster ? roster.filter((u) => u.status === "active").length : memberCount;
 
   const weekAgo = Date.now() - 7 * 24 * 3_600_000;
   const writesWeek = overview.recent.filter((r) => new Date(r.updatedAt).getTime() >= weekAgo).length;
@@ -80,7 +86,7 @@ export default async function OverviewPage() {
             </div>
             <div className="stat">
               <div className="s-label"><Icon name="users" />{to("stat.members")}</div>
-              <div className="s-num">{users.filter((u) => u.status === "active").length}</div>
+              <div className="s-num">{activeCount}</div>
               <div className="s-sub">{invited > 0 ? to("stat.membersInvited", { count: invited }) : to("stat.membersAllEnrolled")}</div>
             </div>
             <div className="stat">
@@ -206,12 +212,12 @@ export default async function OverviewPage() {
               </div>
               <div className="mem-summary">
                 <div className="mem-avs">
-                  {users.slice(0, 6).map((u) => (
-                    <Avatar key={u.id} initials={initialsOf(u.displayName)} />
+                  {directory.slice(0, 6).map((u) => (
+                    <Avatar key={u.subject} initials={initialsOf(u.displayName ?? u.subject)} />
                   ))}
                 </div>
                 <div className="mem-txt">
-                  {to.rich("teamSection.summary", { count: users.length, admins, b: richB })}
+                  {to.rich("teamSection.summary", { count: memberCount, admins, b: richB })}
                   {invited > 0 ? to("teamSection.pendingSuffix", { count: invited }) : ""}
                 </div>
               </div>
