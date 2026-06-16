@@ -194,6 +194,17 @@ describe("impl-mock — users", () => {
     expect(b[0]!.displayName).not.toBe("MUTATED");
   });
 
+  it("listDirectory returns subject + displayName only (member-safe projection)", async () => {
+    const dir = await mock.listDirectory();
+    const users = await mock.listUsers();
+    expect(dir).toHaveLength(users.length);
+    expect(dir[0]).toEqual({ subject: users[0]!.subject, displayName: users[0]!.displayName });
+    // no PII fields projected
+    expect(dir[0]).not.toHaveProperty("email");
+    expect(dir[0]).not.toHaveProperty("role");
+    expect(dir[0]).not.toHaveProperty("status");
+  });
+
   it("inviteUser appends a new user with status='invited' and defaults displayName from email-localpart", async () => {
     const before = (await mock.listUsers()).length;
     const u = await mock.inviteUser({ email: "new@example.com", role: "member" });

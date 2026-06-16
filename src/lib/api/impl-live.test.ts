@@ -123,6 +123,20 @@ describe("impl-live thin REST wrappers", () => {
     expect(out[0].subject).toBe("k1");
   });
 
+  it("listDirectory hits /api/users/directory and passes entries through", async () => {
+    serverFetchMock.mockResolvedValue([
+      { subject: "k1", displayName: "Alice Smith" },
+      { subject: "k2", displayName: null },
+    ]);
+
+    const out = await live.listDirectory();
+    expect(serverFetchMock).toHaveBeenCalledWith("/api/users/directory", undefined);
+    expect(out).toEqual([
+      { subject: "k1", displayName: "Alice Smith" },
+      { subject: "k2", displayName: null },
+    ]);
+  });
+
   it("inviteUser splits displayName into first/last name and POSTs the legacy body", async () => {
     serverFetchMock.mockResolvedValue({
       id: "k1", email: "a@x", firstName: "Alice", lastName: "Marie Smith", role: "member", status: "invited",

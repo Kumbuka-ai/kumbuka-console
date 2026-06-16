@@ -136,6 +136,17 @@ export type UserView = {
   muted: boolean;
 };
 
+/**
+ * Member-safe projection of the tenant's users — subject + displayName only.
+ * Backs `GET /api/users/directory`, which any member may read (the full roster
+ * via `listUsers` is admin-only, P0 read-authz). `displayName` is null when the
+ * Keycloak account has no name; callers fall back to the subject.
+ */
+export type MemberDirectoryEntry = {
+  subject: string;
+  displayName: string | null;
+};
+
 /** Shape coming straight off the backend's AdminUsersResource. */
 export type RawUserView = {
   id: string;

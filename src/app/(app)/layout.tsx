@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Rail } from "@/components/shell/Rail";
 import { Footer } from "@/components/shell/Footer";
-import { listScopes, listUsers } from "@/lib/api";
+import { listScopes, listDirectory } from "@/lib/api";
 import { requireSession } from "@/lib/api/session";
 import { fetchBackendVersion } from "@/lib/version";
 
@@ -14,7 +14,7 @@ import { fetchBackendVersion } from "@/lib/version";
  * The session gate runs BEFORE the data fetches — not in Promise.all —
  * for a correctness reason. requireSession() turns a 401 into a
  * NEXT_REDIRECT throw (caught by the router → /signin), while
- * listScopes/listUsers throw a raw ApiAuthError on 401. Running them in
+ * listScopes/listDirectory throw a raw ApiAuthError on 401. Running them in
  * parallel meant whichever 401 rejection won the race decided the
  * outcome: a NEXT_REDIRECT win → clean redirect; an ApiAuthError win →
  * server-side 500 page (prod digest 486888060). The winner is
@@ -30,15 +30,18 @@ export default async function AppLayout({ children }: Readonly<{ children: React
   const session = await requireSession();
   // backendVersion runs alongside the data fetches — it's @PermitAll on
   // the server and silently null-on-error, so it never blocks the layout.
-  const [scopes, users, backendVersion] = await Promise.all([
+  // listDirectory (member-safe: subject+displayName only), NOT listUsers —
+  // the layout wraps every member-visible page; the admin-only roster would
+  // 403 the whole member console (P0 read-authz).
+  const [scopes, directory, backendVersion] = await Promise.all([
     listScopes(),
-    listUsers(),
+    listDirectory(),
     fetchBackendVersion(),
   ]);
 
   return (
     <div className="app">
-      <Rail session={session} scopes={scopes} users={users} />
+      <Rail session={session} scopes={scopes} memberCount={directory.length} />
       <main className="main">
         {children}
         <Footer backend={backendVersion} />
