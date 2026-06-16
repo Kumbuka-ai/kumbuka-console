@@ -198,6 +198,28 @@ describe("impl-live thin REST wrappers", () => {
     expect(serverFetchMock.mock.calls[0][0]).toBe("/api/users/x%2Fy");
   });
 
+  it("eraseUser POSTs the typed confirm to the erase sub-resource", async () => {
+    serverFetchMock.mockResolvedValue({ id: "k1", email: "u@x", keycloakRemoved: true });
+    const out = await live.eraseUser("k1", "u@x");
+    expect(out.keycloakRemoved).toBe(true);
+    expect(serverFetchMock).toHaveBeenCalledWith("/api/users/k1/erase", {
+      method: "POST",
+      body: { typedConfirm: "u@x" },
+    });
+  });
+
+  it("resendInvite POSTs the resend-invite sub-resource", async () => {
+    serverFetchMock.mockResolvedValue(undefined);
+    await live.resendInvite("k1");
+    expect(serverFetchMock).toHaveBeenCalledWith("/api/users/k1/resend-invite", { method: "POST" });
+  });
+
+  it("cancelInvite DELETEs the URL-encoded user id", async () => {
+    serverFetchMock.mockResolvedValue(undefined);
+    await live.cancelInvite("x/y");
+    expect(serverFetchMock).toHaveBeenCalledWith("/api/users/x%2Fy", { method: "DELETE" });
+  });
+
   // ---------- Settings + Connector + Overview ----------------------------
 
   it("getSettings GETs /api/settings; updateSettings PATCHes", async () => {

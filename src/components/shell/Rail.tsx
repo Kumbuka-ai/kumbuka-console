@@ -41,6 +41,9 @@ export function Rail({
   const pathname = usePathname() ?? "";
   const activeId = ACTIVE_ROUTES.find((r) => pathname.startsWith(r.prefix))?.id ?? "overview";
   const totalEntries = scopes.reduce((n, s) => n + s.entryCount, 0);
+  // RBAC: the team tab is admin-only (the route + its endpoints enforce this
+  // server-side; this just hides the dead link for plain members).
+  const nav = session.role === "admin" ? NAV : NAV.filter((n) => n.id !== "team");
   const fallbackName = session.displayName || session.email || session.subject || "—";
   const initials = initialsOf(fallbackName);
   const firstName = fallbackName.split(/[\s@]/)[0] ?? "—";
@@ -59,7 +62,7 @@ export function Rail({
 
       <div className="nav">
         <div className="nav-label">{t("workspace")}</div>
-        {NAV.map((n) => {
+        {nav.map((n) => {
           const active = activeId === n.id;
           let countNode: ReactNode = null;
           if (n.id === "scopes") countNode = <span className="nav-count">{totalEntries}</span>;

@@ -10,12 +10,18 @@ import { Avatar, initialsOf } from "@/components/ui/Avatar";
 import { useMenu } from "@/components/ui/Menu";
 import { useToast } from "@/components/ui/Toast";
 import { ConfirmModal } from "@/components/editors/ConfirmModal";
+import { EraseMemberModal } from "./EraseMemberModal";
 import { InviteDialog } from "./InviteDialog";
 import { RoleBadge } from "./RoleBadge";
 import { UserStatus } from "./UserStatus";
 import { EmptyState } from "@/components/ui/State";
 import { relTime } from "@/lib/time";
-import { updateUserAction } from "@/app/(app)/actions";
+import {
+  cancelInviteAction,
+  eraseUserAction,
+  resendInviteAction,
+  updateUserAction,
+} from "@/app/(app)/actions";
 import type { UserView } from "@/lib/api/types";
 
 // Module-scope rich-text renderers (not defined during render).
@@ -64,6 +70,7 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
     user: UserView;
     action: ConfirmAction;
   } | null>(null);
+  const [erasing, setErasing] = useState<UserView | null>(null);
   const [pending, start] = useTransition();
 
   const roleFilter = (params.get("role") as "all" | "admin" | "member") ?? "all";
@@ -137,7 +144,63 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
             disabled: u.self || (u.role === "admin" && lastAdminGuard),
             onSelect: () => setConfirm({ user: u, action: "disable" }),
           },
+      // Pending-invite lifecycle — re-send or revoke the unaccepted invite.
+      ...(u.status === "invited"
+        ? [
+            { kind: "sep" as const },
+            {
+              label: t("menu.reInvite"),
+              icon: "mail" as const,
+              onSelect: () =>
+                start(async () => {
+                  try {
+                    await resendInviteAction(u.id);
+                    toast.push({ message: t("toast.reInvited", { name: u.displayName }) });
+                  } catch (err) {
+                    toast.push({ message: err instanceof Error ? err.message : t("toast.updateFailed") });
+                  }
+                }),
+            },
+            {
+              label: t("menu.cancelInvite"),
+              icon: "eyeOff" as const,
+              danger: true,
+              onSelect: () =>
+                start(async () => {
+                  try {
+                    await cancelInviteAction(u.id);
+                    toast.push({ message: t("toast.inviteCancelled", { name: u.displayName }) });
+                  } catch (err) {
+                    toast.push({ message: err instanceof Error ? err.message : t("toast.updateFailed") });
+                  }
+                }),
+            },
+          ]
+        : []),
+      // Permanent erasure (D-OPS-16) — distinct from the reversible Disable.
+      { kind: "sep" },
+      {
+        label: t("menu.removeMember"),
+        icon: "eyeOff",
+        danger: true,
+        disabled: u.self || (u.role === "admin" && lastAdminGuard),
+        onSelect: () => setErasing(u),
+      },
     ]);
+  };
+
+  const doErase = (typedConfirm: string) => {
+    if (!erasing) return;
+    const user = erasing;
+    start(async () => {
+      try {
+        await eraseUserAction(user.id, typedConfirm);
+        toast.push({ message: t("toast.erased", { name: user.displayName }) });
+        setErasing(null);
+      } catch (err) {
+        toast.push({ message: err instanceof Error ? err.message : t("toast.updateFailed") });
+      }
+    });
   };
 
   const doConfirm = () => {
@@ -289,6 +352,14 @@ export function TeamTable({ users }: Readonly<{ users: UserView[] }>) {
 
       {inviting ? <InviteDialog onClose={() => setInviting(false)} /> : null}
       {confirmModal}
+      {erasing ? (
+        <EraseMemberModal
+          user={erasing}
+          pending={pending}
+          onCancel={() => setErasing(null)}
+          onConfirm={doErase}
+        />
+      ) : null}
       {menu.node}
     </div>
   );

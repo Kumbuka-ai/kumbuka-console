@@ -189,7 +189,10 @@
       "muteMember": "Mute member",
       "unmuteMember": "Unmute member",
       "enableAccount": "Enable account",
-      "disableAccount": "Disable account"
+      "disableAccount": "Disable account",
+      "reInvite": "Re-send invite",
+      "cancelInvite": "Cancel invite",
+      "removeMember": "Remove member…"
     },
     "toast": {
       "nowMember": "{name} is now a member",
@@ -198,7 +201,21 @@
       "unmuted": "{name} unmuted",
       "enabled": "{name} enabled",
       "disabled": "{name} disabled",
+      "reInvited": "Invite re-sent to {name}",
+      "inviteCancelled": "Invite for {name} cancelled",
+      "erased": "{name} erased",
       "updateFailed": "Update failed"
+    },
+    "erase": {
+      "eyebrow": "permanent erasure",
+      "title": "Remove {name}?",
+      "body": "Their private memory is purged. Shared and global entries they authored are kept, but the authorship is rewritten to the anonymous former-member marker. The Keycloak account is deleted. This is GDPR erasure — not the reversible disable.",
+      "permanent": "This cannot be undone.",
+      "typePrompt": "Type the member's email to confirm:",
+      "typeAria": "Type the member's email to confirm erasure",
+      "cancel": "Cancel",
+      "confirm": "Erase member",
+      "working": "Erasing…"
     },
     "status": {
       "active": "Active",

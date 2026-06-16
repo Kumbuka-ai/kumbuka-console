@@ -10,6 +10,7 @@ import type {
   CreateEntryRequest,
   CreateScopeRequest,
   EntryView,
+  EraseResult,
   InviteUserRequest,
   OverviewView,
   ScopeView,
@@ -211,6 +212,27 @@ export async function updateUser(id: string, req: UpdateUserRequest): Promise<Us
   if (req.status !== undefined) u.status = req.status;
   if (req.muted !== undefined) u.muted = req.muted;   // D-CORE-2
   return { ...u };
+}
+export async function eraseUser(id: string, _typedConfirm: string): Promise<EraseResult> {
+  const idx = state.users.findIndex((x) => x.id === id);
+  if (idx < 0) throw new Error(`no user: ${id}`);
+  const [removed] = state.users.splice(idx, 1);
+  return {
+    id,
+    email: removed.email,
+    privatePurged: 0,
+    sharedTombstoned: 0,
+    scopesTombstoned: 0,
+    keycloakRemoved: true,
+  };
+}
+export async function resendInvite(id: string): Promise<void> {
+  if (!state.users.some((x) => x.id === id)) throw new Error(`no user: ${id}`);
+}
+export async function cancelInvite(id: string): Promise<void> {
+  const idx = state.users.findIndex((x) => x.id === id);
+  if (idx < 0) throw new Error(`no user: ${id}`);
+  state.users.splice(idx, 1);
 }
 
 // ---------- Settings ---------------------------------------------------

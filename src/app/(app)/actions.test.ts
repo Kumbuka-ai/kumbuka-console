@@ -17,6 +17,9 @@ const { revalidatePathMock, apiMocks, persistThemeMock, persistLocaleMock } = vi
     deleteEntry: vi.fn(),
     inviteUser: vi.fn(),
     updateUser: vi.fn(),
+    eraseUser: vi.fn(),
+    resendInvite: vi.fn(),
+    cancelInvite: vi.fn(),
     updateSettings: vi.fn(),
     rotateConnectorSecret: vi.fn(),
     updateMe: vi.fn(),
@@ -37,11 +40,14 @@ vi.mock("@/lib/api", () => apiMocks);
 
 import {
   archiveScopeAction,
+  cancelInviteAction,
   createEntryAction,
   createScopeAction,
   deleteEntryAction,
+  eraseUserAction,
   inviteUserAction,
   renameScopeAction,
+  resendInviteAction,
   rotateSecretAction,
   setLocaleAction,
   setThemeAction,
@@ -157,6 +163,30 @@ describe("Server Actions — delegation + cache invalidation", () => {
     expect(apiMocks.updateUser).toHaveBeenCalledWith("u1", { role: "admin" });
     expect(revalidatePathMock).toHaveBeenCalledWith("/team");
     expect(revalidatePathMock).not.toHaveBeenCalledWith("/overview");
+  });
+
+  it("eraseUserAction forwards the typed confirm and revalidates /team + /overview", async () => {
+    apiMocks.eraseUser.mockResolvedValue({ id: "u1", email: "u@x", keycloakRemoved: true });
+    const out = await eraseUserAction("u1", "u@x");
+    expect(out.keycloakRemoved).toBe(true);
+    expect(apiMocks.eraseUser).toHaveBeenCalledWith("u1", "u@x");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/team");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/overview");
+  });
+
+  it("resendInviteAction delegates and revalidates /team", async () => {
+    apiMocks.resendInvite.mockResolvedValue(undefined);
+    await resendInviteAction("u1");
+    expect(apiMocks.resendInvite).toHaveBeenCalledWith("u1");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/team");
+  });
+
+  it("cancelInviteAction delegates and revalidates /team + /overview", async () => {
+    apiMocks.cancelInvite.mockResolvedValue(undefined);
+    await cancelInviteAction("u1");
+    expect(apiMocks.cancelInvite).toHaveBeenCalledWith("u1");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/team");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/overview");
   });
 
   // ---------- settings ---------------------------------------------------
