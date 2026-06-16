@@ -130,7 +130,7 @@ describe("impl-live thin REST wrappers", () => {
     ]);
 
     const out = await live.listDirectory();
-    expect(serverFetchMock).toHaveBeenCalledWith("/api/users/directory");
+    expect(serverFetchMock).toHaveBeenCalledWith("/api/users/directory", undefined);
     expect(out).toEqual([
       { subject: "k1", displayName: "Alice Smith" },
       { subject: "k2", displayName: null },
