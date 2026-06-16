@@ -31,7 +31,7 @@
     "brandSub": "memory console",
     "title": "Sign in to your team",
     "lead": "Authentication is handled by your identity provider. You'll be redirected, sign in there, and land back here.",
-    "cta": "Sign in with Keycloak",
+    "cta": "Sign in",
     "guarantee": "Your private memory is never shared and never visible in this console — that's a guarantee enforced by the backend, not by configuration."
   },
   "appError": {
@@ -104,13 +104,13 @@
     }
   },
   "account": {
-    "verified": "verified by Keycloak",
+    "verified": "verified by your identity provider",
     "profile": {
       "eyebrow": "profile",
       "title": "Display name",
       "desc": "How your name appears next to entries you author in this console.",
       "placeholder": "Display name",
-      "hint": "Your email and login credentials are managed by Keycloak — use the link above to change them.",
+      "hint": "Your email and login credentials are managed by your identity provider — use the link above to change them.",
       "discard": "Discard",
       "save": "Save",
       "updated": "Profile updated",
@@ -119,7 +119,7 @@
     "security": {
       "eyebrow": "security",
       "title": "Sign-in & credentials",
-      "desc": "Password, two-factor authentication, and passkeys are managed in the Keycloak account console.",
+      "desc": "Password, two-factor authentication, and passkeys are managed in your identity provider's account console.",
       "password_title": "Password",
       "password_sub": "Change your password or set up recovery options.",
       "twofa_title": "Two-factor authentication",
@@ -156,12 +156,12 @@
     "signout": {
       "eyebrow": "session",
       "title": "Sign out",
-      "desc": "End your console session and log out at Keycloak.",
+      "desc": "End your console session and log out at your identity provider.",
       "button": "Sign out"
     }
   },
   "team": {
-    "idpBanner": "Accounts are managed in <idp>Keycloak</idp>. <b>Create</b>, <b>disable</b>, and <b>role</b> changes here write through to the directory — they are not local to this console. Each member's <b>private</b> memory remains theirs.",
+    "idpBanner": "Accounts are managed in <idp>your identity provider</idp>. <b>Create</b>, <b>disable</b>, and <b>role</b> changes here write through to the directory — they are not local to this console. Each member's <b>private</b> memory remains theirs.",
     "searchPlaceholder": "Search name or email…",
     "searchAria": "Search members",
     "filterAria": "Filter by role",
@@ -208,7 +208,7 @@
     "erase": {
       "eyebrow": "permanent erasure",
       "title": "Remove {name}?",
-      "body": "Their private memory is purged. Shared and global entries they authored are kept, but the authorship is rewritten to the anonymous former-member marker. The Keycloak account is deleted. This is GDPR erasure — not the reversible disable.",
+      "body": "Their private memory is purged. Shared and global entries they authored are kept, but the authorship is rewritten to the anonymous former-member marker. The identity-provider account is deleted. This is GDPR erasure — not the reversible disable.",
       "permanent": "This cannot be undone.",
       "typePrompt": "Type the member's email to confirm:",
       "typeAria": "Type the member's email to confirm erasure",
@@ -237,7 +237,7 @@
       "disable": {
         "eyebrow": "disable account",
         "title": "Disable {name}?",
-        "body": "They lose console and API access immediately. Keycloak suspends the account; their private memory is untouched and stays theirs."
+        "body": "They lose console and API access immediately. Your identity provider suspends the account; their private memory is untouched and stays theirs."
       },
       "mute": {
         "eyebrow": "mute member",
@@ -256,7 +256,7 @@
       "title": "Invite a member",
       "cancel": "Cancel",
       "send": "Send invite",
-      "banner": "This creates the account in <idp>Keycloak</idp> and emails an enrolment link. No password is set here. Their <b>private</b> memory remains theirs and is never visible in this console.",
+      "banner": "This creates the account in <idp>your identity provider</idp> and emails an enrolment link. No password is set here. Their <b>private</b> memory remains theirs and is never visible in this console.",
       "emailLabel": "Email",
       "emailHint": "Must match the identity provider's directory domain.",
       "emailPlaceholder": "name@kumbuka.ai",
@@ -267,7 +267,7 @@
       "admin": "Admin",
       "adminHint": "Admins manage scopes, members, and settings. They never see anyone's private memory.",
       "memberHint": "Members read and write shared scopes per the write-scope policy.",
-      "sent": "Invite sent via Keycloak",
+      "sent": "Invite sent via your identity provider",
       "failed": "Invite failed"
     }
   },
@@ -310,7 +310,7 @@
       "clientSecret": "Client secret",
       "rotate": "Rotate",
       "noSecret": "None — public client (PKCE). Leave the secret field empty in your AI client.",
-      "idpBanner": "Identity is delegated to <idp>Keycloak</idp>. Member accounts and passwords are managed under <b>Team</b>, not here."
+      "idpBanner": "Identity is delegated to <idp>your identity provider</idp>. Member accounts and passwords are managed under <b>Team</b>, not here."
     },
     "private": {
       "eyebrow": "guarantee",

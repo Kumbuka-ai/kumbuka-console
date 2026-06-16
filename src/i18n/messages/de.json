@@ -31,7 +31,7 @@
     "brandSub": "Gedächtnis-Konsole",
     "title": "Bei deinem Team anmelden",
     "lead": "Die Authentifizierung übernimmt dein Identity-Provider. Du wirst weitergeleitet, meldest dich dort an und landest wieder hier.",
-    "cta": "Mit Keycloak anmelden",
+    "cta": "Anmelden",
     "guarantee": "Dein privates Gedächtnis wird nie geteilt und ist in dieser Konsole nie sichtbar — eine Garantie, die das Backend erzwingt, nicht die Konfiguration."
   },
   "appError": {
@@ -104,13 +104,13 @@
     }
   },
   "account": {
-    "verified": "von Keycloak verifiziert",
+    "verified": "vom Identitätsanbieter verifiziert",
     "profile": {
       "eyebrow": "Profil",
       "title": "Anzeigename",
       "desc": "Wie dein Name neben den Einträgen erscheint, die du in dieser Konsole verfasst.",
       "placeholder": "Anzeigename",
-      "hint": "Deine E-Mail und Anmeldedaten werden von Keycloak verwaltet — nutze den Link oben, um sie zu ändern.",
+      "hint": "Deine E-Mail und Anmeldedaten werden von deinem Identitätsanbieter verwaltet — nutze den Link oben, um sie zu ändern.",
       "discard": "Verwerfen",
       "save": "Speichern",
       "updated": "Profil aktualisiert",
@@ -119,7 +119,7 @@
     "security": {
       "eyebrow": "Sicherheit",
       "title": "Anmeldung & Zugangsdaten",
-      "desc": "Passwort, Zwei-Faktor-Authentifizierung und Passkeys werden in der Keycloak-Kontoverwaltung verwaltet.",
+      "desc": "Passwort, Zwei-Faktor-Authentifizierung und Passkeys werden in der Kontoverwaltung deines Identitätsanbieters verwaltet.",
       "password_title": "Passwort",
       "password_sub": "Ändere dein Passwort oder richte Wiederherstellungsoptionen ein.",
       "twofa_title": "Zwei-Faktor-Authentifizierung",
@@ -156,12 +156,12 @@
     "signout": {
       "eyebrow": "Sitzung",
       "title": "Abmelden",
-      "desc": "Beende deine Konsolen-Sitzung und melde dich bei Keycloak ab.",
+      "desc": "Beende deine Konsolen-Sitzung und melde dich bei deinem Identitätsanbieter ab.",
       "button": "Abmelden"
     }
   },
   "team": {
-    "idpBanner": "Konten werden in <idp>Keycloak</idp> verwaltet. <b>Anlegen</b>, <b>Deaktivieren</b> und <b>Rollen</b>-Änderungen hier werden ins Verzeichnis durchgeschrieben — sie sind nicht lokal in dieser Konsole. Das <b>private</b> Gedächtnis jedes Mitglieds bleibt seins.",
+    "idpBanner": "Konten werden beim <idp>Identitätsanbieter</idp> verwaltet. <b>Anlegen</b>, <b>Deaktivieren</b> und <b>Rollen</b>-Änderungen hier werden ins Verzeichnis durchgeschrieben — sie sind nicht lokal in dieser Konsole. Das <b>private</b> Gedächtnis jedes Mitglieds bleibt seins.",
     "searchPlaceholder": "Name oder E-Mail suchen…",
     "searchAria": "Mitglieder suchen",
     "filterAria": "Nach Rolle filtern",
@@ -208,7 +208,7 @@
     "erase": {
       "eyebrow": "endgültige Löschung",
       "title": "{name} entfernen?",
-      "body": "Das private Gedächtnis wird gelöscht. Geteilte und globale Einträge, die diese Person verfasst hat, bleiben erhalten, aber die Urheberschaft wird auf den anonymen Ehemaliges-Mitglied-Marker umgeschrieben. Das Keycloak-Konto wird gelöscht. Das ist DSGVO-Löschung — nicht die umkehrbare Deaktivierung.",
+      "body": "Das private Gedächtnis wird gelöscht. Geteilte und globale Einträge, die diese Person verfasst hat, bleiben erhalten, aber die Urheberschaft wird auf den anonymen Ehemaliges-Mitglied-Marker umgeschrieben. Das Konto beim Identitätsanbieter wird gelöscht. Das ist DSGVO-Löschung — nicht die umkehrbare Deaktivierung.",
       "permanent": "Dies kann nicht rückgängig gemacht werden.",
       "typePrompt": "E-Mail des Mitglieds zur Bestätigung eingeben:",
       "typeAria": "E-Mail des Mitglieds zur Bestätigung der Löschung eingeben",
@@ -237,7 +237,7 @@
       "disable": {
         "eyebrow": "Konto deaktivieren",
         "title": "{name} deaktivieren?",
-        "body": "Sie verlieren sofort Konsolen- und API-Zugriff. Keycloak setzt das Konto aus; ihr privates Gedächtnis bleibt unangetastet und ihres."
+        "body": "Sie verlieren sofort Konsolen- und API-Zugriff. Der Identitätsanbieter setzt das Konto aus; ihr privates Gedächtnis bleibt unangetastet und ihres."
       },
       "mute": {
         "eyebrow": "Mitglied stummschalten",
@@ -256,7 +256,7 @@
       "title": "Ein Mitglied einladen",
       "cancel": "Abbrechen",
       "send": "Einladung senden",
-      "banner": "Dies legt das Konto in <idp>Keycloak</idp> an und verschickt einen Anmelde-Link per E-Mail. Hier wird kein Passwort gesetzt. Das <b>private</b> Gedächtnis bleibt ihres und ist in dieser Konsole nie sichtbar.",
+      "banner": "Dies legt das Konto beim <idp>Identitätsanbieter</idp> an und verschickt einen Anmelde-Link per E-Mail. Hier wird kein Passwort gesetzt. Das <b>private</b> Gedächtnis bleibt ihres und ist in dieser Konsole nie sichtbar.",
       "emailLabel": "E-Mail",
       "emailHint": "Muss zur Verzeichnis-Domain des Identity-Providers passen.",
       "emailPlaceholder": "name@kumbuka.ai",
@@ -267,7 +267,7 @@
       "admin": "Admin",
       "adminHint": "Admins verwalten Scopes, Mitglieder und Einstellungen. Sie sehen niemals das private Gedächtnis von jemandem.",
       "memberHint": "Mitglieder lesen und schreiben geteilte Scopes gemäß der Schreib-Scope-Richtlinie.",
-      "sent": "Einladung über Keycloak gesendet",
+      "sent": "Einladung über den Identitätsanbieter gesendet",
       "failed": "Einladung fehlgeschlagen"
     }
   },
@@ -310,7 +310,7 @@
       "clientSecret": "Client-Secret",
       "rotate": "Rotieren",
       "noSecret": "Keins — öffentlicher Client (PKCE). Lass das Secret-Feld in deinem KI-Client leer.",
-      "idpBanner": "Die Identität wird an <idp>Keycloak</idp> delegiert. Mitglieder-Konten und Passwörter werden unter <b>Team</b> verwaltet, nicht hier."
+      "idpBanner": "Die Identität wird an den <idp>Identitätsanbieter</idp> delegiert. Mitglieder-Konten und Passwörter werden unter <b>Team</b> verwaltet, nicht hier."
     },
     "private": {
       "eyebrow": "Garantie",
