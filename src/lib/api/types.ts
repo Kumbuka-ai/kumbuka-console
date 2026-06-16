@@ -220,6 +220,16 @@ export type CreateScopeRequest = { slug: string; name: string; description?: str
 export type UpdateScopeRequest = { name?: string; description?: string };
 export type CreateEntryRequest = { type: EntryType; key?: string; content: string; reference?: string };
 export type UpdateEntryRequest = { type?: EntryType; content?: string; reference?: string };
+
+/**
+ * Why an entry write failed, mapped from the backend's typed error contract so
+ * the editor can render a translated message instead of crashing the render
+ * (SESSION_016/017). `validation` may carry the backend's specific reason.
+ */
+export type EntryWriteError = "muted" | "forbidden" | "protected" | "validation" | "generic";
+export type EntryActionResult =
+  | { ok: true }
+  | { ok: false; reason: EntryWriteError; detail?: string };
 export type UpdateSettingsRequest = {
   writePolicy?: WritePolicy;
   defaultScopeSlug?: string | null;

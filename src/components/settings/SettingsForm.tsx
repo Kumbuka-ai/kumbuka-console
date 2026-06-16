@@ -27,6 +27,7 @@ function RadioOpt({
   tag,
   tagAccent,
   desc,
+  disabled,
 }: Readonly<{
   on: boolean;
   onClick: () => void;
@@ -34,15 +35,18 @@ function RadioOpt({
   tag?: string;
   tagAccent?: boolean;
   desc: string;
+  disabled?: boolean;
 }>) {
   return (
     <div
-      className={`radio-opt${on ? " on" : ""}`}
+      className={`radio-opt${on ? " on" : ""}${disabled ? " disabled" : ""}`}
       role="radio"
       aria-checked={on}
-      tabIndex={0}
-      onClick={onClick}
+      aria-disabled={disabled || undefined}
+      tabIndex={disabled ? -1 : 0}
+      onClick={disabled ? undefined : onClick}
       onKeyDown={(e) => {
+        if (disabled) return;
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           onClick();
@@ -65,10 +69,13 @@ export function SettingsForm({
   initial,
   connector,
   projectScopes,
+  isAdmin,
 }: Readonly<{
   initial: SettingsView;
   connector: ConnectorView;
   projectScopes: ScopeView[];
+  /** Settings are admin-write; a member sees the values read-only. */
+  isAdmin: boolean;
 }>) {
   const toast = useToast();
   const t = useTranslations("settings");
@@ -149,12 +156,14 @@ export function SettingsForm({
                 tag={t("policy.tagRecommended")}
                 tagAccent
                 desc={t("policy.ask_desc")}
+                disabled={!isAdmin}
               />
               <RadioOpt
                 on={writePolicy === "project"}
                 onClick={() => setWritePolicy("project")}
                 title={t("policy.project_title")}
                 desc={t("policy.project_desc")}
+                disabled={!isAdmin}
               />
               <RadioOpt
                 on={writePolicy === "global"}
@@ -162,6 +171,7 @@ export function SettingsForm({
                 title={t("policy.global_title")}
                 tag={t("policy.tagBroad")}
                 desc={t("policy.global_desc")}
+                disabled={!isAdmin}
               />
             </div>
             {writePolicy === "project" ? (
@@ -172,6 +182,7 @@ export function SettingsForm({
                     id="settings-fallback-scope"
                     className="select"
                     value={defaultScopeSlug ?? "global"}
+                    disabled={!isAdmin}
                     onChange={(e) =>
                       setDefaultScopeSlug(e.target.value === "global" ? null : e.target.value)
                     }
@@ -206,12 +217,14 @@ export function SettingsForm({
                 tag={t("policy.tagRecommended")}
                 tagAccent
                 desc={t("create.admins_desc")}
+                disabled={!isAdmin}
               />
               <RadioOpt
                 on={createScopes === "members"}
                 onClick={() => setCreateScopes("members")}
                 title={t("create.members_title")}
                 desc={t("create.members_desc")}
+                disabled={!isAdmin}
               />
             </div>
           </div>
@@ -247,10 +260,12 @@ export function SettingsForm({
                 <div className="cl-row">
                   <span className="cl-label">{t("connector.clientSecret")}</span>
                   <span className="cl-val mask">{secretMasked}</span>
-                  <Button variant="danger" size="sm" onClick={() => setConfirmRotate(true)}>
-                    <Icon name="rotate" />
-                    <span className="txt">{t("connector.rotate")}</span>
-                  </Button>
+                  {isAdmin ? (
+                    <Button variant="danger" size="sm" onClick={() => setConfirmRotate(true)}>
+                      <Icon name="rotate" />
+                      <span className="txt">{t("connector.rotate")}</span>
+                    </Button>
+                  ) : null}
                 </div>
               ) : (
                 <div className="cl-row">
@@ -292,17 +307,19 @@ export function SettingsForm({
           </div>
         </div>
 
-        <div className="set-savebar">
-          <span className="sb-note">{dirty ? t("savebar.unsaved") : t("savebar.saved")}</span>
-          <span className="spacer" />
-          <Button disabled={!dirty || pending} onClick={discard}>
-            {t("savebar.discard")}
-          </Button>
-          <Button variant="primary" disabled={!dirty || pending} onClick={save}>
-            <Icon name="check" />
-            <span className="txt">{t("savebar.save")}</span>
-          </Button>
-        </div>
+        {isAdmin ? (
+          <div className="set-savebar">
+            <span className="sb-note">{dirty ? t("savebar.unsaved") : t("savebar.saved")}</span>
+            <span className="spacer" />
+            <Button disabled={!dirty || pending} onClick={discard}>
+              {t("savebar.discard")}
+            </Button>
+            <Button variant="primary" disabled={!dirty || pending} onClick={save}>
+              <Icon name="check" />
+              <span className="txt">{t("savebar.save")}</span>
+            </Button>
+          </div>
+        ) : null}
       </div>
 
       {confirmRotate ? (

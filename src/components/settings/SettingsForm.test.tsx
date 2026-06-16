@@ -37,11 +37,16 @@ function connector(overrides: Partial<ConnectorView> = {}): ConnectorView {
   };
 }
 
-function renderForm(conn: ConnectorView, projectScopes: ScopeView[] = []) {
+function renderForm(conn: ConnectorView, projectScopes: ScopeView[] = [], isAdmin = true) {
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
       <ToastHost>
-        <SettingsForm initial={SETTINGS} connector={conn} projectScopes={projectScopes} />
+        <SettingsForm
+          initial={SETTINGS}
+          connector={conn}
+          projectScopes={projectScopes}
+          isAdmin={isAdmin}
+        />
       </ToastHost>
     </NextIntlClientProvider>,
   );
@@ -93,5 +98,43 @@ describe("SettingsForm — connector card", () => {
     fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.queryByRole("alertdialog")).toBeNull();
     expect(rotateSecretMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("SettingsForm — read-only for members (Defect 3)", () => {
+  beforeEach(() => {
+    rotateSecretMock.mockReset();
+    updateSettingsMock.mockReset();
+  });
+
+  it("admin sees the Save/Discard action bar", () => {
+    renderForm(connector(), [], true);
+    expect(screen.getByRole("button", { name: /save/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /discard/i })).toBeTruthy();
+  });
+
+  it("member: no Save/Discard bar — settings are admin-write", () => {
+    renderForm(connector(), [], false);
+    expect(screen.queryByRole("button", { name: /save/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /discard/i })).toBeNull();
+  });
+
+  it("member: the policy radios are disabled and inert", () => {
+    renderForm(connector(), [], false);
+    const radios = screen.getAllByRole("radio");
+    expect(radios.length).toBeGreaterThan(0);
+    for (const r of radios) expect(r.getAttribute("aria-disabled")).toBe("true");
+
+    // Clicking a currently-unselected option must not change the selection.
+    const unchecked = radios.find((r) => r.getAttribute("aria-checked") === "false");
+    expect(unchecked).toBeTruthy();
+    fireEvent.click(unchecked!);
+    expect(unchecked!.getAttribute("aria-checked")).toBe("false");
+  });
+
+  it("member: no Rotate button even when a secret exists", () => {
+    renderForm(connector({ clientSecretMasked: "sk_live_••••2f9a" }), [], false);
+    expect(screen.getByText("sk_live_••••2f9a")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /rotate/i })).toBeNull();
   });
 });

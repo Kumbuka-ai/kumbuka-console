@@ -46,9 +46,14 @@ export function Rail({
   // RBAC: the team tab is admin-only (the route + its endpoints enforce this
   // server-side; this just hides the dead link for plain members).
   const nav = session.role === "admin" ? NAV : NAV.filter((n) => n.id !== "team");
-  const fallbackName = session.displayName || session.email || session.subject || "—";
-  const initials = initialsOf(fallbackName);
-  const firstName = fallbackName.split(/[\s@]/)[0] ?? "—";
+  // Own-identity chrome (D-CORE-12): show the human display name. Never the raw
+  // Keycloak sub (a UUID) and never the email — fall back to a short, non-PII
+  // id slug when the session carries no name.
+  const displayName = session.displayName?.trim() || null;
+  const shortId = session.subject ? `${session.subject.slice(0, 6)}…` : "—";
+  const label = displayName ?? shortId;
+  const initials = initialsOf(label);
+  const firstName = label.split(/[\s@]/)[0] || label;
   return (
     <nav className="rail" aria-label="Primary">
       <div className="brand">
