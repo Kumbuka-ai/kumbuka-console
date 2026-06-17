@@ -102,31 +102,32 @@ describe("AccountForm — active connections (D-CORE-8)", () => {
     expect(screen.getByText(/No other active connections/)).toBeTruthy();
   });
 
+  // The method links render the AIA deep-link as their href once the origin is
+  // known (after mount); a click then navigates same-tab into the Keycloak flow.
+  const methodHref = (label: string) =>
+    screen.getByText(label).closest("a")?.getAttribute("href") ?? "";
+
   it("deep-links the password method into the matching AIA (kc_action + redirect_uri)", () => {
-    const assign = vi.spyOn(window.location, "assign").mockImplementation(() => {});
     renderAccount({ session: SESSION, sessions: [] });
 
-    fireEvent.click(screen.getByText("Password"));
-
-    expect(assign).toHaveBeenCalledTimes(1);
-    const url = assign.mock.calls[0][0] as string;
-    expect(url).toContain("kc_action=UPDATE_PASSWORD");
-    expect(url).toContain("/protocol/openid-connect/auth");
+    const href = methodHref("Password");
+    expect(href).toContain("/protocol/openid-connect/auth");
+    expect(href).toContain("kc_action=UPDATE_PASSWORD");
     // The console supplies its OWN origin as redirect_uri (not the MCP host).
-    expect(url).toContain(`redirect_uri=${encodeURIComponent(`${window.location.origin}/account`)}`);
-    assign.mockRestore();
+    expect(href).toContain(`redirect_uri=${encodeURIComponent(`${window.location.origin}/account`)}`);
   });
 
   it("2FA and passkey carry their own kc_action", () => {
-    const assign = vi.spyOn(window.location, "assign").mockImplementation(() => {});
     renderAccount({ session: SESSION, sessions: [] });
+    expect(methodHref("Two-factor authentication")).toContain("kc_action=CONFIGURE_TOTP");
+    expect(methodHref("Passkey")).toContain("kc_action=webauthn-register-passwordless");
+  });
 
-    fireEvent.click(screen.getByText("Two-factor authentication"));
-    expect((assign.mock.calls[0][0] as string)).toContain("kc_action=CONFIGURE_TOTP");
-
-    fireEvent.click(screen.getByText("Passkey"));
-    expect((assign.mock.calls[1][0] as string)).toContain("kc_action=webauthn-register-passwordless");
-    assign.mockRestore();
+  it("falls back to the account-console signing-in page when no AIA base is supplied", () => {
+    renderAccount({ session: { ...SESSION, securityActionUrl: undefined }, sessions: [] });
+    const href = methodHref("Password");
+    expect(href).toContain("#/security/signingin");
+    expect(href).not.toContain("kc_action");
   });
 
   it("surfaces kc_action_status on return as a toast and strips the query", () => {

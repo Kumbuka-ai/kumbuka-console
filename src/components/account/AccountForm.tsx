@@ -1,6 +1,6 @@
 "use client";
 
-import { type MouseEvent, useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
@@ -25,12 +25,13 @@ const KC_ACTIONS = {
  * Build the authorize-endpoint deep-link for one security action by appending
  * the console's own origin as `redirect_uri` (the backend's public host is the
  * MCP host, not the console) plus `kc_action`. Returns null when the backend
- * didn't supply the base (mock / older payload) or before hydration — the
- * caller then falls back to the plain account-console link.
+ * didn't supply the base (mock / older payload) or before the origin is known
+ * (server render / pre-mount) — the caller then falls back to the plain
+ * account-console link.
  */
-function aiaHref(base: string | undefined, action: string): string | null {
-  if (!base || typeof window === "undefined") return null;
-  const redirect = encodeURIComponent(`${window.location.origin}/account`);
+export function aiaHref(base: string | undefined, origin: string | null, action: string): string | null {
+  if (!base || !origin) return null;
+  const redirect = encodeURIComponent(`${origin}/account`);
   return `${base}&redirect_uri=${redirect}&kc_action=${action}`;
 }
 
@@ -56,6 +57,13 @@ export function AccountForm({
 
   const dirty = displayName.trim() !== savedName && displayName.trim().length > 0;
 
+  // The console's own origin, resolved client-side after mount. Used as the AIA
+  // `redirect_uri` — kept out of the first render so the server and the initial
+  // client render agree (no hydration mismatch); the hrefs upgrade from the
+  // account-console fallback to the deep-links once known.
+  const [origin, setOrigin] = useState<string | null>(null);
+  useEffect(() => setOrigin(window.location.origin), []);
+
   // After a Keycloak Application-Initiated-Action, KC redirects back to
   // /account?kc_action_status=success|cancelled|… — surface it as a toast and
   // strip the params so a refresh doesn't re-fire. Reads window.location
@@ -71,15 +79,6 @@ export function AccountForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Navigate same-tab to the AIA deep-link on click; fall back to the link's
-  // href (the account-console signing-in page) when no base is available.
-  const openAction = (action: string) => (e: MouseEvent<HTMLAnchorElement>) => {
-    const href = aiaHref(session.securityActionUrl, action);
-    if (!href) return;
-    e.preventDefault();
-    window.location.assign(href);
-  };
-
   const save = () => {
     if (!dirty || pending) return;
     start(async () => {
@@ -94,6 +93,11 @@ export function AccountForm({
   };
 
   const kc = session.accountConsoleUrl;
+
+  // The AIA deep-link for an action, or the account-console signing-in page as
+  // the fallback (no base / pre-mount / no-JS).
+  const actionHref = (action: string) =>
+    aiaHref(session.securityActionUrl, origin, action) ?? `${kc}#/security/signingin`;
 
   return (
     <div className="page-scroll">
@@ -160,22 +164,19 @@ export function AccountForm({
           <div className="set-body">
             <div className="methods">
               <LinkOutMethod
-                href={`${kc}#/security/signingin`}
-                onClick={openAction(KC_ACTIONS.password)}
+                href={actionHref(KC_ACTIONS.password)}
                 icon="key"
                 title={t("security.password_title")}
                 sub={t("security.password_sub")}
               />
               <LinkOutMethod
-                href={`${kc}#/security/signingin`}
-                onClick={openAction(KC_ACTIONS.twofa)}
+                href={actionHref(KC_ACTIONS.twofa)}
                 icon="phone"
                 title={t("security.twofa_title")}
                 sub={t("security.twofa_sub")}
               />
               <LinkOutMethod
-                href={`${kc}#/security/signingin`}
-                onClick={openAction(KC_ACTIONS.passkey)}
+                href={actionHref(KC_ACTIONS.passkey)}
                 icon="shield"
                 title={t("security.passkey_title")}
                 sub={t("security.passkey_sub")}
@@ -240,21 +241,19 @@ export function AccountForm({
 
 function LinkOutMethod({
   href,
-  onClick,
   icon,
   title,
   sub,
 }: Readonly<{
   href: string;
-  onClick: (e: MouseEvent<HTMLAnchorElement>) => void;
   icon: "key" | "phone" | "shield" | "monitor";
   title: string;
   sub: string;
 }>) {
   // Same-tab: the kc_action flow redirects back to /account, so a new tab
-  // would orphan the result. The href is the no-JS fallback (account console).
+  // would orphan the result.
   return (
-    <a className="method" href={href} onClick={onClick}>
+    <a className="method" href={href}>
       <div className="m-icon">
         <Icon name={icon} />
       </div>
