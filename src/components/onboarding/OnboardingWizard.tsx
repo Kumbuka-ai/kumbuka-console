@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition, type MouseEvent } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
@@ -49,6 +49,12 @@ export function OnboardingWizard({
   const key = WZ_STEP_KEYS[step];
   const isLast = step === WZ_STEP_COUNT - 1;
 
+  // closing via X / backdrop / Esc: permanent only if "don't show again" is ticked.
+  const handleClose = () => {
+    if (dontShow) onDismiss();
+    else onClose();
+  };
+
   // Open as a true modal: showModal() gives the top layer, the ::backdrop
   // scrim, native focus trapping, and aria-modal semantics. Guarded for
   // environments (jsdom) that don't implement it. Then move focus to the title.
@@ -64,17 +70,28 @@ export function OnboardingWizard({
     headRef.current?.focus();
   }, []);
 
-  // closing via X / backdrop / Esc: permanent only if "don't show again" is ticked.
-  const handleClose = () => {
-    if (dontShow) onDismiss();
-    else onClose();
-  };
-
-  // A click landing on the dialog element itself (not its content) is a
-  // backdrop/click-away close.
-  const onDialogClick = (e: MouseEvent<HTMLDialogElement>) => {
-    if (e.target === dialogRef.current) handleClose();
-  };
+  // Backdrop click-away + Esc(cancel) close, wired programmatically rather than
+  // via JSX handlers on the <dialog> (which jsx-a11y flags as listeners on a
+  // non-interactive element). Re-bound when the close semantics change so the
+  // live "don't show again" choice is honored.
+  useEffect(() => {
+    const d = dialogRef.current;
+    if (!d) return;
+    const onBackdrop = (e: globalThis.MouseEvent) => {
+      if (e.target === d) handleClose();
+    };
+    const onCancel = (e: Event) => {
+      e.preventDefault();
+      handleClose();
+    };
+    d.addEventListener("click", onBackdrop);
+    d.addEventListener("cancel", onCancel);
+    return () => {
+      d.removeEventListener("click", onBackdrop);
+      d.removeEventListener("cancel", onCancel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dontShow, onClose, onDismiss]);
 
   const handleSend = (emails: string[]) => {
     start(async () => {
@@ -119,16 +136,7 @@ export function OnboardingWizard({
   };
 
   return (
-    <dialog
-      ref={dialogRef}
-      className="wizard"
-      aria-labelledby="wz-title"
-      onClick={onDialogClick}
-      onCancel={(e) => {
-        e.preventDefault();
-        handleClose();
-      }}
-    >
+    <dialog ref={dialogRef} className="wizard" aria-labelledby="wz-title">
       <div className="wz-head">
           <div className="wz-head-top">
             <span className="eyebrow">{"// "}{t("eyebrow", { step: step + 1, total: WZ_STEP_COUNT })}</span>

@@ -80,6 +80,14 @@ describe("OnboardingProvider — lifecycle", () => {
     expect(setOnboardingMock).toHaveBeenCalledWith({ dismissed: false, lastStep: 1 });
   });
 
+  it("backdrop click-away is resumable (persists dismissed=false)", async () => {
+    renderProvider({ initial: { dismissed: false, lastStep: 0 } });
+    // a click landing on the dialog element itself (the backdrop) closes it
+    fireEvent.click(screen.getByRole("dialog"));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(setOnboardingMock).toHaveBeenCalledWith({ dismissed: false, lastStep: 0 });
+  });
+
   it("'don't show again' + close reaches the dismissed state", async () => {
     renderProvider({ initial: undefined });
     fireEvent.click(screen.getByRole("switch", { name: /don't show this again/i }));
