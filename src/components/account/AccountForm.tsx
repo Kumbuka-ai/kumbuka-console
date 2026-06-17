@@ -16,7 +16,7 @@ import type { ActiveSession, SessionView } from "@/lib/api/types";
  * matching flow instead of the generic account-console signing-in page.
  */
 const KC_ACTIONS = {
-  password: "UPDATE_PASSWORD",
+  credentials: "UPDATE_PASSWORD",
   twofa: "CONFIGURE_TOTP",
   passkey: "webauthn-register-passwordless",
 } as const;
@@ -164,7 +164,7 @@ export function AccountForm({
           <div className="set-body">
             <div className="methods">
               <LinkOutMethod
-                href={actionHref(KC_ACTIONS.password)}
+                href={actionHref(KC_ACTIONS.credentials)}
                 icon="key"
                 title={t("security.password_title")}
                 sub={t("security.password_sub")}
