@@ -1179,11 +1179,14 @@ button { font-family: inherit; }
 
 .wizard {
   position: fixed; z-index: 96; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  width: 760px; max-width: 92vw; max-height: 88vh; background: var(--c-raised);
+  width: 760px; max-width: 92vw; max-height: 88vh; margin: 0; padding: 0;
+  background: var(--c-raised); color: var(--c-text);
   border: 1.5px solid var(--c-text); display: flex; flex-direction: column;
   animation: pop 200ms cubic-bezier(.2,.7,.2,1);
 }
 [data-theme="dark"] .wizard { border-color: var(--c-border); }
+/* native <dialog> modal scrim — replaces the standalone .scrim div */
+.wizard::backdrop { background: var(--c-scrim); animation: fade 140ms ease; }
 
 .wz-head { padding: 24px 28px 0; border-bottom: 1px solid var(--c-border); }
 .wz-head-top { display: flex; align-items: flex-start; justify-content: space-between; }

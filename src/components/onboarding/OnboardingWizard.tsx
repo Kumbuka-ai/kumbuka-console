@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition, type MouseEvent } from "react";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
@@ -43,31 +43,38 @@ export function OnboardingWizard({
   const [sent, setSent] = useState<SentResult[] | null>(null);
   const [staged, setStaged] = useState<StagedScope[]>([]);
   const [pending, start] = useTransition();
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const headRef = useRef<HTMLHeadingElement>(null);
 
   const key = WZ_STEP_KEYS[step];
   const isLast = step === WZ_STEP_COUNT - 1;
 
-  // Focus the title on open (a11y: focus moves into the dialog) and wire Esc.
+  // Open as a true modal: showModal() gives the top layer, the ::backdrop
+  // scrim, native focus trapping, and aria-modal semantics. Guarded for
+  // environments (jsdom) that don't implement it. Then move focus to the title.
   useEffect(() => {
+    const d = dialogRef.current;
+    if (d && !d.open && typeof d.showModal === "function") {
+      try {
+        d.showModal();
+      } catch {
+        /* already open / unsupported */
+      }
+    }
     headRef.current?.focus();
   }, []);
 
-  // closing via X / scrim / Esc: permanent only if "don't show again" is ticked.
+  // closing via X / backdrop / Esc: permanent only if "don't show again" is ticked.
   const handleClose = () => {
     if (dontShow) onDismiss();
     else onClose();
   };
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleClose();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-    // handleClose closes over the live `dontShow`; re-bind when it changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dontShow, onClose, onDismiss]);
+  // A click landing on the dialog element itself (not its content) is a
+  // backdrop/click-away close.
+  const onDialogClick = (e: MouseEvent<HTMLDialogElement>) => {
+    if (e.target === dialogRef.current) handleClose();
+  };
 
   const handleSend = (emails: string[]) => {
     start(async () => {
@@ -112,10 +119,17 @@ export function OnboardingWizard({
   };
 
   return (
-    <>
-      <div className="scrim" onClick={handleClose} aria-hidden />
-      <div className="wizard" role="dialog" aria-modal="true" aria-labelledby="wz-title">
-        <div className="wz-head">
+    <dialog
+      ref={dialogRef}
+      className="wizard"
+      aria-labelledby="wz-title"
+      onClick={onDialogClick}
+      onCancel={(e) => {
+        e.preventDefault();
+        handleClose();
+      }}
+    >
+      <div className="wz-head">
           <div className="wz-head-top">
             <span className="eyebrow">{"// "}{t("eyebrow", { step: step + 1, total: WZ_STEP_COUNT })}</span>
             <button type="button" className="iconbtn x" onClick={handleClose} aria-label={t("close")}>
@@ -183,7 +197,6 @@ export function OnboardingWizard({
             </Button>
           )}
         </div>
-      </div>
-    </>
+    </dialog>
   );
 }
