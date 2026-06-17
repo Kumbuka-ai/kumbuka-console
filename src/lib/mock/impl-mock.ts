@@ -13,6 +13,7 @@ import type {
   EraseResult,
   InviteUserRequest,
   MemberDirectoryEntry,
+  OnboardingState,
   OverviewView,
   ScopeView,
   SessionView,
@@ -74,6 +75,11 @@ const stripEntries = (s: (typeof state.scopes)[number]): ScopeView => {
 };
 
 // ---------- Session ----------------------------------------------------
+// D-CORE-10.1: onboarding state lives on the owner account server-side. In the
+// mock it is process-local so the wizard is fully exercisable in MOCK_SESSION
+// dev mode (undefined ⇒ not-yet-dismissed ⇒ first-login auto-open).
+let mockOnboarding: OnboardingState | undefined;
+
 export async function getSession(): Promise<SessionView> {
   const me = state.users.find((u) => u.self) ?? state.users[0];
   return {
@@ -86,11 +92,13 @@ export async function getSession(): Promise<SessionView> {
       "/auth/realms/kumbuka/protocol/openid-connect/auth?client_id=kumbuka-admin" +
       "&response_type=code&scope=openid&code_challenge_method=S256&code_challenge=mock",
     muted: me.muted,
+    onboarding: mockOnboarding,
   };
 }
 export async function updateMe(req: UpdateMeRequest): Promise<SessionView> {
   const me = state.users.find((u) => u.self) ?? state.users[0];
   if (req.displayName !== undefined) me.displayName = req.displayName.trim();
+  if (req.onboarding !== undefined) mockOnboarding = req.onboarding;
   return getSession();
 }
 

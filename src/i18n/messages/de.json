@@ -497,5 +497,79 @@
     "validation": "Dieser Eintrag konnte nicht gespeichert werden: {reason}",
     "validationFallback": "einige Felder sind ungültig",
     "generic": "Eintrag konnte nicht gespeichert werden. Bitte versuche es erneut."
+  },
+  "onboarding": {
+    "rail": {
+      "setupGuide": "Einrichtungsguide"
+    },
+    "close": "Einrichtung schließen",
+    "stepsLabel": "Einrichtungsschritte",
+    "eyebrow": "erste Schritte · {step} von {total}",
+    "dontShowAgain": "Nicht mehr anzeigen",
+    "back": "Zurück",
+    "skip": "Überspringen",
+    "next": "Weiter",
+    "finish": "Fertigstellen",
+    "steps": {
+      "explain": "So funktioniert's",
+      "invite": "Team einladen",
+      "scopes": "Scopes anlegen"
+    },
+    "explain": {
+      "title": "So funktioniert kumbuka",
+      "mnemonicsEyebrow": "Mnemoniken",
+      "mnemonicsLead": "Eine <b>Mnemonik</b> ist eine dauerhafte Tatsache, auf die sich dein Team geeinigt hat — eine Entscheidung, eine Konvention, eine harte Vorgabe. Jede ist typisiert, damit ein Assistent weiß, wie er sie gewichtet.",
+      "flowEyebrow": "wie ein Assistent sie nutzt",
+      "assistant": "KI-Assistent",
+      "assistantSub": "dein Client, über MCP",
+      "reads": "liest",
+      "writes": "schreibt",
+      "memory": "kumbuka-Speicher",
+      "memorySub": "kuratiert · prüfbar",
+      "flowNote": "Jeder Lesezugriff ist gescoped; jeder Schreibzugriff ist zugeordnet und überprüfbar. Nichts erreicht einen Assistenten, das das Team nicht kuratiert hat.",
+      "scopesEyebrow": "Scopes",
+      "scopesLead": "Der Speicher ist in <b>Scopes</b> organisiert. Ein Assistent liest zuerst die globale Basis, dann das Projekt, in dem er arbeitet.",
+      "globalTitle": "Global",
+      "globalDesc": "Eine organisationsweite Basis, die jedes Projekt erbt.",
+      "projectTitle": "Projekt",
+      "projectDesc": "Speicher pro Projekt — ein Scope je Codebasis oder Produkt.",
+      "privateTitle": "Privater Speicher",
+      "privateTag": "gehört jedem Mitglied selbst",
+      "privateBody": "Jedes Mitglied hat zusätzlich einen privaten Scope, den der Assistent nur für es allein nutzt. Es ist backend-seitig erzwungen, dass er nie in dieser Konsole erscheint — nicht hier, nicht für Admins, nicht über den Connector.",
+      "privateFoot": "per Design garantiert"
+    },
+    "invite": {
+      "title": "Lade dein Team ein",
+      "label": "E-Mail-Adressen",
+      "hint": "Eine pro Zeile. Ungültige Zeilen werden unten markiert — gültige gehen über den bestehenden Einladungsablauf hinaus.",
+      "placeholder": "priya@acme.com\nmarek@acme.com\nlena@acme.com",
+      "valid": "{count} gültig",
+      "toFix": "{count} zu korrigieren",
+      "ready": "bereit",
+      "badEmail": "keine gültige E-Mail",
+      "alreadyMember": "bereits im Team",
+      "dupInList": "Duplikat in der Liste",
+      "send": "{count, plural, =0 {Einladungen senden} one {# Einladung senden} other {# Einladungen senden}}",
+      "sentHead": "{count, plural, one {# Einladung} other {# Einladungen}} über den Identitätsanbieter gesendet",
+      "pending": "Ausstehend",
+      "failed": "Fehlgeschlagen",
+      "sentNote": "Jede erhält einen Link zum Einrichten der Zugangsdaten — hier wird kein Passwort gesetzt. Du kannst jederzeit weitere über <b>Team & Nutzer</b> einladen.",
+      "sentToast": "{count, plural, =0 {Keine Einladungen gesendet} one {# Einladung gesendet} other {# Einladungen gesendet}}"
+    },
+    "scopes": {
+      "title": "Richte deine Scopes ein",
+      "lead": "Richte die Projekt-Scopes ein, die dein Team nutzen wird. Jeder erhält eine stabile <m>kebab-slug</m>-ID, über die der Assistent ihn anspricht — die ID ist nach dem Anlegen fest.",
+      "nameLabel": "Scope-Name",
+      "nameHint": "Gib einen Namen ein; die ID wird automatisch abgeleitet.",
+      "namePlaceholder": "z. B. Billing Platform",
+      "idLabel": "ID",
+      "alreadyExists": "existiert bereits",
+      "add": "Scope hinzufügen",
+      "toCreate": "anzulegen · {count}",
+      "remove": "{name} entfernen",
+      "globalNote": "Der <m>global</m>-Scope existiert bereits und gilt für jedes Projekt — du legst ihn hier nicht an.",
+      "createdToast": "{count, plural, one {# Scope} other {# Scopes}} angelegt",
+      "createFailed": "{count, plural, one {# Scope} other {# Scopes}} konnte nicht angelegt werden"
+    }
   }
 }

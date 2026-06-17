@@ -1,0 +1,189 @@
+"use client";
+
+import { useEffect, useRef, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
+import { Icon } from "@/components/ui/Icon";
+import { Button } from "@/components/ui/Button";
+import { useToast } from "@/components/ui/Toast";
+import { createScopeAction, inviteUserAction } from "@/app/(app)/actions";
+import { WZ_STEP_COUNT, WZ_STEP_KEYS } from "./steps";
+import { WizardExplain } from "./WizardExplain";
+import { WizardInvite, type SentResult } from "./WizardInvite";
+import { WizardScopes, type StagedScope } from "./WizardScopes";
+
+/**
+ * D-CORE-10.1 first-login onboarding wizard (shell). A centered overlay over
+ * the console — scrim + Esc + click-away to close — with a 1·2·3 step rail,
+ * each step skippable and resumable. Closing via X/scrim/Esc is *resumable*
+ * (reopens next login) unless "don't show again" is ticked; Finish and
+ * don't-show-again both reach the same dismissed state (the parent persists it
+ * server-side). Translates the prototype's `OnboardingWizard` into the real
+ * primitives (Button/Icon/Field/TypeChip/private-panel/useToast) and next-intl.
+ */
+export function OnboardingWizard({
+  step,
+  setStep,
+  onClose,
+  onDismiss,
+  existingEmails,
+  existingSlugs,
+}: Readonly<{
+  step: number;
+  setStep: (n: number) => void;
+  /** Resumable close (X / scrim / Esc, no don't-show-again). */
+  onClose: () => void;
+  /** Permanent dismiss (Finish, or close with don't-show-again ticked). */
+  onDismiss: () => void;
+  existingEmails: readonly string[];
+  existingSlugs: readonly string[];
+}>) {
+  const t = useTranslations("onboarding");
+  const toast = useToast();
+  const [dontShow, setDontShow] = useState(false);
+  const [sent, setSent] = useState<SentResult[] | null>(null);
+  const [staged, setStaged] = useState<StagedScope[]>([]);
+  const [pending, start] = useTransition();
+  const headRef = useRef<HTMLHeadingElement>(null);
+
+  const key = WZ_STEP_KEYS[step];
+  const isLast = step === WZ_STEP_COUNT - 1;
+
+  // Focus the title on open (a11y: focus moves into the dialog) and wire Esc.
+  useEffect(() => {
+    headRef.current?.focus();
+  }, []);
+
+  // closing via X / scrim / Esc: permanent only if "don't show again" is ticked.
+  const handleClose = () => {
+    if (dontShow) onDismiss();
+    else onClose();
+  };
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") handleClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+    // handleClose closes over the live `dontShow`; re-bind when it changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dontShow, onClose, onDismiss]);
+
+  const handleSend = (emails: string[]) => {
+    start(async () => {
+      // Each address is an independent invite through the real path; reconcile
+      // the backend's per-address result with the client-side per-line view.
+      const results: SentResult[] = await Promise.all(
+        emails.map(async (email) => {
+          try {
+            await inviteUserAction({ email, role: "member" });
+            return { email, ok: true };
+          } catch {
+            return { email, ok: false };
+          }
+        }),
+      );
+      setSent(results);
+      const ok = results.filter((r) => r.ok).length;
+      toast.push({ message: t("invite.sentToast", { count: ok }) });
+    });
+  };
+
+  const finish = () => {
+    start(async () => {
+      if (staged.length) {
+        const results = await Promise.all(
+          staged.map(async (s) => {
+            try {
+              await createScopeAction({ slug: s.id, name: s.name });
+              return true;
+            } catch {
+              return false;
+            }
+          }),
+        );
+        const ok = results.filter(Boolean).length;
+        const failed = results.length - ok;
+        if (ok) toast.push({ message: t("scopes.createdToast", { count: ok }) });
+        if (failed) toast.push({ message: t("scopes.createFailed", { count: failed }) });
+      }
+      onDismiss();
+    });
+  };
+
+  return (
+    <>
+      <div className="scrim" onClick={handleClose} aria-hidden />
+      <div className="wizard" role="dialog" aria-modal="true" aria-labelledby="wz-title">
+        <div className="wz-head">
+          <div className="wz-head-top">
+            <span className="eyebrow">{"// "}{t("eyebrow", { step: step + 1, total: WZ_STEP_COUNT })}</span>
+            <button type="button" className="iconbtn x" onClick={handleClose} aria-label={t("close")}>
+              <Icon name="x" />
+            </button>
+          </div>
+          <h2 id="wz-title" tabIndex={-1} ref={headRef}>
+            {t(`${key}.title`)}
+          </h2>
+          <div className="wz-steps" role="list" aria-label={t("stepsLabel")}>
+            {WZ_STEP_KEYS.map((s, i) => (
+              <button
+                key={s}
+                type="button"
+                role="listitem"
+                className={`wz-step${i === step ? " current" : ""}${i < step ? " done" : ""}`}
+                onClick={() => setStep(i)}
+                aria-current={i === step ? "step" : undefined}
+              >
+                <span className="wz-step-node">{i < step ? <Icon name="check" /> : i + 1}</span>
+                <span className="wz-step-label">{t(`steps.${s}`)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="wz-body">
+          {key === "explain" && <WizardExplain />}
+          {key === "invite" && (
+            <WizardInvite existingEmails={existingEmails} sent={sent} sending={pending} onSend={handleSend} />
+          )}
+          {key === "scopes" && (
+            <WizardScopes existingSlugs={existingSlugs} staged={staged} setStaged={setStaged} />
+          )}
+        </div>
+
+        <div className="wz-foot">
+          <label className="wz-dontshow">
+            <button
+              type="button"
+              role="switch"
+              aria-checked={dontShow}
+              className={`wz-toggle${dontShow ? " on" : ""}`}
+              onClick={() => setDontShow((d) => !d)}
+            />
+            <span>{t("dontShowAgain")}</span>
+          </label>
+          <span className="spacer" />
+          {step > 0 && (
+            <Button onClick={() => setStep(step - 1)}>
+              <Icon name="chevRight" className="ico flip" />
+              <span className="txt">{t("back")}</span>
+            </Button>
+          )}
+          {!isLast && <Button onClick={() => setStep(step + 1)}>{t("skip")}</Button>}
+          {isLast ? (
+            <Button variant="primary" disabled={pending} onClick={finish}>
+              <Icon name="check" />
+              <span className="txt">{t("finish")}</span>
+            </Button>
+          ) : (
+            <Button variant="primary" onClick={() => setStep(step + 1)}>
+              <span className="txt">{t("next")}</span>
+              <Icon name="chevRight" />
+            </Button>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { Avatar, initialsOf } from "@/components/ui/Avatar";
+import { SetupGuide } from "@/components/onboarding/SetupGuide";
 import type { ReactNode } from "react";
 import type { ScopeView, SessionView } from "@/lib/api/types";
 
@@ -90,6 +91,7 @@ export function Rail({
       </div>
 
       <div className="rail-foot">
+        <SetupGuide />
         <Link
           href="/account"
           className={`user-chip${activeId === "account" ? " active" : ""}`}

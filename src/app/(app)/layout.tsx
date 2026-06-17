@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { Rail } from "@/components/shell/Rail";
 import { Footer } from "@/components/shell/Footer";
-import { listScopes, listDirectory } from "@/lib/api";
+import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
+import { listScopes, listDirectory, listUsers } from "@/lib/api";
 import { requireSession } from "@/lib/api/session";
 import { fetchBackendVersion } from "@/lib/version";
 
@@ -33,19 +34,32 @@ export default async function AppLayout({ children }: Readonly<{ children: React
   // listDirectory (member-safe: subject+displayName only), NOT listUsers —
   // the layout wraps every member-visible page; the admin-only roster would
   // 403 the whole member console (P0 read-authz).
-  const [scopes, directory, backendVersion] = await Promise.all([
+  // D-CORE-10.1: the onboarding wizard is owner-scoped (beta = admin). The
+  // bulk-invite step needs the existing roster's emails to pre-flag
+  // already-on-the-team — fetched only for admins (listUsers is admin-only;
+  // members 403). For members the wizard never renders, so the empty list is fine.
+  const isOwner = session.role === "admin";
+  const [scopes, directory, backendVersion, roster] = await Promise.all([
     listScopes(),
     listDirectory(),
     fetchBackendVersion(),
+    isOwner ? listUsers() : Promise.resolve([]),
   ]);
 
   return (
-    <div className="app">
-      <Rail session={session} scopes={scopes} memberCount={directory.length} />
-      <main className="main">
-        {children}
-        <Footer backend={backendVersion} />
-      </main>
-    </div>
+    <OnboardingProvider
+      enabled={isOwner}
+      initial={session.onboarding}
+      existingEmails={roster.map((u) => u.email)}
+      existingSlugs={scopes.map((s) => s.slug)}
+    >
+      <div className="app">
+        <Rail session={session} scopes={scopes} memberCount={directory.length} />
+        <main className="main">
+          {children}
+          <Footer backend={backendVersion} />
+        </main>
+      </div>
+    </OnboardingProvider>
   );
 }

@@ -497,5 +497,79 @@
     "validation": "This entry couldn't be saved: {reason}",
     "validationFallback": "some fields are invalid",
     "generic": "Couldn't save this entry. Please try again."
+  },
+  "onboarding": {
+    "rail": {
+      "setupGuide": "Setup guide"
+    },
+    "close": "Close setup",
+    "stepsLabel": "Setup steps",
+    "eyebrow": "getting started · {step} of {total}",
+    "dontShowAgain": "Don't show this again",
+    "back": "Back",
+    "skip": "Skip",
+    "next": "Next",
+    "finish": "Finish",
+    "steps": {
+      "explain": "How it works",
+      "invite": "Invite team",
+      "scopes": "Create scopes"
+    },
+    "explain": {
+      "title": "How kumbuka works",
+      "mnemonicsEyebrow": "mnemonics",
+      "mnemonicsLead": "A <b>mnemonic</b> is one durable fact your team has agreed on — a decision, a convention, a hard constraint. Each is typed, so an assistant knows how to weigh it.",
+      "flowEyebrow": "how an assistant uses it",
+      "assistant": "AI assistant",
+      "assistantSub": "your client, via MCP",
+      "reads": "reads",
+      "writes": "writes",
+      "memory": "kumbuka memory",
+      "memorySub": "curated · auditable",
+      "flowNote": "Every read is scoped; every write is attributed and reviewable. Nothing reaches an assistant that the team hasn't curated.",
+      "scopesEyebrow": "scopes",
+      "scopesLead": "Memory is organised into <b>scopes</b>. An assistant reads the global baseline first, then the project it is working in.",
+      "globalTitle": "Global",
+      "globalDesc": "One organization-wide baseline every project inherits.",
+      "projectTitle": "Project",
+      "projectDesc": "Per-project memory — one scope per codebase or product.",
+      "privateTitle": "Private memory",
+      "privateTag": "owned by each member",
+      "privateBody": "Every member also has a private scope the assistant uses for them alone. It is backend-enforced never to appear in this console — not here, not to admins, not through the connector.",
+      "privateFoot": "guaranteed by design"
+    },
+    "invite": {
+      "title": "Invite your team",
+      "label": "Email addresses",
+      "hint": "One per line. Invalid lines are flagged below — valid ones go out through the existing invite flow.",
+      "placeholder": "priya@acme.com\nmarek@acme.com\nlena@acme.com",
+      "valid": "{count} valid",
+      "toFix": "{count} to fix",
+      "ready": "ready",
+      "badEmail": "not a valid email",
+      "alreadyMember": "already on the team",
+      "dupInList": "duplicate in list",
+      "send": "{count, plural, =0 {Send invites} one {Send # invite} other {Send # invites}}",
+      "sentHead": "{count, plural, one {# invite} other {# invites}} sent via your identity provider",
+      "pending": "Pending",
+      "failed": "Failed",
+      "sentNote": "Each receives a set-up-credentials link — no password is set here. You can invite more from <b>Team & users</b> any time.",
+      "sentToast": "{count, plural, =0 {No invites sent} one {# invite sent} other {# invites sent}}"
+    },
+    "scopes": {
+      "title": "Set up your scopes",
+      "lead": "Set up the project scopes your team will use. Each gets a stable <m>kebab-slug</m> id the assistant addresses it by — the id is fixed once created.",
+      "nameLabel": "Scope name",
+      "nameHint": "Type a name; the id is derived automatically.",
+      "namePlaceholder": "e.g. Billing Platform",
+      "idLabel": "id",
+      "alreadyExists": "already exists",
+      "add": "Add scope",
+      "toCreate": "to create · {count}",
+      "remove": "Remove {name}",
+      "globalNote": "The <m>global</m> scope already exists and applies to every project — you don't create it here.",
+      "createdToast": "{count, plural, one {# scope} other {# scopes}} created",
+      "createFailed": "{count, plural, one {# scope} other {# scopes}} couldn't be created"
+    }
   }
 }
