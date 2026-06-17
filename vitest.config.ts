@@ -87,6 +87,16 @@ export default defineConfig({
         // running console + backend build to the operator UI.
         "src/lib/version.ts",
         "src/components/shell/Footer.tsx",
+        // Onboarding wizard (D-CORE-10.1) — unit-tested in
+        // components/onboarding/OnboardingWizard.test.tsx (lifecycle, invite
+        // parse/send, scope slug + dup-guard, re-open, scope-guard negative).
+        "src/components/onboarding/OnboardingProvider.tsx",
+        "src/components/onboarding/OnboardingWizard.tsx",
+        "src/components/onboarding/WizardExplain.tsx",
+        "src/components/onboarding/WizardInvite.tsx",
+        "src/components/onboarding/WizardScopes.tsx",
+        "src/components/onboarding/SetupGuide.tsx",
+        "src/components/onboarding/steps.ts",
       ],
       exclude: [
         "**/*.test.*",

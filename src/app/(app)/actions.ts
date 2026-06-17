@@ -29,6 +29,7 @@ import type {
   CreateScopeRequest,
   EntryActionResult,
   InviteUserRequest,
+  OnboardingState,
   UpdateEntryRequest,
   UpdateMeRequest,
   UpdateSettingsRequest,
@@ -197,6 +198,26 @@ export async function updateMeAction(req: UpdateMeRequest) {
   revalidatePath("/account");
   revalidatePath("/overview");
   return out;
+}
+
+/**
+ * D-CORE-10.1: persist the onboarding-wizard state on the owner account so
+ * dismissal + resume survive across devices (never localStorage). Best-effort,
+ * exactly like setLocaleAction's updateMe: the wizard's local open/step state
+ * already reflects the user's action, so a backend hiccup must not block the
+ * UI. NOTE (Stage-0 gap): until the server persists `onboarding` on
+ * `user_account` (mirror V11 locale — see the handover), this write is a no-op
+ * server-side and the wizard reopens on the next login. The console side is
+ * forward-compatible: the day the field lands, this starts persisting with no
+ * console change.
+ */
+export async function setOnboardingAction(state: OnboardingState) {
+  try {
+    await updateMe({ onboarding: state });
+  } catch {
+    // Local wizard state already updated; the backend will catch up once the
+    // account field exists. Never surface this to the user.
+  }
 }
 
 // D-CORE-8: terminate one of the caller's own sessions. The backend

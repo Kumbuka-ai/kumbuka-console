@@ -74,6 +74,7 @@ import {
   resendInviteAction,
   rotateSecretAction,
   setLocaleAction,
+  setOnboardingAction,
   setThemeAction,
   terminateSessionAction,
   updateEntryAction,
@@ -301,6 +302,21 @@ describe("Server Actions — delegation + cache invalidation", () => {
     expect(out.displayName).toBe("Patched");
     expect(revalidatePathMock).toHaveBeenCalledWith("/account");
     expect(revalidatePathMock).toHaveBeenCalledWith("/overview");
+  });
+
+  // ---------- onboarding (D-CORE-10.1) -----------------------------------
+
+  it("setOnboardingAction persists the wizard state via updateMe (no path revalidation)", async () => {
+    apiMocks.updateMe.mockResolvedValue({});
+    await setOnboardingAction({ dismissed: true, lastStep: 2 });
+    expect(apiMocks.updateMe).toHaveBeenCalledWith({ onboarding: { dismissed: true, lastStep: 2 } });
+    expect(revalidatePathMock).not.toHaveBeenCalled();
+  });
+
+  it("setOnboardingAction is best-effort: a backend failure never throws (local state already applied)", async () => {
+    apiMocks.updateMe.mockRejectedValue(new Error("BFF down"));
+    await expect(setOnboardingAction({ dismissed: false, lastStep: 1 })).resolves.toBeUndefined();
+    expect(apiMocks.updateMe).toHaveBeenCalledWith({ onboarding: { dismissed: false, lastStep: 1 } });
   });
 
   it("terminateSessionAction (D-CORE-8) delegates by id and revalidates /account", async () => {

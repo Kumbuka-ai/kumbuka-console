@@ -203,7 +203,22 @@ export type SessionView = {
    * SSR source of truth and is seeded from this on a fresh device.
    */
   locale?: Locale;
+  /**
+   * D-CORE-10.1: the tenant-owner's onboarding-wizard state, server-side per
+   * account so "first login" and "resume" survive across devices (never
+   * localStorage). Optional/forward-compat: until the backend persists it
+   * (the `user_account` field is the returned Stage-0 gap — mirror V11 locale),
+   * this is absent and the console treats the wizard as not-yet-dismissed.
+   */
+  onboarding?: OnboardingState;
 };
+
+/**
+ * D-CORE-10.1 onboarding-wizard state. `dismissed` once the owner finishes or
+ * opts out (both reach the same dismissed state); `lastStep` is the resume
+ * point (0-based) while still pending.
+ */
+export type OnboardingState = { dismissed: boolean; lastStep: number };
 
 /**
  * D-CORE-8: one of the member's own active Keycloak sessions. Scoped to
@@ -243,7 +258,7 @@ export type UpdateSettingsRequest = {
   defaultScopeSlug?: string | null;
   createScopes?: CreateScopes;
 };
-export type UpdateMeRequest = { displayName?: string; locale?: Locale };
+export type UpdateMeRequest = { displayName?: string; locale?: Locale; onboarding?: OnboardingState };
 export type InviteUserRequest = { email: string; displayName?: string; role: UserRole };
 export type UpdateUserRequest = { role?: UserRole; status?: UserStatus; muted?: boolean };
 
