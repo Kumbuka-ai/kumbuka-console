@@ -125,7 +125,9 @@
       "twofa_title": "Two-factor authentication",
       "twofa_sub": "Authenticator app or one-time codes by email.",
       "passkey_title": "Passkey",
-      "passkey_sub": "Sign in with a hardware key or platform authenticator."
+      "passkey_sub": "Sign in with a hardware key or platform authenticator.",
+      "actionDone": "Security settings updated.",
+      "actionCancelled": "Action cancelled."
     },
     "connections": {
       "eyebrow": "active connections",

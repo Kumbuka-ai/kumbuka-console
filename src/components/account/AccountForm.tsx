@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { type MouseEvent, useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
@@ -11,10 +11,36 @@ import { relTime } from "@/lib/time";
 import type { ActiveSession, SessionView } from "@/lib/api/types";
 
 /**
+ * Keycloak Application-Initiated-Action aliases for the three security
+ * deep-links. The already-authenticated user is sent straight into the
+ * matching flow instead of the generic account-console signing-in page.
+ */
+const KC_ACTIONS = {
+  password: "UPDATE_PASSWORD",
+  twofa: "CONFIGURE_TOTP",
+  passkey: "webauthn-register-passwordless",
+} as const;
+
+/**
+ * Build the authorize-endpoint deep-link for one security action by appending
+ * the console's own origin as `redirect_uri` (the backend's public host is the
+ * MCP host, not the console) plus `kc_action`. Returns null when the backend
+ * didn't supply the base (mock / older payload) or before hydration — the
+ * caller then falls back to the plain account-console link.
+ */
+function aiaHref(base: string | undefined, action: string): string | null {
+  if (!base || typeof window === "undefined") return null;
+  const redirect = encodeURIComponent(`${window.location.origin}/account`);
+  return `${base}&redirect_uri=${redirect}&kc_action=${action}`;
+}
+
+/**
  * Account screen — D2 hybrid. Display name is the only in-app editable
- * field; credentials, MFA, and passkey link out to the Keycloak account
- * console. Active connections (D-CORE-8) are managed inline — a member can
- * see and terminate their own sessions without leaving the console.
+ * field; password, 2FA, and passkey deep-link into the matching Keycloak
+ * Application-Initiated-Action (kc_action) — same tab, returning to /account
+ * with a `kc_action_status` the screen surfaces as a toast. Active
+ * connections (D-CORE-8) are managed inline — a member can see and terminate
+ * their own sessions without leaving the console.
  */
 export function AccountForm({
   session,
@@ -29,6 +55,30 @@ export function AccountForm({
   const tRoles = useTranslations("roles");
 
   const dirty = displayName.trim() !== savedName && displayName.trim().length > 0;
+
+  // After a Keycloak Application-Initiated-Action, KC redirects back to
+  // /account?kc_action_status=success|cancelled|… — surface it as a toast and
+  // strip the params so a refresh doesn't re-fire. Reads window.location
+  // directly (not useSearchParams) so the page needs no Suspense boundary.
+  useEffect(() => {
+    const status = new URLSearchParams(window.location.search).get("kc_action_status");
+    if (!status) return;
+    toast.push({
+      message: status === "cancelled" ? t("security.actionCancelled") : t("security.actionDone"),
+    });
+    window.history.replaceState(null, "", "/account");
+    // run once on mount; toast/t are stable for this screen
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Navigate same-tab to the AIA deep-link on click; fall back to the link's
+  // href (the account-console signing-in page) when no base is available.
+  const openAction = (action: string) => (e: MouseEvent<HTMLAnchorElement>) => {
+    const href = aiaHref(session.securityActionUrl, action);
+    if (!href) return;
+    e.preventDefault();
+    window.location.assign(href);
+  };
 
   const save = () => {
     if (!dirty || pending) return;
@@ -111,18 +161,21 @@ export function AccountForm({
             <div className="methods">
               <LinkOutMethod
                 href={`${kc}#/security/signingin`}
+                onClick={openAction(KC_ACTIONS.password)}
                 icon="key"
                 title={t("security.password_title")}
                 sub={t("security.password_sub")}
               />
               <LinkOutMethod
                 href={`${kc}#/security/signingin`}
+                onClick={openAction(KC_ACTIONS.twofa)}
                 icon="phone"
                 title={t("security.twofa_title")}
                 sub={t("security.twofa_sub")}
               />
               <LinkOutMethod
                 href={`${kc}#/security/signingin`}
+                onClick={openAction(KC_ACTIONS.passkey)}
                 icon="shield"
                 title={t("security.passkey_title")}
                 sub={t("security.passkey_sub")}
@@ -187,17 +240,21 @@ export function AccountForm({
 
 function LinkOutMethod({
   href,
+  onClick,
   icon,
   title,
   sub,
 }: Readonly<{
   href: string;
+  onClick: (e: MouseEvent<HTMLAnchorElement>) => void;
   icon: "key" | "phone" | "shield" | "monitor";
   title: string;
   sub: string;
 }>) {
+  // Same-tab: the kc_action flow redirects back to /account, so a new tab
+  // would orphan the result. The href is the no-JS fallback (account console).
   return (
-    <a className="method" href={href} target="_blank" rel="noreferrer">
+    <a className="method" href={href} onClick={onClick}>
       <div className="m-icon">
         <Icon name={icon} />
       </div>

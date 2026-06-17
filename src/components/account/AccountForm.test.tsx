@@ -34,6 +34,9 @@ const SESSION: SessionView = {
   displayName: "Me",
   role: "member",
   accountConsoleUrl: "https://auth.example/realms/kumbuka/account",
+  securityActionUrl:
+    "https://auth.example/realms/kumbuka/protocol/openid-connect/auth?client_id=kumbuka-admin" +
+    "&response_type=code&scope=openid&code_challenge_method=S256&code_challenge=abc",
   muted: false,
 };
 
@@ -63,6 +66,9 @@ describe("AccountForm — active connections (D-CORE-8)", () => {
     updateMeMock.mockReset();
     terminateMock.mockReset();
     pushMock.mockReset();
+    // Reset the URL between tests — the kc_action_status effect reads it on
+    // mount and one test seeds a query that would otherwise leak forward.
+    window.history.replaceState(null, "", "/account");
   });
 
   it("lists the caller's connections, labelling client + marking the current one", () => {
@@ -94,5 +100,47 @@ describe("AccountForm — active connections (D-CORE-8)", () => {
   it("shows an empty state when there are no other connections", () => {
     renderAccount({ session: SESSION, sessions: [] });
     expect(screen.getByText(/No other active connections/)).toBeTruthy();
+  });
+
+  it("deep-links the password method into the matching AIA (kc_action + redirect_uri)", () => {
+    const assign = vi.spyOn(window.location, "assign").mockImplementation(() => {});
+    renderAccount({ session: SESSION, sessions: [] });
+
+    fireEvent.click(screen.getByText("Password"));
+
+    expect(assign).toHaveBeenCalledTimes(1);
+    const url = assign.mock.calls[0][0] as string;
+    expect(url).toContain("kc_action=UPDATE_PASSWORD");
+    expect(url).toContain("/protocol/openid-connect/auth");
+    // The console supplies its OWN origin as redirect_uri (not the MCP host).
+    expect(url).toContain(`redirect_uri=${encodeURIComponent(`${window.location.origin}/account`)}`);
+    assign.mockRestore();
+  });
+
+  it("2FA and passkey carry their own kc_action", () => {
+    const assign = vi.spyOn(window.location, "assign").mockImplementation(() => {});
+    renderAccount({ session: SESSION, sessions: [] });
+
+    fireEvent.click(screen.getByText("Two-factor authentication"));
+    expect((assign.mock.calls[0][0] as string)).toContain("kc_action=CONFIGURE_TOTP");
+
+    fireEvent.click(screen.getByText("Passkey"));
+    expect((assign.mock.calls[1][0] as string)).toContain("kc_action=webauthn-register-passwordless");
+    assign.mockRestore();
+  });
+
+  it("surfaces kc_action_status on return as a toast and strips the query", () => {
+    window.history.replaceState(null, "", "/account?kc_action_status=success&code=x");
+    renderAccount({ session: SESSION, sessions: [] });
+
+    expect(pushMock).toHaveBeenCalledWith({ message: "Security settings updated." });
+    // The AIA params are stripped so a refresh doesn't re-fire the toast.
+    expect(window.location.search).toBe("");
+  });
+
+  it("a cancelled action toasts the cancelled message", () => {
+    window.history.replaceState(null, "", "/account?kc_action_status=cancelled");
+    renderAccount({ session: SESSION, sessions: [] });
+    expect(pushMock).toHaveBeenCalledWith({ message: "Action cancelled." });
   });
 });
