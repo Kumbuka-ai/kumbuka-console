@@ -136,7 +136,7 @@ export default async function OverviewPage() {
             </div>
           </div>
 
-          <AssistantPrompt />
+          <AssistantPrompt scopes={scopes} />
 
           <div className="ov-split">
             <div>
