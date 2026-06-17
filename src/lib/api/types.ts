@@ -185,6 +185,14 @@ export type SessionView = {
   displayName: string | null;
   role: UserRole;
   accountConsoleUrl: string;
+  /**
+   * Authorize-endpoint base for Keycloak Application Initiated Actions. The
+   * account screen appends `&redirect_uri=<origin>/account&kc_action=<ACTION>`
+   * to deep-link password / 2FA / passkey management (instead of the generic
+   * signing-in page). Carries a fresh PKCE challenge. Optional for
+   * forward-compat with mock/older payloads.
+   */
+  securityActionUrl?: string;
   /** Optional convenience — see ADR-0009. */
   loginUrl?: string;
   /** D-CORE-2: the caller's own mute state — drives the member notice + gating. */

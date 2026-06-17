@@ -34,6 +34,9 @@ const SESSION: SessionView = {
   displayName: "Me",
   role: "member",
   accountConsoleUrl: "https://auth.example/realms/kumbuka/account",
+  securityActionUrl:
+    "https://auth.example/realms/kumbuka/protocol/openid-connect/auth?client_id=kumbuka-admin" +
+    "&response_type=code&scope=openid&code_challenge_method=S256&code_challenge=abc",
   muted: false,
 };
 
@@ -63,6 +66,9 @@ describe("AccountForm — active connections (D-CORE-8)", () => {
     updateMeMock.mockReset();
     terminateMock.mockReset();
     pushMock.mockReset();
+    // Reset the URL between tests — the kc_action_status effect reads it on
+    // mount and one test seeds a query that would otherwise leak forward.
+    window.history.replaceState(null, "", "/account");
   });
 
   it("lists the caller's connections, labelling client + marking the current one", () => {
@@ -94,5 +100,48 @@ describe("AccountForm — active connections (D-CORE-8)", () => {
   it("shows an empty state when there are no other connections", () => {
     renderAccount({ session: SESSION, sessions: [] });
     expect(screen.getByText(/No other active connections/)).toBeTruthy();
+  });
+
+  // The method links render the AIA deep-link as their href once the origin is
+  // known (after mount); a click then navigates same-tab into the Keycloak flow.
+  const methodHref = (label: string) =>
+    screen.getByText(label).closest("a")?.getAttribute("href") ?? "";
+
+  it("deep-links the password method into the matching AIA (kc_action + redirect_uri)", () => {
+    renderAccount({ session: SESSION, sessions: [] });
+
+    const href = methodHref("Password");
+    expect(href).toContain("/protocol/openid-connect/auth");
+    expect(href).toContain("kc_action=UPDATE_PASSWORD");
+    // The console supplies its OWN origin as redirect_uri (not the MCP host).
+    expect(href).toContain(`redirect_uri=${encodeURIComponent(`${window.location.origin}/account`)}`);
+  });
+
+  it("2FA and passkey carry their own kc_action", () => {
+    renderAccount({ session: SESSION, sessions: [] });
+    expect(methodHref("Two-factor authentication")).toContain("kc_action=CONFIGURE_TOTP");
+    expect(methodHref("Passkey")).toContain("kc_action=webauthn-register-passwordless");
+  });
+
+  it("falls back to the account-console signing-in page when no AIA base is supplied", () => {
+    renderAccount({ session: { ...SESSION, securityActionUrl: undefined }, sessions: [] });
+    const href = methodHref("Password");
+    expect(href).toContain("#/security/signingin");
+    expect(href).not.toContain("kc_action");
+  });
+
+  it("surfaces kc_action_status on return as a toast and strips the query", () => {
+    window.history.replaceState(null, "", "/account?kc_action_status=success&code=x");
+    renderAccount({ session: SESSION, sessions: [] });
+
+    expect(pushMock).toHaveBeenCalledWith({ message: "Security settings updated." });
+    // The AIA params are stripped so a refresh doesn't re-fire the toast.
+    expect(window.location.search).toBe("");
+  });
+
+  it("a cancelled action toasts the cancelled message", () => {
+    window.history.replaceState(null, "", "/account?kc_action_status=cancelled");
+    renderAccount({ session: SESSION, sessions: [] });
+    expect(pushMock).toHaveBeenCalledWith({ message: "Action cancelled." });
   });
 });

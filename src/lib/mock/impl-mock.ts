@@ -82,6 +82,9 @@ export async function getSession(): Promise<SessionView> {
     displayName: me.displayName,
     role: me.role,
     accountConsoleUrl: "/auth/realms/kumbuka/account",
+    securityActionUrl:
+      "/auth/realms/kumbuka/protocol/openid-connect/auth?client_id=kumbuka-admin" +
+      "&response_type=code&scope=openid&code_challenge_method=S256&code_challenge=mock",
     muted: me.muted,
   };
 }

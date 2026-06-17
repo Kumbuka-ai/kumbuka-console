@@ -125,7 +125,9 @@
       "twofa_title": "Zwei-Faktor-Authentifizierung",
       "twofa_sub": "Authenticator-App oder Einmalcodes per E-Mail.",
       "passkey_title": "Passkey",
-      "passkey_sub": "Melde dich mit einem Hardware-Schlüssel oder Plattform-Authenticator an."
+      "passkey_sub": "Melde dich mit einem Hardware-Schlüssel oder Plattform-Authenticator an.",
+      "actionDone": "Sicherheitseinstellung aktualisiert.",
+      "actionCancelled": "Vorgang abgebrochen."
     },
     "connections": {
       "eyebrow": "aktive Verbindungen",
