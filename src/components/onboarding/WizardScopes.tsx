@@ -54,6 +54,8 @@ export function WizardScopes({
     nameRef.current?.focus();
   };
 
+  const removeAt = (index: number) => setStaged((prev) => prev.filter((_, j) => j !== index));
+
   return (
     <div className="wz-scopes-step">
       <p className="wz-lead">{t.rich("lead", { m: richMono })}</p>
@@ -99,7 +101,7 @@ export function WizardScopes({
                 type="button"
                 className="wz-staged-x iconbtn"
                 aria-label={t("remove", { name: s.name })}
-                onClick={() => setStaged((prev) => prev.filter((_, j) => j !== i))}
+                onClick={() => removeAt(i)}
               >
                 <Icon name="x" />
               </button>

@@ -74,7 +74,7 @@ export function WizardInvite({
     taRef.current?.focus();
   }, []);
 
-  if (sent && sent.length) {
+  if (sent?.length) {
     const okCount = sent.filter((s) => s.ok).length;
     return (
       <div className="wz-invite">

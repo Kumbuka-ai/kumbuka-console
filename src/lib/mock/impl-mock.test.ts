@@ -31,6 +31,12 @@ describe("impl-mock — session", () => {
     const updated = await mock.updateMe({});
     expect(updated.displayName).toBe(before.displayName);
   });
+
+  it("getSession exposes no onboarding state until set; updateMe persists it (D-CORE-10.1)", async () => {
+    expect((await mock.getSession()).onboarding).toBeUndefined();
+    await mock.updateMe({ onboarding: { dismissed: true, lastStep: 2 } });
+    expect((await mock.getSession()).onboarding).toEqual({ dismissed: true, lastStep: 2 });
+  });
 });
 
 describe("impl-mock — scopes", () => {

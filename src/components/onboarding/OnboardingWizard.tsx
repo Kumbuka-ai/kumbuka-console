@@ -125,21 +125,21 @@ export function OnboardingWizard({
           <h2 id="wz-title" tabIndex={-1} ref={headRef}>
             {t(`${key}.title`)}
           </h2>
-          <div className="wz-steps" role="list" aria-label={t("stepsLabel")}>
+          <ul className="wz-steps" aria-label={t("stepsLabel")}>
             {WZ_STEP_KEYS.map((s, i) => (
-              <button
-                key={s}
-                type="button"
-                role="listitem"
-                className={`wz-step${i === step ? " current" : ""}${i < step ? " done" : ""}`}
-                onClick={() => setStep(i)}
-                aria-current={i === step ? "step" : undefined}
-              >
-                <span className="wz-step-node">{i < step ? <Icon name="check" /> : i + 1}</span>
-                <span className="wz-step-label">{t(`steps.${s}`)}</span>
-              </button>
+              <li key={s}>
+                <button
+                  type="button"
+                  className={`wz-step${i === step ? " current" : ""}${i < step ? " done" : ""}`}
+                  onClick={() => setStep(i)}
+                  aria-current={i === step ? "step" : undefined}
+                >
+                  <span className="wz-step-node">{i < step ? <Icon name="check" /> : i + 1}</span>
+                  <span className="wz-step-label">{t(`steps.${s}`)}</span>
+                </button>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
 
         <div className="wz-body">

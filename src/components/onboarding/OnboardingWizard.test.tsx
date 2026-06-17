@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import en from "@/i18n/messages/en.json";
 import { ToastHost } from "@/components/ui/Toast";
 import { OnboardingProvider } from "./OnboardingProvider";
+import { SetupGuide } from "./SetupGuide";
 import { parseInviteLines } from "./WizardInvite";
 import { wzSlug } from "./WizardScopes";
 import { clampStep, WZ_STEP_COUNT } from "./steps";
@@ -175,6 +176,38 @@ describe("D-CORE-10.1 scope guard — no out-of-scope controls", () => {
     }
     expect(screen.queryByText(/write policy|write-policy/i)).toBeNull();
     expect(screen.queryByText(/upload|document/i)).toBeNull();
+  });
+});
+
+describe("SetupGuide — rail re-open entry", () => {
+  function renderWithGuide(opts: { enabled: boolean; initial?: OnboardingState }) {
+    return render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <ToastHost>
+          <OnboardingProvider
+            enabled={opts.enabled}
+            initial={opts.initial}
+            existingEmails={[]}
+            existingSlugs={["global"]}
+          >
+            <SetupGuide />
+          </OnboardingProvider>
+        </ToastHost>
+      </NextIntlClientProvider>,
+    );
+  }
+
+  it("renders nothing for non-owners", () => {
+    renderWithGuide({ enabled: false, initial: { dismissed: true, lastStep: 0 } });
+    expect(screen.queryByRole("button", { name: /setup guide/i })).toBeNull();
+  });
+
+  it("re-opens the (dismissed) wizard for the owner", () => {
+    renderWithGuide({ enabled: true, initial: { dismissed: true, lastStep: 0 } });
+    // dismissed → not auto-opened
+    expect(screen.queryByRole("dialog")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /setup guide/i }));
+    expect(screen.getByRole("dialog")).toBeTruthy();
   });
 });
 
