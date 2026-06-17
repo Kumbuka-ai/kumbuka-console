@@ -849,6 +849,13 @@ button { font-family: inherit; }
 .assistant-prompt h3 { font-size: 22px; font-weight: 600; letter-spacing: -0.015em; margin: 11px 0 6px; color: var(--c-ink-panel-text); }
 .assistant-prompt .ap-lead { font-size: 13px; line-height: 1.5; color: var(--c-ink-panel-muted); margin: 0; max-width: 60ch; }
 .assistant-prompt .ap-lead b { color: var(--c-ink-panel-text); font-weight: 600; }
+.assistant-prompt .ap-actions { flex: none; display: flex; align-items: flex-end; gap: 10px; }
+.ap-scope { display: inline-flex; flex-direction: column; gap: 6px; }
+.ap-scope .ap-scope-label { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--c-ink-panel-muted); }
+.ap-scope .select-wrap { position: relative; display: inline-flex; }
+.ap-scope select { appearance: none; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; color: var(--c-ink-panel-text); background: rgba(244,241,234,0.06); border: 1px solid var(--c-ink-panel-line); padding: 9px 34px 9px 12px; cursor: pointer; }
+.ap-scope select:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
+.ap-scope .select-wrap .ico { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--c-ink-panel-muted); pointer-events: none; }
 .ap-copy { flex: none; display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--c-ink-panel-text); background: rgba(244,241,234,0.06); border: 1px solid var(--c-ink-panel-line); padding: 9px 14px; cursor: pointer; }
 .ap-copy:hover { background: var(--accent); color: #0F1620; border-color: var(--accent); }
 .ap-copy .ico { width: 14px; height: 14px; }

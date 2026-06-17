@@ -98,9 +98,10 @@
     "assistant": {
       "eyebrow": "project instructions",
       "title": "Prime your assistant",
-      "lead": "Paste this into your Claude or ChatGPT <b>project instructions</b> so the assistant uses kumbuka from the first turn — loading the team's steering knowledge and recording new decisions as you work.",
+      "lead": "Pick the scope you're working in and paste this into your Claude or ChatGPT <b>project instructions</b> — the assistant loads that scope's conventions from the first turn. Switch projects later? Re-copy and change only the slug line.",
       "copied": "Instructions copied to clipboard",
-      "prompt": "You have access to kumbuka — our team's shared memory — through its MCP connector. Treat it as the source of truth for how this team works, and keep it up to date as we work.\n\nAt the start of each session:\n- Call memory_load_context to load the team's steering knowledge (decisions, conventions, constraints, glossary, status) and apply it without being told again.\n\nWhile you work:\n- Before answering about our setup, conventions, or past decisions, call memory_recall to check what is already recorded. Prefer recorded team knowledge over assumptions.\n- When we settle a decision, agree a convention, set a constraint, define a term, or note a status, call memory_remember to save it. Choose the right type (decision, convention, constraint, open_question, glossary, status) and keep each entry to a single clear statement — not a document.\n- If something important is missing or wrong, ask, then offer to remember the corrected answer.\n\nScopes:\n- Shared scopes (global and the project scopes) are visible to the whole team — never put secrets or sensitive personal data there.\n- Your private scope is yours alone; use it for personal working notes."
+      "scopeLabel": "Scope",
+      "prompt": "You have access to kumbuka — our team's shared memory — through its MCP connector.\n\nAt the start of each session, call memory_load_context with scope \"{slug}\" and follow the conventions it returns — they define how this team uses kumbuka.\n\nYou are not a gatekeeper over content: the user alone decides WHAT is stored — you decide at most WHERE, and only by asking, never by refusing. Never infer a purpose from scope names."
     }
   },
   "account": {
