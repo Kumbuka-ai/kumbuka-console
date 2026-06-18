@@ -12,6 +12,7 @@ import { useMenu } from "@/components/ui/Menu";
 import { useToast } from "@/components/ui/Toast";
 import { EmptyState, ErrorState } from "@/components/ui/State";
 import { EntryEditor } from "@/components/editors/EntryEditor";
+import { MoveScopeDialog } from "@/components/editors/MoveScopeDialog";
 import { ConfirmModal } from "@/components/editors/ConfirmModal";
 import { deleteEntryAction } from "@/app/(app)/actions";
 import { entryWriteErrorMessage } from "@/lib/entryWriteError";
@@ -50,16 +51,22 @@ function authorName(subject: string, members: Map<string, string>) {
 
 export function EntriesView({
   scope,
+  scopes = [],
   entries,
   members,
   syncError,
   callerMuted,
+  isAdmin = false,
 }: Readonly<{
   scope: ScopeView;
+  /** All visible (shared) scopes — target candidates for the D-CORE-17 remap. */
+  scopes?: ScopeView[];
   entries: EntryView[];
   members: Record<string, string>;
   syncError?: boolean;
   callerMuted?: boolean;
+  /** D-CORE-17: scope-remap ("Move to scope") is admin-only. */
+  isAdmin?: boolean;
 }>) {
   const router = useRouter();
   const params = useSearchParams();
@@ -77,6 +84,7 @@ export function EntriesView({
     .filter(Boolean) as EntryType[];
 
   const [editor, setEditor] = useState<{ entry: EntryView | null } | null>(null);
+  const [moveTarget, setMoveTarget] = useState<EntryView | null>(null);
   const [confirmDel, setConfirmDel] = useState<EntryView | null>(null);
   const [pending, start] = useTransition();
   const [sort, setSort] = useState<Sort>({ col: "updated", dir: "desc" });
@@ -151,6 +159,9 @@ export function EntriesView({
   // every visible scope; private memory is never shown and never affected.
   const readOnly = scope.archived || Boolean(callerMuted);
 
+  // D-CORE-17: at least one other shared, non-archived scope must exist to move into.
+  const hasMoveTargets = scopes.some((s) => s.slug !== scope.slug && !s.archived);
+
   const openRowMenu = (e: MouseEvent, entry: EntryView) =>
     menu.open(e, [
       { label: t("entryMenu.edit"), icon: "edit", disabled: readOnly, onSelect: () => setEditor({ entry }) },
@@ -163,6 +174,18 @@ export function EntriesView({
           toast.push({ message: t("toast.keyCopied") });
         },
       },
+      // Scope-remap is admin-only (D-CORE-17) and never offered for the protected
+      // system seed; hidden entirely for non-admins (the #55 admin-gating pattern).
+      ...(isAdmin && !isSystemEntry(entry)
+        ? [
+            {
+              label: t("entryMenu.move"),
+              icon: "folder",
+              disabled: readOnly || !hasMoveTargets,
+              onSelect: () => setMoveTarget(entry),
+            } as const,
+          ]
+        : []),
       { kind: "sep" },
       {
         label: t("entryMenu.delete"),
@@ -446,7 +469,20 @@ export function EntriesView({
 
       {menu.node}
       {editor ? (
-        <EntryEditor entry={editor.entry} scope={scope} onClose={() => setEditor(null)} />
+        <EntryEditor
+          entry={editor.entry}
+          scope={scope}
+          existingKeys={entries.map((e) => e.key).filter((k): k is string => !!k)}
+          onClose={() => setEditor(null)}
+        />
+      ) : null}
+      {moveTarget ? (
+        <MoveScopeDialog
+          entry={moveTarget}
+          scope={scope}
+          scopes={scopes}
+          onClose={() => setMoveTarget(null)}
+        />
       ) : null}
       {confirmDel ? (
         <ConfirmModal

@@ -64,10 +64,12 @@ export function ScopeScreen({
       />
       <EntriesView
         scope={scope}
+        scopes={scopes}
         entries={entries}
         members={members}
         syncError={syncError}
         callerMuted={callerMuted}
+        isAdmin={isAdmin}
       />
     </div>
   );

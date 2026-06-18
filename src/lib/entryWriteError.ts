@@ -18,6 +18,8 @@ export function entryWriteErrorMessage(
       return t("onlyAdmins");
     case "protected":
       return t("protected");
+    case "exists":
+      return t("exists");
     case "validation":
       return t("validation", { reason: res.detail ?? t("validationFallback") });
     default:

@@ -203,6 +203,38 @@ export async function deleteEntry(slug: string, id: string): Promise<void> {
   s.entryCount = s.entries.length;
   s.empty = s.entries.length === 0;
 }
+// D-CORE-17: atomic, lossless re-home of an entry to another shared scope.
+// Mirrors the server contract: a target key-collision throws KEY_EXISTS (409)
+// unless an optional `key` override is supplied; private scopes are excluded
+// structurally (P1) and never appear as a target.
+export async function remapEntry(
+  sourceSlug: string,
+  id: string,
+  targetScope: string,
+  key?: string,
+): Promise<void> {
+  const from = state.scopes.find((x) => x.slug === sourceSlug);
+  if (!from) throw new Error(`no scope: ${sourceSlug}`);
+  const to = state.scopes.find((x) => x.slug === targetScope);
+  if (!to) throw new Error(`no scope: ${targetScope}`);
+  const entry = from.entries.find((x) => x.id === id);
+  if (!entry) throw new Error(`no entry: ${id}`);
+  const nextKey = key?.trim() || entry.key;
+  if (nextKey && to.entries.some((e) => e.key === nextKey)) {
+    const err: Error & { status?: number; code?: string } = new Error("key already exists");
+    err.status = 409;
+    err.code = "KEY_EXISTS";
+    throw err;
+  }
+  from.entries = from.entries.filter((x) => x.id !== id);
+  from.entryCount = from.entries.length;
+  from.empty = from.entries.length === 0;
+  entry.key = nextKey;
+  entry.updatedAt = nowIso();
+  to.entries.unshift(entry);
+  to.entryCount = to.entries.length;
+  to.empty = false;
+}
 
 // ---------- Users ------------------------------------------------------
 export async function listUsers(): Promise<UserView[]> {

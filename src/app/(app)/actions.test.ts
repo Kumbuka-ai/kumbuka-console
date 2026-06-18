@@ -38,6 +38,7 @@ const { revalidatePathMock, apiMocks, persistThemeMock, persistLocaleMock, ApiEr
         createEntry: vi.fn(),
         updateEntry: vi.fn(),
         deleteEntry: vi.fn(),
+        remapEntry: vi.fn(),
         getSession: vi.fn(),
         inviteUser: vi.fn(),
         updateUser: vi.fn(),
@@ -70,6 +71,7 @@ import {
   createEntryAction,
   createScopeAction,
   deleteEntryAction,
+  remapEntryAction,
   eraseUserAction,
   inviteUserAction,
   renameScopeAction,
@@ -189,6 +191,33 @@ describe("Server Actions — delegation + cache invalidation", () => {
     expect(apiMocks.deleteEntry).toHaveBeenCalledWith("alpha", "e1");
     expect(revalidatePathMock).toHaveBeenCalledWith("/scopes/alpha");
     expect(revalidatePathMock).toHaveBeenCalledWith("/overview");
+  });
+
+  // ---------- entries: scope-remap (D-CORE-17) ---------------------------
+
+  it("remapEntryAction moves an entry and revalidates source + target + overview", async () => {
+    apiMocks.remapEntry.mockResolvedValue(undefined);
+    const out = await remapEntryAction("alpha", "e1", "beta", "k.new");
+    expect(out).toEqual({ ok: true });
+    expect(apiMocks.remapEntry).toHaveBeenCalledWith("alpha", "e1", "beta", "k.new");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/scopes/alpha");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/scopes/beta");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/overview");
+  });
+
+  it("remapEntryAction maps a 409 KEY_EXISTS to reason=exists (no revalidate)", async () => {
+    apiMocks.remapEntry.mockRejectedValue(new ApiError(409, "conflict", { code: "KEY_EXISTS" }));
+    const out = await remapEntryAction("alpha", "e1", "beta");
+    expect(out).toEqual({ ok: false, reason: "exists" });
+    expect(revalidatePathMock).not.toHaveBeenCalled();
+  });
+
+  it("remapEntryAction maps a 400 REMAP_PRIVATE_FORBIDDEN to reason=validation", async () => {
+    apiMocks.remapEntry.mockRejectedValue(
+      new ApiError(400, "bad request", { code: "REMAP_PRIVATE_FORBIDDEN", message: "private excluded" }),
+    );
+    const out = await remapEntryAction("alpha", "e1", "private-x");
+    expect(out).toEqual({ ok: false, reason: "validation", detail: "private excluded" });
   });
 
   // ---------- entries: typed backend errors (SESSION-017) ----------------

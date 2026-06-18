@@ -176,6 +176,33 @@ describe("impl-mock — entries", () => {
     expect(after?.entryCount).toBe(0);
   });
 
+  it("remapEntry moves an entry to another scope, adjusting both counts (D-CORE-17)", async () => {
+    const from = await mock.createScope({ slug: "rm-from", name: "From" });
+    const to = await mock.createScope({ slug: "rm-to", name: "To" });
+    const e = await mock.createEntry(from.slug, { type: "decision", key: "k.one", content: "x" });
+    await mock.remapEntry(from.slug, e.id, to.slug);
+    expect((await mock.getScope(from.slug))?.entryCount).toBe(0);
+    const moved = await mock.listEntries(to.slug);
+    expect(moved.map((x) => x.id)).toContain(e.id);
+    expect((await mock.listEntries(from.slug)).map((x) => x.id)).not.toContain(e.id);
+  });
+
+  it("remapEntry throws KEY_EXISTS (409) on a target key-collision unless a key override is given", async () => {
+    const from = await mock.createScope({ slug: "rm-c-from", name: "From" });
+    const to = await mock.createScope({ slug: "rm-c-to", name: "To" });
+    await mock.createEntry(to.slug, { type: "decision", key: "dup", content: "incumbent" });
+    const e = await mock.createEntry(from.slug, { type: "decision", key: "dup", content: "moving" });
+
+    await expect(mock.remapEntry(from.slug, e.id, to.slug)).rejects.toMatchObject({
+      status: 409,
+      code: "KEY_EXISTS",
+    });
+    // A key override dodges the collision and completes the move.
+    await mock.remapEntry(from.slug, e.id, to.slug, "dup.moved");
+    const moved = (await mock.listEntries(to.slug)).find((x) => x.id === e.id);
+    expect(moved?.key).toBe("dup.moved");
+  });
+
   it("listEntries surfaces the seeded syncError as an Error with status=503", async () => {
     // Inspect the seed for a scope with syncError. If none exists in the seed,
     // skip this assertion — the data shape changes from seed-version to seed-version

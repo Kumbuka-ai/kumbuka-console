@@ -23,11 +23,11 @@ const SCOPE: ScopeView = {
   createdAt: "2026-06-18T00:00:00Z",
 };
 
-function renderEditor() {
+function renderEditor(existingKeys: readonly string[] = []) {
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
       <ToastHost>
-        <EntryEditor entry={null} scope={SCOPE} onClose={() => {}} />
+        <EntryEditor entry={null} scope={SCOPE} existingKeys={existingKeys} onClose={() => {}} />
       </ToastHost>
     </NextIntlClientProvider>,
   );
@@ -67,6 +67,31 @@ describe("EntryEditor — inline key validation (dogfood-17, mirrors E2E-06)", (
     renderEditor();
     const content = screen.getAllByRole("textbox").find((el) => el.tagName === "TEXTAREA")!;
     fireEvent.change(content, { target: { value: "We use Postgres." } });
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(saveBtn().disabled).toBe(false);
+  });
+});
+
+describe("EntryEditor — key-collision guard on a new entry (D-CORE-16, dogfood-21)", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("flags a key that already exists in the scope and blocks save (no silent overwrite)", () => {
+    renderEditor(["db.system-of-record"]);
+    const content = screen.getAllByRole("textbox").find((el) => el.tagName === "TEXTAREA")!;
+    fireEvent.change(content, { target: { value: "We use Postgres." } });
+
+    fireEvent.change(keyField(), { target: { value: "db.system-of-record" } });
+    expect(screen.getByRole("alert").textContent).toMatch(/already exists/i);
+    expect(keyField().getAttribute("aria-invalid")).toBe("true");
+    expect(saveBtn().disabled).toBe(true);
+  });
+
+  it("allows a fresh (non-colliding) key with save enabled", () => {
+    renderEditor(["db.system-of-record"]);
+    const content = screen.getAllByRole("textbox").find((el) => el.tagName === "TEXTAREA")!;
+    fireEvent.change(content, { target: { value: "We use Postgres." } });
+
+    fireEvent.change(keyField(), { target: { value: "db.replica" } });
     expect(screen.queryByRole("alert")).toBeNull();
     expect(saveBtn().disabled).toBe(false);
   });
