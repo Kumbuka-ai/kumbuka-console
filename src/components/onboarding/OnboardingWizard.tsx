@@ -112,18 +112,22 @@ export function OnboardingWizard({
     });
   };
 
+  // createScopeAction now returns a typed result (dogfood-19) — read .ok; a thrown
+  // ApiAuthError (session expiry) still counts as a failure here. Extracted so the
+  // Finish loop doesn't nest function literals 5 deep.
+  const createStagedScope = async (s: StagedScope): Promise<boolean> => {
+    try {
+      const r = await createScopeAction({ slug: s.id, name: s.name });
+      return r.ok;
+    } catch {
+      return false;
+    }
+  };
+
   const finish = () => {
     start(async () => {
       if (staged.length) {
-        const results = await Promise.all(
-          // createScopeAction now returns a typed result (dogfood-19) — read .ok;
-          // a thrown ApiAuthError (session expiry) still surfaces as a failure here.
-          staged.map((s) =>
-            createScopeAction({ slug: s.id, name: s.name })
-              .then((r) => r.ok)
-              .catch(() => false),
-          ),
-        );
+        const results = await Promise.all(staged.map(createStagedScope));
         const ok = results.filter(Boolean).length;
         const failed = results.length - ok;
         if (ok) toast.push({ message: t("scopes.createdToast", { count: ok }) });
