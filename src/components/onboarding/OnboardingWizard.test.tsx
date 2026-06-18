@@ -48,7 +48,7 @@ function renderProvider(opts: {
 beforeEach(() => {
   setOnboardingMock.mockReset();
   inviteMock.mockReset().mockResolvedValue(undefined);
-  createScopeMock.mockReset().mockResolvedValue(undefined);
+  createScopeMock.mockReset().mockResolvedValue({ ok: true });
 });
 
 describe("OnboardingProvider — lifecycle", () => {
@@ -169,6 +169,15 @@ describe("wzSlug + scope dup-guard", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /finish/i }));
     await waitFor(() => expect(createScopeMock).toHaveBeenCalledWith({ slug: "new-project", name: "New Project" }));
+  });
+
+  it("D-GTM-6 B: a staged scope surfaces the scope-bound prompt with the literal staged slug", () => {
+    renderProvider({ initial: { dismissed: false, lastStep: 2 }, slugs: ["global"] });
+    fireEvent.change(screen.getByPlaceholderText(/billing platform/i), { target: { value: "Garden Work" } });
+    fireEvent.click(screen.getByRole("button", { name: /add scope/i }));
+    // the reused AssistantPrompt block pins the staged slug literally
+    const code = screen.getByText(/memory_load_context/);
+    expect(code.textContent).toContain('scope "garden-work"');
   });
 });
 

@@ -8,7 +8,7 @@ import { useMenu } from "@/components/ui/Menu";
 import { PrivatePanel } from "./PrivatePanel";
 import { ScopeEditor } from "@/components/editors/ScopeEditor";
 import { ConfirmModal } from "@/components/editors/ConfirmModal";
-import { archiveScopeAction } from "@/app/(app)/actions";
+import { archiveScopeAction, unarchiveScopeAction } from "@/app/(app)/actions";
 import { useToast } from "@/components/ui/Toast";
 import type { ScopeView } from "@/lib/api/types";
 
@@ -120,12 +120,11 @@ export function ScopesPane({
         toast.push({ message: t("toast.idCopied") });
       },
     };
-    // Un-archive needs a server endpoint that does not exist yet
-    // (AdminScopesResource has :archive but no :unarchive) — returned as a
-    // fail-loud gap in the Sprint-21 console handover; the archived section
-    // already makes the scope reachable.
+    // dogfood-16: restore wired to the server :unarchive endpoint (SPRINT_21.S2).
+    // Until that endpoint deploys the call returns a typed failure → readable
+    // toast, never a crash.
     const lifecycle = s.archived
-      ? { label: t("menu.restore"), icon: "rotate" as const, onSelect: () => toast.push({ message: t("toast.restoreNyi") }) }
+      ? { label: t("menu.restore"), icon: "rotate" as const, onSelect: () => doRestore(s) }
       : { label: t("menu.archive"), icon: "archive" as const, danger: true, onSelect: () => setArchiving(s) };
     // Rename + archive/restore are team-admin governance ops (dogfood-16);
     // members only get the harmless copy-id.
@@ -138,14 +137,23 @@ export function ScopesPane({
   const doArchive = () => {
     if (!archiving) return;
     start(async () => {
-      try {
-        await archiveScopeAction(archiving.slug);
-        toast.push({ message: t("toast.archived", { slug: archiving.slug }) });
-        setArchiving(null);
-        router.push("/scopes");
-      } catch (err) {
-        toast.push({ message: err instanceof Error ? err.message : t("toast.archiveFailed") });
+      const res = await archiveScopeAction(archiving.slug).catch(() => ({ ok: false as const }));
+      if (!res.ok) {
+        toast.push({ message: t("toast.archiveFailed") });
+        return;
       }
+      toast.push({ message: t("toast.archived", { slug: archiving.slug }) });
+      setArchiving(null);
+      router.push("/scopes");
+    });
+  };
+
+  const doRestore = (s: ScopeView) => {
+    start(async () => {
+      const res = await unarchiveScopeAction(s.slug).catch(() => ({ ok: false as const }));
+      toast.push({
+        message: res.ok ? t("toast.restored", { slug: s.slug }) : t("toast.restoreFailed"),
+      });
     });
   };
 
@@ -214,7 +222,13 @@ export function ScopesPane({
         ) : null}
       </aside>
 
-      {creating ? <ScopeEditor scope={null} onClose={() => setCreating(false)} /> : null}
+      {creating ? (
+        <ScopeEditor
+          scope={null}
+          existingSlugs={scopes.map((s) => s.slug)}
+          onClose={() => setCreating(false)}
+        />
+      ) : null}
       {renaming ? <ScopeEditor scope={renaming} onClose={() => setRenaming(null)} /> : null}
       {menu.node}
       {archiving ? (

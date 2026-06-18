@@ -49,6 +49,8 @@ export const renameScope = (slug: string, req: UpdateScopeRequest) =>
   serverFetch<ScopeView>(`/api/scopes/${encodeURIComponent(slug)}`, { method: "PATCH", body: req });
 export const archiveScope = (slug: string) =>
   serverFetch<void>(`/api/scopes/${encodeURIComponent(slug)}:archive`, { method: "POST" });
+export const unarchiveScope = (slug: string) =>
+  serverFetch<void>(`/api/scopes/${encodeURIComponent(slug)}:unarchive`, { method: "POST" });
 
 // ---------- Entries ----------------------------------------------------
 export const listEntries = (slug: string) =>

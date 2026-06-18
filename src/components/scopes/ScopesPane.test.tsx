@@ -7,8 +7,10 @@ import { ScopesPane } from "./ScopesPane";
 import type { ScopeView } from "@/lib/api/types";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+const { unarchiveMock } = vi.hoisted(() => ({ unarchiveMock: vi.fn() }));
 vi.mock("@/app/(app)/actions", () => ({
   archiveScopeAction: vi.fn(),
+  unarchiveScopeAction: (s: string) => unarchiveMock(s),
   createScopeAction: vi.fn(),
   renameScopeAction: vi.fn(),
 }));
@@ -52,20 +54,34 @@ describe("ScopesPane — scope lifecycle is admin-gated (dogfood-16)", () => {
   });
 });
 
-describe("ScopesPane — archived scopes stay reachable (dogfood-16)", () => {
-  it("renders an archived section so an archived scope is not a dead end", () => {
-    render(
+describe("ScopesPane — archived scopes stay reachable + restorable (dogfood-16)", () => {
+  function renderArchived(isAdmin: boolean) {
+    return render(
       <NextIntlClientProvider locale="en" messages={en}>
         <ToastHost>
-          <ScopesPane
-            scopes={[globalScope, { ...project, archived: true }]}
-            activeSlug="global"
-            isAdmin
-          />
+          <ScopesPane scopes={[globalScope, { ...project, archived: true }]} activeSlug="global" isAdmin={isAdmin} />
         </ToastHost>
       </NextIntlClientProvider>,
     );
-    // the archived scope's slug is visible (reachable), not hidden entirely
+  }
+
+  it("renders an archived section so an archived scope is not a dead end", () => {
+    renderArchived(true);
     expect(screen.getByText("atlas-web")).toBeTruthy();
+  });
+
+  it("admin can trigger restore → calls unarchiveScopeAction", () => {
+    unarchiveMock.mockReset();
+    const { container } = renderArchived(true);
+    fireEvent.click(container.querySelector<HTMLButtonElement>(".row-menu-btn")!);
+    fireEvent.click(screen.getByRole("menuitem", { name: /restore/i }));
+    expect(unarchiveMock).toHaveBeenCalledWith("atlas-web");
+  });
+
+  it("a member sees no restore control on an archived scope", () => {
+    renderArchived(false);
+    const trigger = document.querySelector<HTMLButtonElement>(".row-menu-btn");
+    if (trigger) fireEvent.click(trigger);
+    expect(screen.queryByRole("menuitem", { name: /restore/i })).toBeNull();
   });
 });
