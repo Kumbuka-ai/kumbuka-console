@@ -52,6 +52,56 @@ function renderForm(conn: ConnectorView, projectScopes: ScopeView[] = [], isAdmi
   );
 }
 
+function renderFormWith(initial: SettingsView, projectScopes: ScopeView[] = []) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={en}>
+      <ToastHost>
+        <SettingsForm initial={initial} connector={connector()} projectScopes={projectScopes} isAdmin />
+      </ToastHost>
+    </NextIntlClientProvider>,
+  );
+}
+
+describe("SettingsForm — project policy with null default (console-crash guard)", () => {
+  it("renders without crashing and shows a needs-configuration note", () => {
+    // The reported crash class: write-policy = project + global fallback + null
+    // default. Must render a clear needs-config state, never throw.
+    renderFormWith({
+      writePolicy: "project",
+      effectiveWritePolicy: "project",
+      defaultScopeSlug: null,
+      defaultScopeStatus: "missing",
+      createScopes: "admins",
+    });
+    expect(screen.getByText(/writes fall back to the global scope/i)).toBeTruthy();
+  });
+
+  it("with a default scope set, the needs-config note is absent", () => {
+    renderFormWith(
+      {
+        writePolicy: "project",
+        effectiveWritePolicy: "project",
+        defaultScopeSlug: "atlas-web",
+        defaultScopeStatus: "ok",
+        createScopes: "admins",
+      },
+      [
+        {
+          slug: "atlas-web",
+          name: "Atlas",
+          kind: "project",
+          fixed: false,
+          archived: false,
+          description: null,
+          entryCount: 0,
+          createdAt: "2026-06-18T00:00:00Z",
+        },
+      ],
+    );
+    expect(screen.queryByText(/writes fall back to the global scope/i)).toBeNull();
+  });
+});
+
 describe("SettingsForm — connector card", () => {
   beforeEach(() => {
     rotateSecretMock.mockReset();

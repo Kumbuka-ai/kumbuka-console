@@ -603,6 +603,9 @@ button { font-family: inherit; }
 }
 .field label .req { color: var(--c-accent); margin-left: 2px; }
 .field .hint { font-family: var(--font-body); font-size: 11.5px; color: var(--c-muted); margin-top: -2px; }
+.field .field-error { font-family: var(--font-body); font-size: 11.5px; color: var(--type-constraint); margin-top: -2px; }
+.input.invalid, .textarea.invalid { border-color: var(--type-constraint); }
+.input.invalid:focus-visible { outline-color: var(--type-constraint); }
 .input, .textarea, .select {
   font-family: var(--font-body); font-size: 14px; padding: 11px 13px;
   border: 1px solid var(--c-border); background: var(--c-panel); color: var(--c-text); outline: none;
@@ -1225,7 +1228,9 @@ button { font-family: inherit; }
   display: flex; gap: 10px; align-items: center;
 }
 .wz-foot .spacer { flex: 1; }
-.wz-dontshow { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font-size: 12.5px; color: var(--c-muted); }
+.wz-dontshow { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12.5px; color: var(--c-muted); border: 0; background: transparent; padding: 6px 4px; font-family: inherit; }
+.wz-dontshow:hover { color: var(--c-text-2); }
+.wz-dontshow .ico { width: 15px; height: 15px; }
 .wz-dontshow span { user-select: none; }
 
 /* footer "don't show again" switch */

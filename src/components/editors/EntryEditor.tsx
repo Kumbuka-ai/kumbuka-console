@@ -35,7 +35,14 @@ export function EntryEditor({
   const tCommon = useTranslations("common");
   const tTypes = useTranslations("entryTypes");
 
-  const canSave = content.trim().length > 0 && !pending;
+  // Mirror the server key rule EXACTLY (E2E-06 / server MemoryKeyValidator):
+  // lowercase a-z + 0-9, with single dot/hyphen separators; no underscores,
+  // uppercase, slashes, or leading/trailing/double separators. Keep this regex
+  // in lock-step with the server's — if one changes, change both.
+  const KEY_RE = /^[a-z0-9]+([.-][a-z0-9]+)*$/;
+  const keyTrimmed = key.trim();
+  const keyInvalid = keyTrimmed.length > 0 && !KEY_RE.test(keyTrimmed);
+  const canSave = content.trim().length > 0 && !keyInvalid && !pending;
 
   const submit = () => {
     if (!canSave) return;
@@ -117,13 +124,15 @@ export function EntryEditor({
 
       <Field label={t("keyLabel")} hint={t("keyHint")}>
         <input
-          className="input mono"
+          className={`input mono${keyInvalid ? " invalid" : ""}`}
           value={key}
           spellCheck={false}
           disabled={editing}
+          aria-invalid={keyInvalid || undefined}
           placeholder={t("keyPlaceholder")}
           onChange={(e) => setKey(e.target.value.replace(/\s+/g, "-").toLowerCase())}
         />
+        {keyInvalid ? <span className="field-error" role="alert">{t("keyError")}</span> : null}
       </Field>
 
       <Field label={t("contentLabel")} required>

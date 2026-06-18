@@ -289,7 +289,8 @@
       "global_title": "Organisationsweit",
       "global_desc": "Alles landet standardmäßig im globalen Scope. Einfach, aber die gemeinsame Basis wächst schnell — regelmäßig prüfen.",
       "fallbackLabel": "Fallback-Scope, wenn kein Projekt aktiv ist",
-      "fallbackGlobal": "global — organisationsweit"
+      "fallbackGlobal": "global — organisationsweit",
+      "noDefaultHint": "Kein Projekt-Default gesetzt — Schreibzugriffe fallen auf den globalen Scope zurück, bis du einen wählst."
     },
     "create": {
       "eyebrow": "Berechtigungen",
@@ -477,6 +478,7 @@
       "typeLabel": "Typ",
       "keyLabel": "Key",
       "keyHint": "Optionaler stabiler Bezeichner. Kleinbuchstaben, punkt-namespaced — der Assistent schlägt Einträge darüber nach.",
+      "keyError": "Nur Kleinbuchstaben, Ziffern, Punkt und Bindestrich — keine Unterstriche, Großbuchstaben oder Schrägstriche.",
       "keyPlaceholder": "z. B. db.system-of-record",
       "contentLabel": "Inhalt",
       "contentPlaceholder": "Formuliere es klar, so wie der Assistent es abrufen soll.",
