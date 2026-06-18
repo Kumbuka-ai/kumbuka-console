@@ -24,10 +24,15 @@ function isMalformedKey(key: string): boolean {
 export function EntryEditor({
   entry,
   scope,
+  existingKeys = [],
   onClose,
 }: Readonly<{
   entry: EntryView | null;
   scope: ScopeView;
+  /** D-CORE-16: keys already in this scope — live dup-guard on a NEW entry so the
+   *  curator renames instead of silently overwriting (dogfood-21). The server 409
+   *  KEY_EXISTS is the backstop for the race/unloaded case. */
+  existingKeys?: readonly string[];
   onClose: () => void;
 }>) {
   const editing = !!entry;
@@ -42,11 +47,13 @@ export function EntryEditor({
   const toast = useToast();
   const t = useTranslations("editors.entry");
   const tErr = useTranslations("entryError");
-  const tCommon = useTranslations("common");
   const tTypes = useTranslations("entryTypes");
 
   const keyInvalid = isMalformedKey(key);
-  const canSave = content.trim().length > 0 && !keyInvalid && !pending;
+  // D-CORE-16: on a NEW entry, a key already in this scope collides (no overwrite).
+  // Editing an existing entry by its own key never collides (you're editing it).
+  const keyCollides = !editing && key.trim().length > 0 && existingKeys.includes(key.trim());
+  const canSave = content.trim().length > 0 && !keyInvalid && !keyCollides && !pending;
 
   const submit = () => {
     if (!canSave) return;
@@ -82,29 +89,14 @@ export function EntryEditor({
       title={editing ? t("editTitle") : t("newTitle")}
       onClose={onClose}
       footer={
-        locked ? (
-          <>
-            <span className="spacer" />
-            <Button variant="primary" onClick={onClose}>{tCommon("ok")}</Button>
-          </>
-        ) : (
-          <>
-            {editing && entry ? (
-              <span
-                className="mono"
-                style={{ fontSize: 10.5, color: "var(--c-muted)", letterSpacing: ".04em" }}
-              >
-                {t("editedAgo", { time: relTime(entry.updatedAt) })}
-              </span>
-            ) : null}
-            <span className="spacer" />
-            <Button onClick={onClose}>{tCommon("cancel")}</Button>
-            <Button variant="primary" disabled={!canSave} onClick={submit}>
-              <Icon name="check" />
-              <span className="txt">{editing ? t("saveChanges") : t("create")}</span>
-            </Button>
-          </>
-        )
+        <EditorFooter
+          locked={locked}
+          editing={editing}
+          entry={entry}
+          canSave={canSave}
+          onClose={onClose}
+          onSubmit={submit}
+        />
       }
     >
       <Field label={t("typeLabel")} required>
@@ -128,15 +120,18 @@ export function EntryEditor({
 
       <Field label={t("keyLabel")} hint={t("keyHint")}>
         <input
-          className={`input mono${keyInvalid ? " invalid" : ""}`}
+          className={`input mono${keyInvalid || keyCollides ? " invalid" : ""}`}
           value={key}
           spellCheck={false}
           disabled={editing}
-          aria-invalid={keyInvalid || undefined}
+          aria-invalid={keyInvalid || keyCollides || undefined}
           placeholder={t("keyPlaceholder")}
           onChange={(e) => setKey(e.target.value.replace(/\s+/g, "-").toLowerCase())}
         />
         {keyInvalid ? <span className="field-error" role="alert">{t("keyError")}</span> : null}
+        {!keyInvalid && keyCollides ? (
+          <span className="field-error" role="alert">{t("keyExists")}</span>
+        ) : null}
       </Field>
 
       <Field label={t("contentLabel")} required>
@@ -177,5 +172,55 @@ export function EntryEditor({
         </div>
       </Field>
     </SidePanel>
+  );
+}
+
+/**
+ * The editor's footer. Extracted so EntryEditor itself stays under the cognitive
+ * complexity gate (the locked/editing branching lives here, not in the parent).
+ * Locked = a protected system seed: just an OK to close.
+ */
+function EditorFooter({
+  locked,
+  editing,
+  entry,
+  canSave,
+  onClose,
+  onSubmit,
+}: Readonly<{
+  locked: boolean;
+  editing: boolean;
+  entry: EntryView | null;
+  canSave: boolean;
+  onClose: () => void;
+  onSubmit: () => void;
+}>) {
+  const t = useTranslations("editors.entry");
+  const tCommon = useTranslations("common");
+  if (locked) {
+    return (
+      <>
+        <span className="spacer" />
+        <Button variant="primary" onClick={onClose}>{tCommon("ok")}</Button>
+      </>
+    );
+  }
+  return (
+    <>
+      {editing && entry ? (
+        <span
+          className="mono"
+          style={{ fontSize: 10.5, color: "var(--c-muted)", letterSpacing: ".04em" }}
+        >
+          {t("editedAgo", { time: relTime(entry.updatedAt) })}
+        </span>
+      ) : null}
+      <span className="spacer" />
+      <Button onClick={onClose}>{tCommon("cancel")}</Button>
+      <Button variant="primary" disabled={!canSave} onClick={onSubmit}>
+        <Icon name="check" />
+        <span className="txt">{editing ? t("saveChanges") : t("create")}</span>
+      </Button>
+    </>
   );
 }

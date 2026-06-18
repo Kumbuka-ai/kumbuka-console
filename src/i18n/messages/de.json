@@ -374,7 +374,8 @@
       "edit": "Bearbeiten",
       "copyKey": "Key kopieren",
       "delete": "Löschen",
-      "protectedHint": "Dieser Eintrag ist für die korrekte Nutzung von Kumbuka notwendig und kann nicht gelöscht werden."
+      "protectedHint": "Dieser Eintrag ist für die korrekte Nutzung von Kumbuka notwendig und kann nicht gelöscht werden.",
+      "move": "In Scope verschieben…"
     },
     "toast": {
       "idCopied": "Scope-ID kopiert",
@@ -483,6 +484,7 @@
       "keyLabel": "Key",
       "keyHint": "Optionaler stabiler Bezeichner. Kleinbuchstaben, punkt-namespaced — der Assistent schlägt Einträge darüber nach.",
       "keyError": "Nur Kleinbuchstaben, Ziffern, Punkt und Bindestrich — keine Unterstriche, Großbuchstaben oder Schrägstriche.",
+      "keyExists": "Eine Mnemonik mit diesem Key existiert in diesem Scope bereits. Wähle einen anderen Key — er wird nicht überschrieben.",
       "keyPlaceholder": "z. B. db.system-of-record",
       "contentLabel": "Inhalt",
       "contentPlaceholder": "Formuliere es klar, so wie der Assistent es abrufen soll.",
@@ -495,12 +497,34 @@
       "updated": "Eintrag aktualisiert",
       "created": "Eintrag in {slug} erstellt",
       "saveFailed": "Speichern fehlgeschlagen"
+    },
+    "move": {
+      "aria": "Mnemonik in einen anderen Scope verschieben",
+      "eyebrow": "aus {slug}",
+      "title": "In Scope verschieben",
+      "entryLabel": "Mnemonik",
+      "noKey": "(kein Key)",
+      "targetLabel": "Ziel-Scope",
+      "targetHint": "Inhalt und Autor bleiben erhalten; nur der Scope ändert sich.",
+      "org": "Org",
+      "project": "Projekt",
+      "noTargets": "Es gibt noch keinen anderen Scope zum Verschieben. Lege zuerst einen weiteren Scope an.",
+      "keyLabel": "Neuer Key",
+      "keyHint": "Eine Mnemonik mit diesem Key existiert im Ziel-Scope bereits. Vergib einen anderen Key, um sie ohne Überschreiben zu verschieben.",
+      "keyPlaceholder": "z. B. release-process",
+      "keyError": "Nur Kleinbuchstaben, Ziffern und einzelne . oder - als Trenner.",
+      "move": "Verschieben",
+      "moved": "Nach {slug} verschoben.",
+      "errExists": "Eine Mnemonik mit diesem Key existiert im Ziel-Scope bereits. Wähle einen anderen Key — nichts wurde überschrieben.",
+      "errForbidden": "Nur Admins können Mnemoniken zwischen Scopes verschieben.",
+      "failed": "Mnemonik konnte nicht verschoben werden. Bitte versuche es erneut."
     }
   },
   "entryError": {
     "muted": "Dein Konto ist stummgeschaltet — Schreibzugriffe auf geteilte Scopes sind ausgesetzt. Bitte eine Team-Admin, die Stummschaltung aufzuheben.",
     "onlyAdmins": "Nur Admins können das bearbeiten.",
     "protected": "Dieser Eintrag ist geschützt und kann nicht geändert werden.",
+    "exists": "Eine Mnemonik mit diesem Key existiert in diesem Scope bereits. Wähle einen anderen Key — der vorhandene wird nicht überschrieben.",
     "validation": "Dieser Eintrag konnte nicht gespeichert werden: {reason}",
     "validationFallback": "einige Felder sind ungültig",
     "generic": "Eintrag konnte nicht gespeichert werden. Bitte versuche es erneut."

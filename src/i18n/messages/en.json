@@ -374,7 +374,8 @@
       "edit": "Edit",
       "copyKey": "Copy key",
       "delete": "Delete",
-      "protectedHint": "This entry is required for Kumbuka to work correctly and can't be deleted."
+      "protectedHint": "This entry is required for Kumbuka to work correctly and can't be deleted.",
+      "move": "Move to scope…"
     },
     "toast": {
       "idCopied": "Scope id copied",
@@ -483,6 +484,7 @@
       "keyLabel": "Key",
       "keyHint": "Optional stable identifier. Lowercase, dot-namespaced — the assistant looks entries up by this.",
       "keyError": "Lowercase letters, digits, dot and hyphen only — no underscores, uppercase, or slashes.",
+      "keyExists": "A memory with this key already exists in this scope. Choose a different key — it won't be overwritten.",
       "keyPlaceholder": "e.g. db.system-of-record",
       "contentLabel": "Content",
       "contentPlaceholder": "State it plainly, the way you'd want the assistant to recall it.",
@@ -495,12 +497,34 @@
       "updated": "Entry updated",
       "created": "Entry created in {slug}",
       "saveFailed": "Save failed"
+    },
+    "move": {
+      "aria": "Move memory to another scope",
+      "eyebrow": "from {slug}",
+      "title": "Move to scope",
+      "entryLabel": "Memory",
+      "noKey": "(no key)",
+      "targetLabel": "Target scope",
+      "targetHint": "The memory keeps its content and author; only its scope changes.",
+      "org": "Org",
+      "project": "Project",
+      "noTargets": "There's no other scope to move this into yet. Create another scope first.",
+      "keyLabel": "New key",
+      "keyHint": "A memory with this key already exists in the target scope. Give it a different key to move it without overwriting.",
+      "keyPlaceholder": "e.g. release-process",
+      "keyError": "Lowercase letters, numbers, and single . or - separators only.",
+      "move": "Move",
+      "moved": "Moved to {slug}.",
+      "errExists": "A memory with that key already exists in the target scope. Choose a different key — nothing was overwritten.",
+      "errForbidden": "Only admins can move memories between scopes.",
+      "failed": "Couldn't move this memory. Please try again."
     }
   },
   "entryError": {
     "muted": "Your account is muted — shared-scope writes are suspended. Ask a team admin to lift the mute.",
     "onlyAdmins": "Only admins can edit this.",
     "protected": "This entry is protected and can't be changed.",
+    "exists": "A memory with this key already exists in this scope. Choose a different key — the existing one won't be overwritten.",
     "validation": "This entry couldn't be saved: {reason}",
     "validationFallback": "some fields are invalid",
     "generic": "Couldn't save this entry. Please try again."

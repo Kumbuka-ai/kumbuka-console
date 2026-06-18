@@ -110,6 +110,24 @@ describe("impl-live thin REST wrappers", () => {
     expect(serverFetchMock).toHaveBeenCalledWith("/api/scopes/alpha/entries/abc", { method: "DELETE" });
   });
 
+  it("remapEntry POSTs to the ':remap' subresource with the target scope (D-CORE-17)", async () => {
+    serverFetchMock.mockResolvedValue(undefined);
+    await live.remapEntry("alpha", "abc/123", "beta");
+    expect(serverFetchMock).toHaveBeenCalledWith("/api/scopes/alpha/entries/abc%2F123:remap", {
+      method: "POST",
+      body: { targetScope: "beta" },
+    });
+  });
+
+  it("remapEntry includes the optional key override when supplied", async () => {
+    serverFetchMock.mockResolvedValue(undefined);
+    await live.remapEntry("alpha", "abc", "beta", "k.new");
+    expect(serverFetchMock).toHaveBeenCalledWith("/api/scopes/alpha/entries/abc:remap", {
+      method: "POST",
+      body: { targetScope: "beta", key: "k.new" },
+    });
+  });
+
   // ---------- Users ------------------------------------------------------
 
   it("listUsers maps RawUserView[] through deriveUserView", async () => {

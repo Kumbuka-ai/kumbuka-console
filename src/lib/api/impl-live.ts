@@ -57,6 +57,13 @@ export const listEntries = (slug: string) =>
   serverFetch<EntryView[]>(`/api/scopes/${encodeURIComponent(slug)}/entries`);
 export const createEntry = (slug: string, req: CreateEntryRequest) =>
   serverFetch<EntryView>(`/api/scopes/${encodeURIComponent(slug)}/entries`, { method: "POST", body: req });
+// D-CORE-17: re-home an entry to another shared scope (admin). Optional key
+// override dodges a target key-collision.
+export const remapEntry = (sourceSlug: string, id: string, targetScope: string, key?: string) =>
+  serverFetch<void>(
+    `/api/scopes/${encodeURIComponent(sourceSlug)}/entries/${encodeURIComponent(id)}:remap`,
+    { method: "POST", body: key ? { targetScope, key } : { targetScope } },
+  );
 export const updateEntry = (slug: string, id: string, req: UpdateEntryRequest) =>
   serverFetch<EntryView>(`/api/scopes/${encodeURIComponent(slug)}/entries/${encodeURIComponent(id)}`, {
     method: "PATCH",

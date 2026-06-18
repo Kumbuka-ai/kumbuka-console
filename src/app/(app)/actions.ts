@@ -13,6 +13,7 @@ import {
   createEntry,
   createScope,
   deleteEntry,
+  remapEntry,
   eraseUser,
   getSession,
   inviteUser,
@@ -58,6 +59,12 @@ function mapApiError(err: ApiError): WriteFailure {
   const body = err.body as { code?: string; message?: string } | undefined;
   if (err.status === 409 && body?.code && PROTECTED_CODES.has(body.code)) {
     return { ok: false, reason: "protected" };
+  }
+  // D-CORE-16: a key already exists in the scope — surface the rename hint, never
+  // a silent overwrite. (Until the server ships KEY_EXISTS, a duplicate may be a
+  // 500 → "generic"; the console live-guard catches the common visible case.)
+  if (err.status === 409 && body?.code === "KEY_EXISTS") {
+    return { ok: false, reason: "exists" };
   }
   if (err.status === 400) {
     return { ok: false, reason: "validation", detail: body?.message };
@@ -201,6 +208,27 @@ export async function deleteEntryAction(slug: string, id: string): Promise<Entry
     return entryWriteFailure(err);
   }
   revalidatePath(`/scopes/${slug}`);
+  revalidatePath("/overview");
+  return { ok: true };
+}
+// D-CORE-17: re-home an entry to another shared scope (admin). Reuses
+// scopeWriteFailure so a target key-collision (409 KEY_EXISTS) maps to
+// reason:"exists" and the private-target rejection (400 REMAP_PRIVATE_FORBIDDEN)
+// to reason:"validation" — never a Server-Components crash. Forward-compatible:
+// until S3 ships the :remap endpoint a 404 degrades to "generic" (readable toast).
+export async function remapEntryAction(
+  sourceSlug: string,
+  id: string,
+  targetScope: string,
+  key?: string,
+): Promise<ScopeActionResult> {
+  try {
+    await remapEntry(sourceSlug, id, targetScope, key);
+  } catch (err) {
+    return scopeWriteFailure(err);
+  }
+  revalidatePath(`/scopes/${sourceSlug}`);
+  revalidatePath(`/scopes/${targetScope}`);
   revalidatePath("/overview");
   return { ok: true };
 }

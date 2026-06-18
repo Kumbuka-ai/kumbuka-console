@@ -249,7 +249,7 @@ export type UpdateEntryRequest = { type?: EntryType; content?: string; reference
  * the editor can render a translated message instead of crashing the render
  * (SESSION_016/017). `validation` may carry the backend's specific reason.
  */
-export type EntryWriteError = "muted" | "forbidden" | "protected" | "validation" | "generic";
+export type EntryWriteError = "muted" | "forbidden" | "protected" | "exists" | "validation" | "generic";
 export type EntryActionResult =
   | { ok: true }
   | { ok: false; reason: EntryWriteError; detail?: string };
