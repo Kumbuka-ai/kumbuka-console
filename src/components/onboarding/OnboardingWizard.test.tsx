@@ -88,10 +88,11 @@ describe("OnboardingProvider — lifecycle", () => {
     expect(setOnboardingMock).toHaveBeenCalledWith({ dismissed: false, lastStep: 0 });
   });
 
-  it("'don't show again' + close reaches the dismissed state", async () => {
+  it("'don't show again' dismisses immediately (dogfood-15b): closes + persists dismissed", async () => {
     renderProvider({ initial: undefined });
-    fireEvent.click(screen.getByRole("switch", { name: /don't show this again/i }));
-    fireEvent.click(screen.getByRole("button", { name: /close setup/i }));
+    // dogfood-15b: a single click on "don't show again" must close the dialog
+    // right away (no separate close step) AND persist the dismissed state.
+    fireEvent.click(screen.getByRole("button", { name: /don't show this again/i }));
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     expect(setOnboardingMock).toHaveBeenCalledWith({ dismissed: true, lastStep: 0 });
   });

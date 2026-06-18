@@ -39,7 +39,6 @@ export function OnboardingWizard({
 }>) {
   const t = useTranslations("onboarding");
   const toast = useToast();
-  const [dontShow, setDontShow] = useState(false);
   const [sent, setSent] = useState<SentResult[] | null>(null);
   const [staged, setStaged] = useState<StagedScope[]>([]);
   const [pending, start] = useTransition();
@@ -49,11 +48,11 @@ export function OnboardingWizard({
   const key = WZ_STEP_KEYS[step];
   const isLast = step === WZ_STEP_COUNT - 1;
 
-  // closing via X / backdrop / Esc: permanent only if "don't show again" is ticked.
-  const handleClose = () => {
-    if (dontShow) onDismiss();
-    else onClose();
-  };
+  // X / backdrop / Esc = resumable close (reopens next login). Permanent
+  // dismissal (dogfood-15: persisted across login) is the explicit "don't show
+  // again" action and Finish — both call onDismiss directly, closing the dialog
+  // immediately (dogfood-15b: no lingering-open state).
+  const handleClose = () => onClose();
 
   // Open as a true modal: showModal() gives the top layer, the ::backdrop
   // scrim, native focus trapping, and aria-modal semantics. Guarded for
@@ -91,7 +90,7 @@ export function OnboardingWizard({
       d.removeEventListener("cancel", onCancel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dontShow, onClose, onDismiss]);
+  }, [onClose, onDismiss]);
 
   const handleSend = (emails: string[]) => {
     start(async () => {
@@ -175,16 +174,10 @@ export function OnboardingWizard({
         </div>
 
         <div className="wz-foot">
-          <label className="wz-dontshow">
-            <button
-              type="button"
-              role="switch"
-              aria-checked={dontShow}
-              className={`wz-toggle${dontShow ? " on" : ""}`}
-              onClick={() => setDontShow((d) => !d)}
-            />
+          <button type="button" className="wz-dontshow" onClick={onDismiss}>
+            <Icon name="eyeOff" />
             <span>{t("dontShowAgain")}</span>
-          </label>
+          </button>
           <span className="spacer" />
           {step > 0 && (
             <Button onClick={() => setStep(step - 1)}>

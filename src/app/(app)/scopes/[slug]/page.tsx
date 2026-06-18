@@ -26,6 +26,8 @@ export default async function ScopeBrowserPage({
   // Admins may always create; members only when createScopes === "members".
   // Hide the "+" affordance otherwise — the backend enforces this regardless.
   const canCreateScopes = session.role === "admin" || settings.createScopes === "members";
+  // Scope lifecycle (rename / archive / un-archive) is admin-only (dogfood-16).
+  const isAdmin = session.role === "admin";
 
   let entries: Awaited<ReturnType<typeof listEntries>> = [];
   let syncError = false;
@@ -62,6 +64,7 @@ export default async function ScopeBrowserPage({
         syncError={syncError}
         callerMuted={session.muted}
         canCreateScopes={canCreateScopes}
+        isAdmin={isAdmin}
       />
     </>
   );

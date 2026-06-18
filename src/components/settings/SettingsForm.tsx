@@ -196,6 +196,14 @@ export function SettingsForm({
                   </select>
                   <Icon name="chevDown" />
                 </div>
+                {/* dogfood-/console-crash: a project policy with no default scope
+                    is a valid, non-crashing state — the write falls back to
+                    global. Surface it as a clear needs-configuration note rather
+                    than leaving it silent (mirrors the server's MISSING
+                    defaultScopeStatus). */}
+                {defaultScopeSlug === null ? (
+                  <output className="hint">{t("policy.noDefaultHint")}</output>
+                ) : null}
               </div>
             ) : null}
           </div>

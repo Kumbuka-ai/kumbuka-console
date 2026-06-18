@@ -289,7 +289,8 @@
       "global_title": "Organization-wide",
       "global_desc": "Everything defaults to the global scope. Simple, but the shared baseline grows quickly — review regularly.",
       "fallbackLabel": "Fallback scope when no project is active",
-      "fallbackGlobal": "global — organization-wide"
+      "fallbackGlobal": "global — organization-wide",
+      "noDefaultHint": "No project default set — writes fall back to the global scope until you pick one."
     },
     "create": {
       "eyebrow": "permissions",
@@ -477,6 +478,7 @@
       "typeLabel": "Type",
       "keyLabel": "Key",
       "keyHint": "Optional stable identifier. Lowercase, dot-namespaced — the assistant looks entries up by this.",
+      "keyError": "Lowercase letters, digits, dot and hyphen only — no underscores, uppercase, or slashes.",
       "keyPlaceholder": "e.g. db.system-of-record",
       "contentLabel": "Content",
       "contentPlaceholder": "State it plainly, the way you'd want the assistant to recall it.",

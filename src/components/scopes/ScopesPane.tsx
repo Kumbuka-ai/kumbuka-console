@@ -79,12 +79,17 @@ export function ScopesPane({
   mobileOpen = false,
   onClose,
   canCreateScopes = true,
+  isAdmin = false,
 }: Readonly<{
   scopes: ScopeView[];
   activeSlug: string;
   /** On narrow viewports the pane is an overlay toggled open by the parent. */
   mobileOpen?: boolean;
   onClose?: () => void;
+  /** Scope lifecycle (rename / archive / un-archive) is a team-admin governance
+   *  op (finding dogfood-16). Members don't see those menu items; the backend
+   *  enforces it regardless (@RolesAllowed("admin")). */
+  isAdmin?: boolean;
   /**
    * Whether the caller may create scopes (admin, or member when the tenant's
    * createScopes setting allows it). Hides the "+" affordance otherwise — the
@@ -106,31 +111,29 @@ export function ScopesPane({
   const archived = scopes.filter((s) => s.archived);
   const globalScope = scopes.find((s) => s.kind === "global");
 
-  const openMenu = (e: MouseEvent, s: ScopeView) =>
-    menu.open(e, [
-      { label: t("menu.rename"), icon: "edit", onSelect: () => setRenaming(s) },
-      {
-        label: t("menu.copyId"),
-        icon: "copy",
-        onSelect: async () => {
-          await navigator.clipboard?.writeText(s.slug);
-          toast.push({ message: t("toast.idCopied") });
-        },
+  const openMenu = (e: MouseEvent, s: ScopeView) => {
+    const copyId = {
+      label: t("menu.copyId"),
+      icon: "copy" as const,
+      onSelect: async () => {
+        await navigator.clipboard?.writeText(s.slug);
+        toast.push({ message: t("toast.idCopied") });
       },
-      { kind: "sep" },
-      s.archived
-        ? {
-            label: t("menu.restore"),
-            icon: "rotate",
-            onSelect: () => toast.push({ message: t("toast.restoreNyi") }),
-          }
-        : {
-            label: t("menu.archive"),
-            icon: "archive",
-            danger: true,
-            onSelect: () => setArchiving(s),
-          },
-    ]);
+    };
+    // Un-archive needs a server endpoint that does not exist yet
+    // (AdminScopesResource has :archive but no :unarchive) — returned as a
+    // fail-loud gap in the Sprint-21 console handover; the archived section
+    // already makes the scope reachable.
+    const lifecycle = s.archived
+      ? { label: t("menu.restore"), icon: "rotate" as const, onSelect: () => toast.push({ message: t("toast.restoreNyi") }) }
+      : { label: t("menu.archive"), icon: "archive" as const, danger: true, onSelect: () => setArchiving(s) };
+    // Rename + archive/restore are team-admin governance ops (dogfood-16);
+    // members only get the harmless copy-id.
+    const items: Parameters<typeof menu.open>[1] = isAdmin
+      ? [{ label: t("menu.rename"), icon: "edit", onSelect: () => setRenaming(s) }, copyId, { kind: "sep" }, lifecycle]
+      : [copyId];
+    menu.open(e, items);
+  };
 
   const doArchive = () => {
     if (!archiving) return;

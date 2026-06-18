@@ -11,6 +11,16 @@ import { entryWriteErrorMessage } from "@/lib/entryWriteError";
 import { relTime } from "@/lib/time";
 import { useToast } from "@/components/ui/Toast";
 
+// Mirror the server key rule EXACTLY (E2E-06 / server MemoryKeyValidator):
+// lowercase a-z + 0-9 with single dot/hyphen separators; no underscores,
+// uppercase, slashes, or leading/trailing/double separators. An empty key is
+// allowed (the key is optional). Keep this regex in lock-step with the server's.
+const KEY_RE = /^[a-z0-9]+([.-][a-z0-9]+)*$/;
+function isMalformedKey(key: string): boolean {
+  const k = key.trim();
+  return k.length > 0 && !KEY_RE.test(k);
+}
+
 export function EntryEditor({
   entry,
   scope,
@@ -35,7 +45,8 @@ export function EntryEditor({
   const tCommon = useTranslations("common");
   const tTypes = useTranslations("entryTypes");
 
-  const canSave = content.trim().length > 0 && !pending;
+  const keyInvalid = isMalformedKey(key);
+  const canSave = content.trim().length > 0 && !keyInvalid && !pending;
 
   const submit = () => {
     if (!canSave) return;
@@ -117,13 +128,15 @@ export function EntryEditor({
 
       <Field label={t("keyLabel")} hint={t("keyHint")}>
         <input
-          className="input mono"
+          className={`input mono${keyInvalid ? " invalid" : ""}`}
           value={key}
           spellCheck={false}
           disabled={editing}
+          aria-invalid={keyInvalid || undefined}
           placeholder={t("keyPlaceholder")}
           onChange={(e) => setKey(e.target.value.replace(/\s+/g, "-").toLowerCase())}
         />
+        {keyInvalid ? <span className="field-error" role="alert">{t("keyError")}</span> : null}
       </Field>
 
       <Field label={t("contentLabel")} required>
