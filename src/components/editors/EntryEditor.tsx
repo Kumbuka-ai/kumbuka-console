@@ -47,7 +47,6 @@ export function EntryEditor({
   const toast = useToast();
   const t = useTranslations("editors.entry");
   const tErr = useTranslations("entryError");
-  const tCommon = useTranslations("common");
   const tTypes = useTranslations("entryTypes");
 
   const keyInvalid = isMalformedKey(key);
@@ -90,29 +89,14 @@ export function EntryEditor({
       title={editing ? t("editTitle") : t("newTitle")}
       onClose={onClose}
       footer={
-        locked ? (
-          <>
-            <span className="spacer" />
-            <Button variant="primary" onClick={onClose}>{tCommon("ok")}</Button>
-          </>
-        ) : (
-          <>
-            {editing && entry ? (
-              <span
-                className="mono"
-                style={{ fontSize: 10.5, color: "var(--c-muted)", letterSpacing: ".04em" }}
-              >
-                {t("editedAgo", { time: relTime(entry.updatedAt) })}
-              </span>
-            ) : null}
-            <span className="spacer" />
-            <Button onClick={onClose}>{tCommon("cancel")}</Button>
-            <Button variant="primary" disabled={!canSave} onClick={submit}>
-              <Icon name="check" />
-              <span className="txt">{editing ? t("saveChanges") : t("create")}</span>
-            </Button>
-          </>
-        )
+        <EditorFooter
+          locked={locked}
+          editing={editing}
+          entry={entry}
+          canSave={canSave}
+          onClose={onClose}
+          onSubmit={submit}
+        />
       }
     >
       <Field label={t("typeLabel")} required>
@@ -188,5 +172,55 @@ export function EntryEditor({
         </div>
       </Field>
     </SidePanel>
+  );
+}
+
+/**
+ * The editor's footer. Extracted so EntryEditor itself stays under the cognitive
+ * complexity gate (the locked/editing branching lives here, not in the parent).
+ * Locked = a protected system seed: just an OK to close.
+ */
+function EditorFooter({
+  locked,
+  editing,
+  entry,
+  canSave,
+  onClose,
+  onSubmit,
+}: Readonly<{
+  locked: boolean;
+  editing: boolean;
+  entry: EntryView | null;
+  canSave: boolean;
+  onClose: () => void;
+  onSubmit: () => void;
+}>) {
+  const t = useTranslations("editors.entry");
+  const tCommon = useTranslations("common");
+  if (locked) {
+    return (
+      <>
+        <span className="spacer" />
+        <Button variant="primary" onClick={onClose}>{tCommon("ok")}</Button>
+      </>
+    );
+  }
+  return (
+    <>
+      {editing && entry ? (
+        <span
+          className="mono"
+          style={{ fontSize: 10.5, color: "var(--c-muted)", letterSpacing: ".04em" }}
+        >
+          {t("editedAgo", { time: relTime(entry.updatedAt) })}
+        </span>
+      ) : null}
+      <span className="spacer" />
+      <Button onClick={onClose}>{tCommon("cancel")}</Button>
+      <Button variant="primary" disabled={!canSave} onClick={onSubmit}>
+        <Icon name="check" />
+        <span className="txt">{editing ? t("saveChanges") : t("create")}</span>
+      </Button>
+    </>
   );
 }
