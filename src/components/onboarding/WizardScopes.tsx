@@ -5,21 +5,19 @@ import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/editors/SidePanel";
+import { AssistantPrompt } from "@/components/overview/AssistantPrompt";
+import { slugify } from "@/lib/slug";
+import type { ScopeView } from "@/lib/api/types";
 
 const richMono = (c: ReactNode) => <span className="mono">{c}</span>;
 
 export type StagedScope = { name: string; id: string };
 
 /**
- * name → immutable kebab-slug id. Identical rule to ScopeEditor's `slugify` and
- * the backend's slug derivation — kept in lock-step so the wizard's pre-create
- * produces the same ids the scope editor would.
+ * name → immutable kebab-slug id. Re-exports the shared `slugify` so the wizard,
+ * the scope editor, and the dup-guard cannot drift (dogfood-19, single source).
  */
-export const wzSlug = (s: string): string =>
-  s
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+export const wzSlug = slugify;
 
 /**
  * Step 3 — pre-create scopes. Name → live slug preview; stage multiple rows;
@@ -46,6 +44,21 @@ export function WizardScopes({
   const taken = new Set<string>([...existingSlugs, ...staged.map((s) => s.id)]);
   const dup = id !== "" && taken.has(id);
   const canAdd = name.trim() !== "" && id !== "" && !dup;
+
+  // D-GTM-6 B: surface the existing scope-bound assistant-prompt block for the
+  // scopes the user just staged (created on Finish). The literal slug is the
+  // staged id — the SAME slug Finish creates. Reuses AssistantPrompt verbatim
+  // (no new prompt text); map each StagedScope to the ScopeView shape it expects.
+  const stagedScopes: ScopeView[] = staged.map((s) => ({
+    slug: s.id,
+    name: s.name,
+    kind: "project",
+    fixed: false,
+    archived: false,
+    description: null,
+    entryCount: 0,
+    createdAt: "",
+  }));
 
   const add = () => {
     if (!canAdd) return;
@@ -114,6 +127,12 @@ export function WizardScopes({
         <Icon name="globe" />
         <span>{t.rich("globalNote", { m: richMono })}</span>
       </div>
+
+      {stagedScopes.length > 0 ? (
+        <div className="wz-staged-prompt">
+          <AssistantPrompt scopes={stagedScopes} />
+        </div>
+      ) : null}
     </div>
   );
 }

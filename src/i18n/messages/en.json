@@ -379,6 +379,8 @@
     "toast": {
       "idCopied": "Scope id copied",
       "restoreNyi": "Restore not implemented in this build",
+      "restored": "Scope {slug} restored",
+      "restoreFailed": "Couldn't restore the scope — the server may not support it yet.",
       "archived": "Scope {slug} archived",
       "archiveFailed": "Archive failed",
       "keyCopied": "Key copied",
@@ -463,7 +465,9 @@
       "banner": "New scopes start empty and writable by admins. Adjust who may write in <b>Settings → write-scope policy</b>.",
       "renamed": "Scope renamed",
       "created": "Scope {slug} created",
-      "saveFailed": "Save failed"
+      "saveFailed": "Save failed",
+      "errExists": "A scope with this slug already exists — it may be archived. Check the archived scopes.",
+      "errForbidden": "Only team admins can create or change scopes."
     },
     "entry": {
       "editAria": "Edit entry",

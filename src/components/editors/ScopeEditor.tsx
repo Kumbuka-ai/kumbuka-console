@@ -7,21 +7,20 @@ import { Button } from "@/components/ui/Button";
 import { SidePanel, Field } from "./SidePanel";
 import { createScopeAction, renameScopeAction } from "@/app/(app)/actions";
 import { useToast } from "@/components/ui/Toast";
-import type { ScopeView } from "@/lib/api/types";
+import { slugify } from "@/lib/slug";
+import type { ScopeActionResult, ScopeView } from "@/lib/api/types";
 
 const richB = (c: ReactNode) => <b>{c}</b>;
 
-const slugify = (s: string) =>
-  s
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-
 export function ScopeEditor({
   scope,
+  existingSlugs = [],
   onClose,
 }: Readonly<{
   scope: ScopeView | null;
+  /** Live dup-guard against existing scope slugs (visible ones); the server
+   *  typed 409 is the backstop for archived/race collisions (dogfood-19). */
+  existingSlugs?: readonly string[];
   onClose: () => void;
 }>) {
   const editing = !!scope;
@@ -33,23 +32,35 @@ export function ScopeEditor({
   const t = useTranslations("editors.scope");
   const tCommon = useTranslations("common");
 
-  const valid = name.trim().length > 0 && slug.trim().length > 0;
+  // Client dup-guard: only on create, only against the visible slugs we know.
+  const dup = !editing && slug.trim().length > 0 && existingSlugs.includes(slug);
+  const valid = name.trim().length > 0 && slug.trim().length > 0 && !dup;
+
+  const failMessage = (res: Extract<ScopeActionResult, { ok: false }>): string => {
+    switch (res.reason) {
+      case "exists":
+        return t("errExists");
+      case "forbidden":
+        return t("errForbidden");
+      case "validation":
+        return res.detail ?? t("saveFailed");
+      default:
+        return t("saveFailed");
+    }
+  };
 
   const submit = () => {
     if (!valid || pending) return;
     start(async () => {
-      try {
-        if (editing && scope) {
-          await renameScopeAction(scope.slug, name.trim());
-          toast.push({ message: t("renamed") });
-        } else {
-          await createScopeAction({ slug, name: name.trim() });
-          toast.push({ message: t("created", { slug }) });
-        }
-        onClose();
-      } catch (err) {
-        toast.push({ message: err instanceof Error ? err.message : t("saveFailed") });
+      const res = editing && scope
+        ? await renameScopeAction(scope.slug, name.trim())
+        : await createScopeAction({ slug, name: name.trim() });
+      if (!res.ok) {
+        toast.push({ message: failMessage(res) });
+        return;
       }
+      toast.push({ message: editing ? t("renamed") : t("created", { slug }) });
+      onClose();
     });
   };
 
@@ -82,22 +93,20 @@ export function ScopeEditor({
           }}
         />
       </Field>
-      <Field
-        label={t("idLabel")}
-        required
-        hint={t("idHint")}
-      >
+      <Field label={t("idLabel")} required hint={t("idHint")}>
         <input
-          className="input mono"
+          className={`input mono${dup ? " invalid" : ""}`}
           value={slug}
           spellCheck={false}
           disabled={editing}
+          aria-invalid={dup || undefined}
           placeholder={t("idPlaceholder")}
           onChange={(e) => {
             setTouchedSlug(true);
             setSlug(slugify(e.target.value));
           }}
         />
+        {dup ? <span className="field-error" role="alert">{t("errExists")}</span> : null}
       </Field>
       {editing ? null : (
         <div className="idp-banner" style={{ border: "1px solid var(--c-border)", padding: "13px 15px" }}>

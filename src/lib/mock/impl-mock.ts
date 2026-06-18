@@ -142,6 +142,11 @@ export async function archiveScope(slug: string): Promise<void> {
   if (s.fixed) throw new Error("global scope cannot be archived");
   s.archived = true;
 }
+export async function unarchiveScope(slug: string): Promise<void> {
+  const s = state.scopes.find((x) => x.slug === slug);
+  if (!s) throw new Error(`no scope: ${slug}`);
+  s.archived = false;
+}
 
 // ---------- Entries ----------------------------------------------------
 export async function listEntries(slug: string): Promise<EntryView[]> {

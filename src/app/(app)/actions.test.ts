@@ -34,6 +34,7 @@ const { revalidatePathMock, apiMocks, persistThemeMock, persistLocaleMock, ApiEr
         createScope: vi.fn(),
         renameScope: vi.fn(),
         archiveScope: vi.fn(),
+        unarchiveScope: vi.fn(),
         createEntry: vi.fn(),
         updateEntry: vi.fn(),
         deleteEntry: vi.fn(),
@@ -64,6 +65,7 @@ vi.mock("@/lib/api", () => ({ ...apiMocks, ApiError, ApiAuthError }));
 
 import {
   archiveScopeAction,
+  unarchiveScopeAction,
   cancelInviteAction,
   createEntryAction,
   createScopeAction,
@@ -117,12 +119,27 @@ describe("Server Actions — delegation + cache invalidation", () => {
 
   // ---------- scopes -----------------------------------------------------
 
-  it("createScopeAction returns the api result and revalidates /scopes + /overview", async () => {
+  it("createScopeAction returns a typed ok result and revalidates /scopes + /overview", async () => {
     apiMocks.createScope.mockResolvedValue({ slug: "alpha" });
     const out = await createScopeAction({ slug: "alpha", name: "Alpha" });
-    expect(out).toEqual({ slug: "alpha" });
+    expect(out).toEqual({ ok: true });
     expect(revalidatePathMock).toHaveBeenCalledWith("/scopes");
     expect(revalidatePathMock).toHaveBeenCalledWith("/overview");
+  });
+
+  it("createScopeAction maps a 409 duplicate to a typed exists result (no throw, no revalidate)", async () => {
+    apiMocks.createScope.mockRejectedValue(new ApiError(409, "conflict", { code: "SCOPE_EXISTS" }));
+    const out = await createScopeAction({ slug: "alpha", name: "Alpha" });
+    expect(out).toEqual({ ok: false, reason: "exists" });
+    expect(revalidatePathMock).not.toHaveBeenCalled();
+  });
+
+  it("unarchiveScopeAction returns ok and revalidates; degrades to a typed result on error", async () => {
+    apiMocks.unarchiveScope.mockResolvedValue(undefined);
+    expect(await unarchiveScopeAction("alpha")).toEqual({ ok: true });
+    expect(apiMocks.unarchiveScope).toHaveBeenCalledWith("alpha");
+    apiMocks.unarchiveScope.mockRejectedValue(new ApiError(404, "not found"));
+    expect(await unarchiveScopeAction("alpha")).toEqual({ ok: false, reason: "generic" });
   });
 
   it("renameScopeAction passes name/description through and revalidates the specific scope + list", async () => {
@@ -139,10 +156,10 @@ describe("Server Actions — delegation + cache invalidation", () => {
     expect(apiMocks.renameScope).toHaveBeenCalledWith("alpha", { name: "New", description: undefined });
   });
 
-  it("archiveScopeAction calls the BFF, returns void, revalidates list + overview", async () => {
+  it("archiveScopeAction calls the BFF, returns a typed ok result, revalidates list + overview", async () => {
     apiMocks.archiveScope.mockResolvedValue(undefined);
     const out = await archiveScopeAction("alpha");
-    expect(out).toBeUndefined();
+    expect(out).toEqual({ ok: true });
     expect(apiMocks.archiveScope).toHaveBeenCalledWith("alpha");
     expect(revalidatePathMock).toHaveBeenCalledWith("/scopes");
     expect(revalidatePathMock).toHaveBeenCalledWith("/overview");

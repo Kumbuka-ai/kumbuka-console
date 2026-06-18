@@ -26,6 +26,7 @@ export const {
   createScope,
   renameScope,
   archiveScope,
+  unarchiveScope,
   listEntries,
   createEntry,
   updateEntry,

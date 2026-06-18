@@ -253,6 +253,19 @@ export type EntryWriteError = "muted" | "forbidden" | "protected" | "validation"
 export type EntryActionResult =
   | { ok: true }
   | { ok: false; reason: EntryWriteError; detail?: string };
+
+/**
+ * Scope create/rename/archive/unarchive outcome (dogfood-19). Like
+ * EntryActionResult, scope-write actions RETURN this instead of throwing, so a
+ * non-2xx never bubbles into an uncaught Server-Components render crash.
+ * `exists` = the slug is taken (often by an ARCHIVED scope — surface the
+ * archived-collision hint). Server 409 `SCOPE_EXISTS` maps here when present;
+ * until that server mapping ships, a duplicate degrades to `generic`.
+ */
+export type ScopeWriteError = "exists" | "forbidden" | "validation" | "generic";
+export type ScopeActionResult =
+  | { ok: true }
+  | { ok: false; reason: ScopeWriteError; detail?: string };
 export type UpdateSettingsRequest = {
   writePolicy?: WritePolicy;
   defaultScopeSlug?: string | null;

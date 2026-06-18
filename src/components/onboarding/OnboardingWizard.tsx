@@ -116,14 +116,13 @@ export function OnboardingWizard({
     start(async () => {
       if (staged.length) {
         const results = await Promise.all(
-          staged.map(async (s) => {
-            try {
-              await createScopeAction({ slug: s.id, name: s.name });
-              return true;
-            } catch {
-              return false;
-            }
-          }),
+          // createScopeAction now returns a typed result (dogfood-19) — read .ok;
+          // a thrown ApiAuthError (session expiry) still surfaces as a failure here.
+          staged.map((s) =>
+            createScopeAction({ slug: s.id, name: s.name })
+              .then((r) => r.ok)
+              .catch(() => false),
+          ),
         );
         const ok = results.filter(Boolean).length;
         const failed = results.length - ok;

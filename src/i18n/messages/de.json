@@ -379,6 +379,8 @@
     "toast": {
       "idCopied": "Scope-ID kopiert",
       "restoreNyi": "Wiederherstellen ist in diesem Build nicht implementiert",
+      "restored": "Scope {slug} wiederhergestellt",
+      "restoreFailed": "Scope konnte nicht wiederhergestellt werden — der Server unterstützt das evtl. noch nicht.",
       "archived": "Scope {slug} archiviert",
       "archiveFailed": "Archivieren fehlgeschlagen",
       "keyCopied": "Key kopiert",
@@ -463,7 +465,9 @@
       "banner": "Neue Scopes starten leer und sind von Admins beschreibbar. Wer schreiben darf, stellst du unter <b>Einstellungen → Schreib-Scope-Richtlinie</b> ein.",
       "renamed": "Scope umbenannt",
       "created": "Scope {slug} erstellt",
-      "saveFailed": "Speichern fehlgeschlagen"
+      "saveFailed": "Speichern fehlgeschlagen",
+      "errExists": "Ein Scope mit diesem Slug existiert bereits — möglicherweise archiviert. Sieh in den archivierten Scopes nach.",
+      "errForbidden": "Nur Team-Admins können Scopes anlegen oder ändern."
     },
     "entry": {
       "editAria": "Eintrag bearbeiten",

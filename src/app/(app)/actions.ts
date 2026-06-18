@@ -8,6 +8,7 @@ import {
   ApiAuthError,
   ApiError,
   archiveScope,
+  unarchiveScope,
   cancelInvite,
   createEntry,
   createScope,
@@ -30,6 +31,7 @@ import type {
   EntryActionResult,
   InviteUserRequest,
   OnboardingState,
+  ScopeActionResult,
   UpdateEntryRequest,
   UpdateMeRequest,
   UpdateSettingsRequest,
@@ -77,6 +79,25 @@ async function entryWriteFailure(err: unknown): Promise<WriteFailure> {
   return mapApiError(err);
 }
 
+/**
+ * Map a failed scope write to a typed ScopeActionResult (dogfood-19) — the same
+ * shape as entryWriteFailure so a non-2xx never bubbles into a Server-Components
+ * crash. A 409 (with code SCOPE_EXISTS once the server maps it, or any 409) =
+ * the slug is taken; ApiAuthError is re-thrown for the /signin redirect. Until
+ * the server ships the typed 409, a duplicate currently arrives as a 500 and
+ * degrades to `generic` — still a readable toast, not a crash; the client
+ * dup-guard catches the common (visible-slug) case before the request.
+ */
+function scopeWriteFailure(err: unknown): Extract<ScopeActionResult, { ok: false }> {
+  if (err instanceof ApiAuthError) throw err;
+  if (!(err instanceof ApiError)) return { ok: false, reason: "generic" };
+  const body = err.body as { code?: string; message?: string } | undefined;
+  if (err.status === 409) return { ok: false, reason: "exists" };
+  if (err.status === 403) return { ok: false, reason: "forbidden" };
+  if (err.status === 400) return { ok: false, reason: "validation", detail: body?.message };
+  return { ok: false, reason: "generic" };
+}
+
 export async function setThemeAction(t: Theme) {
   await persistTheme(t);
 }
@@ -97,22 +118,56 @@ export async function setLocaleAction(l: Locale) {
 }
 
 // Scopes ---------------------------------------------------------------
-export async function createScopeAction(req: CreateScopeRequest) {
-  const out = await createScope(req);
+// dogfood-19: these RETURN a typed ScopeActionResult instead of throwing, so a
+// non-2xx (e.g. duplicate slug) never bubbles into an uncaught Server-Components
+// render crash — same discipline as the entry actions.
+export async function createScopeAction(req: CreateScopeRequest): Promise<ScopeActionResult> {
+  try {
+    await createScope(req);
+  } catch (err) {
+    return scopeWriteFailure(err);
+  }
   revalidatePath("/scopes");
   revalidatePath("/overview");
-  return out;
+  return { ok: true };
 }
-export async function renameScopeAction(slug: string, name: string, description?: string) {
-  const out = await renameScope(slug, { name, description });
+export async function renameScopeAction(
+  slug: string,
+  name: string,
+  description?: string,
+): Promise<ScopeActionResult> {
+  try {
+    await renameScope(slug, { name, description });
+  } catch (err) {
+    return scopeWriteFailure(err);
+  }
   revalidatePath(`/scopes/${slug}`);
   revalidatePath("/scopes");
-  return out;
+  return { ok: true };
 }
-export async function archiveScopeAction(slug: string) {
-  await archiveScope(slug);
+export async function archiveScopeAction(slug: string): Promise<ScopeActionResult> {
+  try {
+    await archiveScope(slug);
+  } catch (err) {
+    return scopeWriteFailure(err);
+  }
   revalidatePath("/scopes");
   revalidatePath("/overview");
+  return { ok: true };
+}
+// dogfood-16: reverse of archive. Consumes the server POST /api/scopes/{slug}:unarchive
+// (SPRINT_21.S2). Until that endpoint is deployed this returns reason:"generic"
+// (a readable toast, not a crash) — see the handover.
+export async function unarchiveScopeAction(slug: string): Promise<ScopeActionResult> {
+  try {
+    await unarchiveScope(slug);
+  } catch (err) {
+    return scopeWriteFailure(err);
+  }
+  revalidatePath(`/scopes/${slug}`);
+  revalidatePath("/scopes");
+  revalidatePath("/overview");
+  return { ok: true };
 }
 
 // Entries --------------------------------------------------------------

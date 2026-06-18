@@ -1189,12 +1189,16 @@ button { font-family: inherit; }
 
 .wizard {
   position: fixed; z-index: 96; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  width: 760px; max-width: 92vw; max-height: 88vh; margin: 0; padding: 0;
+  width: 880px; max-width: 92vw; max-height: 88vh; margin: 0; padding: 0;
   background: var(--c-raised); color: var(--c-text);
   border: 1.5px solid var(--c-text); display: flex; flex-direction: column;
   animation: pop 200ms cubic-bezier(.2,.7,.2,1);
 }
 [data-theme="dark"] .wizard { border-color: var(--c-border); }
+/* OBW step-3: the reused assistant-prompt block sheds its overview-only
+   negative top margin inside the wizard body (D-GTM-6 B). */
+.wz-staged-prompt { margin-top: 4px; }
+.wz-staged-prompt .assistant-prompt { margin: 0; border-top: 1px solid var(--c-ink-panel-line); }
 /* native <dialog> modal scrim — replaces the standalone .scrim div */
 .wizard::backdrop { background: var(--c-scrim); animation: fade 140ms ease; }
 
