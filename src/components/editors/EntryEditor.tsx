@@ -11,6 +11,16 @@ import { entryWriteErrorMessage } from "@/lib/entryWriteError";
 import { relTime } from "@/lib/time";
 import { useToast } from "@/components/ui/Toast";
 
+// Mirror the server key rule EXACTLY (E2E-06 / server MemoryKeyValidator):
+// lowercase a-z + 0-9 with single dot/hyphen separators; no underscores,
+// uppercase, slashes, or leading/trailing/double separators. An empty key is
+// allowed (the key is optional). Keep this regex in lock-step with the server's.
+const KEY_RE = /^[a-z0-9]+([.-][a-z0-9]+)*$/;
+function isMalformedKey(key: string): boolean {
+  const k = key.trim();
+  return k.length > 0 && !KEY_RE.test(k);
+}
+
 export function EntryEditor({
   entry,
   scope,
@@ -35,13 +45,7 @@ export function EntryEditor({
   const tCommon = useTranslations("common");
   const tTypes = useTranslations("entryTypes");
 
-  // Mirror the server key rule EXACTLY (E2E-06 / server MemoryKeyValidator):
-  // lowercase a-z + 0-9, with single dot/hyphen separators; no underscores,
-  // uppercase, slashes, or leading/trailing/double separators. Keep this regex
-  // in lock-step with the server's — if one changes, change both.
-  const KEY_RE = /^[a-z0-9]+([.-][a-z0-9]+)*$/;
-  const keyTrimmed = key.trim();
-  const keyInvalid = keyTrimmed.length > 0 && !KEY_RE.test(keyTrimmed);
+  const keyInvalid = isMalformedKey(key);
   const canSave = content.trim().length > 0 && !keyInvalid && !pending;
 
   const submit = () => {

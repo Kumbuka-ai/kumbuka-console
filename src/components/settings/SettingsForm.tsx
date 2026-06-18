@@ -202,7 +202,7 @@ export function SettingsForm({
                     than leaving it silent (mirrors the server's MISSING
                     defaultScopeStatus). */}
                 {defaultScopeSlug === null ? (
-                  <span className="hint" role="status">{t("policy.noDefaultHint")}</span>
+                  <output className="hint">{t("policy.noDefaultHint")}</output>
                 ) : null}
               </div>
             ) : null}
