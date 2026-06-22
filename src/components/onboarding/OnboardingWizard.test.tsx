@@ -124,6 +124,28 @@ describe("parseInviteLines — per-line status", () => {
     expect(parsed[0]?.status).toBe("dupe");
     expect(parsed[0]?.reason).toBe("alreadyMember");
   });
+
+  // Behaviour pin for EMAIL_RE after the linear-time rewrite (S8786 / ReDoS):
+  // the new `^[^\s@]+@[^\s@][^\s@.]*\.[^\s@]+$` must accept/reject exactly what
+  // the prior `^[^\s@]+@[^\s@]+\.[^\s@]+$` did — including the degenerate
+  // interior-dot cases. A "bad" status is the regex rejecting the address.
+  it("classifies addresses identically to the prior (anchored) email regex", () => {
+    const cases: ReadonlyArray<readonly [string, "ok" | "bad"]> = [
+      ["a@b.c", "ok"],
+      ["first.last@sub.example.co", "ok"],
+      ["a@b.c.", "ok"], // trailing dot in domain — prior regex matched it
+      ["a@..b", "ok"], // interior dot present — prior regex matched it
+      ["a@.b", "bad"], // dot is first char of domain, nothing before it
+      ["a@b.", "bad"], // dot is last char of domain, nothing after it
+      ["a@bc", "bad"], // no dot in domain
+      ["a b@c.d", "bad"], // whitespace — stricter than InviteDialog by design
+      ["nope", "bad"], // no @
+    ];
+    for (const [email, expected] of cases) {
+      const parsed = parseInviteLines(email, []);
+      expect(parsed[0]?.status, email).toBe(expected);
+    }
+  });
 });
 
 describe("WizardInvite — send routes through the real invite path", () => {

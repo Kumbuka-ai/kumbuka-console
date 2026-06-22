@@ -863,7 +863,7 @@ button { font-family: inherit; }
 .ap-copy:hover { background: var(--accent); color: #0F1620; border-color: var(--accent); }
 .ap-copy .ico { width: 14px; height: 14px; }
 .ap-prompt { margin: 18px 0 0; padding: 16px 18px; background: rgba(0,0,0,0.20); border: 1px solid var(--c-ink-panel-line); overflow-x: auto; }
-.ap-prompt code { font-family: var(--font-mono); font-size: 12px; line-height: 1.6; color: var(--c-ink-panel-text); white-space: pre-wrap; word-break: break-word; }
+.ap-prompt code { font-family: var(--font-mono); font-size: 12px; line-height: 1.6; color: var(--c-ink-panel-text); white-space: pre-wrap; overflow-wrap: break-word; }
 
 /* two-col split */
 .ov-split { display: grid; grid-template-columns: 1.45fr 1fr; gap: 30px; align-items: start; }

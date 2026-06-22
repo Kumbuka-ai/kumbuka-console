@@ -24,5 +24,8 @@ export function absTime(iso: string | null | undefined): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  return d.toISOString().replace("T", " ").replace(/\..*$/, "Z");
+  // toISOString() always ends in `.sssZ`; drop the fractional seconds. The
+  // `\.\d+Z$` form avoids the `.*`-at-anchor the ReDoS heuristic flags (S8786)
+  // and is exact for ISO output — same result as the prior `/\..*$/`.
+  return d.toISOString().replace("T", " ").replace(/\.\d+Z$/, "Z");
 }
