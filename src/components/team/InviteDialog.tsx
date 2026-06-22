@@ -14,11 +14,13 @@ const richB = (c: ReactNode) => <b>{c}</b>;
 const richIdp = (c: ReactNode) => <span className="idp-name">{c}</span>;
 
 // Loose "looks-like-an-email" client gate (the backend is the authority).
-// Linear-time form of the prior `/.+@.+\..+/`: a single unbounded quantifier,
-// so no super-linear backtracking (S8786 / ReDoS). Same accept/reject set —
-// ≥1 char before `@`, ≥1 between `@` and `.`, ≥1 after `.` — kept unanchored.
+// Linear-time form of the prior `/.+@.+\..+/`, kept deliberately loose (the
+// segments stay `.`-based, so spaces / extra `@` inside still match as before).
+// The dotless `[^\n.]*` run before the literal `\.` makes the separator
+// unambiguous, so no quantifier overlaps it (S8786 / ReDoS). Same accept/reject
+// set — ≥1 char before `@`, ≥1 between `@` and `.`, ≥1 after `.` — unanchored.
 // Exported for the focused behaviour test; not a shared validator.
-export const EMAIL_RE = /.@.+\../;
+export const EMAIL_RE = /.@[^\n][^\n.]*\.[^\n]/;
 
 export function InviteDialog({ onClose }: Readonly<{ onClose: () => void }>) {
   const [email, setEmail] = useState("");
