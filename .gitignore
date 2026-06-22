@@ -4,6 +4,9 @@ node_modules
 out
 build
 coverage
+# Mutation testing (Stryker) — generated reports + temp
+.stryker-tmp/
+reports/
 .env*.local
 *.tsbuildinfo
 tsconfig.tsbuildinfo

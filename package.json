@@ -12,30 +12,37 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:responsive": "node e2e/responsive-overflow.mjs"
+    "test:responsive": "node e2e/responsive-overflow.mjs",
+    "mutation": "stryker run",
+    "slop:deps": "pnpm dlx depcheck",
+    "slop:deadcode": "pnpm dlx knip",
+    "slop:dup": "pnpm dlx jscpd src packages --min-lines 10 --min-tokens 50",
+    "slop": "pnpm mutation && pnpm slop:deps && pnpm slop:deadcode && pnpm slop:dup"
   },
   "dependencies": {
+    "lucide-react": "^0.460.0",
     "next": "15.5.19",
     "next-intl": "^3.26.0",
     "react": "19.2.7",
-    "react-dom": "19.2.7",
-    "lucide-react": "^0.460.0"
+    "react-dom": "19.2.7"
   },
   "devDependencies": {
+    "@stryker-mutator/core": "^9.6.1",
+    "@stryker-mutator/vitest-runner": "^9.6.1",
+    "@tailwindcss/postcss": "^4.0.0-beta.3",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
     "@types/node": "^22.9.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "tailwindcss": "^4.0.0-beta.3",
-    "@tailwindcss/postcss": "^4.0.0-beta.3",
-    "postcss": "^8.4.49",
-    "typescript": "^5.6.3",
+    "@vitest/coverage-v8": "^2.1.8",
     "eslint": "^9.14.0",
     "eslint-config-next": "15.5.19",
-    "vitest": "^2.1.8",
-    "@vitest/coverage-v8": "^2.1.8",
     "jsdom": "^25.0.1",
-    "@testing-library/react": "^16.1.0",
-    "@testing-library/jest-dom": "^6.6.3"
+    "postcss": "^8.4.49",
+    "tailwindcss": "^4.0.0-beta.3",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
   },
   "packageManager": "pnpm@9.12.3",
   "engines": {
