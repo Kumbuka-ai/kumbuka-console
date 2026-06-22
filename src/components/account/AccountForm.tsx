@@ -62,19 +62,19 @@ export function AccountForm({
   // client render agree (no hydration mismatch); the hrefs upgrade from the
   // account-console fallback to the deep-links once known.
   const [origin, setOrigin] = useState<string | null>(null);
-  useEffect(() => setOrigin(window.location.origin), []);
+  useEffect(() => setOrigin(globalThis.location.origin), []);
 
   // After a Keycloak Application-Initiated-Action, KC redirects back to
   // /account?kc_action_status=success|cancelled|… — surface it as a toast and
   // strip the params so a refresh doesn't re-fire. Reads window.location
   // directly (not useSearchParams) so the page needs no Suspense boundary.
   useEffect(() => {
-    const status = new URLSearchParams(window.location.search).get("kc_action_status");
+    const status = new URLSearchParams(globalThis.location.search).get("kc_action_status");
     if (!status) return;
     toast.push({
       message: status === "cancelled" ? t("security.actionCancelled") : t("security.actionDone"),
     });
-    window.history.replaceState(null, "", "/account");
+    globalThis.history.replaceState(null, "", "/account");
     // run once on mount; toast/t are stable for this screen
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

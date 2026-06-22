@@ -13,6 +13,13 @@ import type { UserRole } from "@/lib/api/types";
 const richB = (c: ReactNode) => <b>{c}</b>;
 const richIdp = (c: ReactNode) => <span className="idp-name">{c}</span>;
 
+// Loose "looks-like-an-email" client gate (the backend is the authority).
+// Linear-time form of the prior `/.+@.+\..+/`: a single unbounded quantifier,
+// so no super-linear backtracking (S8786 / ReDoS). Same accept/reject set —
+// ≥1 char before `@`, ≥1 between `@` and `.`, ≥1 after `.` — kept unanchored.
+// Exported for the focused behaviour test; not a shared validator.
+export const EMAIL_RE = /.@.+\../;
+
 export function InviteDialog({ onClose }: Readonly<{ onClose: () => void }>) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -21,7 +28,7 @@ export function InviteDialog({ onClose }: Readonly<{ onClose: () => void }>) {
   const toast = useToast();
   const t = useTranslations("team.inviteDialog");
 
-  const valid = /.+@.+\..+/.test(email) && !pending;
+  const valid = EMAIL_RE.test(email) && !pending;
 
   const submit = () => {
     if (!valid) return;

@@ -11,7 +11,7 @@ import { CONSOLE_VERSION } from "@/lib/version";
  * a null `backend` (transport hiccup) renders a `—` placeholder rather
  * than hiding the footer altogether.
  */
-export function Footer({ backend }: { backend: BackendVersion }) {
+export function Footer({ backend }: Readonly<{ backend: BackendVersion }>) {
   const backendVer = backend?.version ?? "—";
   return (
     <footer className="app-footer" aria-label="Version info">

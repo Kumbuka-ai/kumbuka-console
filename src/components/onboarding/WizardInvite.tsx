@@ -8,10 +8,15 @@ import { Field } from "@/components/editors/SidePanel";
 
 const richB = (c: ReactNode) => <b>{c}</b>;
 
-// Mirrors InviteDialog's client-side gate (`/.+@.+\..+/`) but a touch stricter
+// Mirrors InviteDialog's client-side gate (`/.@.+\../`) but a touch stricter
 // (no whitespace either side of the `@`/`.`) since we validate many lines at
 // once. The backend remains the authority — see the per-address send result.
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//
+// Linear-time form: the dotless `[^\s@.]*` run before the literal `\.` makes the
+// separator unambiguous, so the two `[^\s@]` quantifiers around it no longer
+// overlap (S8786 / ReDoS). Accept/reject set is identical to the prior
+// `^[^\s@]+@[^\s@]+\.[^\s@]+$` — "no space/@, a dot interior to the domain".
+const EMAIL_RE = /^[^\s@]+@[^\s@][^\s@.]*\.[^\s@]+$/;
 
 export type LineStatus = "ok" | "bad" | "dupe";
 export type ParsedLine = { line: number; email: string; status: LineStatus; reason: "badEmail" | "alreadyMember" | "dupInList" | null };
