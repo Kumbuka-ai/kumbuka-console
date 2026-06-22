@@ -8,7 +8,7 @@ import { Field } from "@/components/editors/SidePanel";
 
 const richB = (c: ReactNode) => <b>{c}</b>;
 
-// Mirrors InviteDialog's client-side gate (`/.@[^\n][^\n.]*\.[^\n]/`) but a touch stricter
+// Mirrors InviteDialog's client-side gate (`/.@[^\n@][^\n@.]*\.[^\n]/`) but a touch stricter
 // (no whitespace either side of the `@`/`.`) since we validate many lines at
 // once. The backend remains the authority — see the per-address send result.
 //

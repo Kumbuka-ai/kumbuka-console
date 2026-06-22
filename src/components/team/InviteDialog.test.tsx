@@ -36,4 +36,14 @@ describe("InviteDialog EMAIL_RE (linear-time, behaviour-preserving)", () => {
   it.each(rejects)("rejects %j", (s) => {
     expect(EMAIL_RE.test(s)).toBe(false);
   });
+
+  // The ONE documented delta from the prior `/.+@.+\..+/`: a multi-`@` string
+  // whose only separator dot is reachable across an inner `@`. The old regex's
+  // `.+` spanned the inner `@` and accepted it; the linear form excludes `@`
+  // from the pre-separator run, so it rejects. Never a real email — and every
+  // input with ≤1 `@` (all valid addresses, all realistic input) is unchanged.
+  it("differs only on multi-@ garbage where the dot sits behind an inner @", () => {
+    expect(EMAIL_RE.test("x@b@.c")).toBe(false); // prior regex: true
+    expect(EMAIL_RE.test("x@b@c.d")).toBe(true); // unchanged: dot reachable after the 2nd @
+  });
 });
