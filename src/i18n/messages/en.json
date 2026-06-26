@@ -527,6 +527,7 @@
     "exists": "A memory with this key already exists in this scope. Choose a different key — the existing one won't be overwritten.",
     "validation": "This entry couldn't be saved: {reason}",
     "validationFallback": "some fields are invalid",
+    "stale": "This entry changed since you opened it — reload and try again.",
     "generic": "Couldn't save this entry. Please try again."
   },
   "onboarding": {

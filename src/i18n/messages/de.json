@@ -527,6 +527,7 @@
     "exists": "Eine Mnemonik mit diesem Key existiert in diesem Scope bereits. Wähle einen anderen Key — der vorhandene wird nicht überschrieben.",
     "validation": "Dieser Eintrag konnte nicht gespeichert werden: {reason}",
     "validationFallback": "einige Felder sind ungültig",
+    "stale": "Dieser Eintrag wurde zwischenzeitlich geändert — bitte neu laden und erneut versuchen.",
     "generic": "Eintrag konnte nicht gespeichert werden. Bitte versuche es erneut."
   },
   "onboarding": {

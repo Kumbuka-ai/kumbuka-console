@@ -22,6 +22,8 @@ export function entryWriteErrorMessage(
       return t("exists");
     case "validation":
       return t("validation", { reason: res.detail ?? t("validationFallback") });
+    case "stale":
+      return t("stale");
     default:
       return t("generic");
   }

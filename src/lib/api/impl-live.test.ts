@@ -95,6 +95,33 @@ describe("impl-live thin REST wrappers", () => {
     });
   });
 
+  it("listEntries maps RawEntryView through deriveEntryView (logicalId→id, drops updated*)", async () => {
+    // ADR-0024 Amendment 3: the backend wire field is `logicalId`; the adapter
+    // maps it to the internal `EntryView.id`. Amendment 4 `updatedBy`/
+    // `updatedSource` are received but deliberately dropped (later feature).
+    serverFetchMock.mockResolvedValue([
+      {
+        logicalId: "lid-1",
+        type: "decision",
+        key: "k.one",
+        content: "c",
+        reference: null,
+        authorSubject: "sub-a",
+        source: "console",
+        updatedBy: "sub-b",
+        updatedSource: "mcp",
+        createdAt: "2026-06-26T00:00:00Z",
+        updatedAt: "2026-06-26T01:00:00Z",
+      },
+    ]);
+    const [entry] = await live.listEntries("alpha");
+    expect(entry.id).toBe("lid-1");
+    expect(entry).not.toHaveProperty("logicalId");
+    expect(entry).not.toHaveProperty("updatedBy");
+    expect(entry).not.toHaveProperty("updatedSource");
+    expect(entry.authorSubject).toBe("sub-a");
+  });
+
   it("updateEntry encodes both slug and id, PATCHes", async () => {
     serverFetchMock.mockResolvedValue({});
     await live.updateEntry("alpha", "abc/123", { content: "y" });

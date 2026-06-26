@@ -254,6 +254,15 @@ describe("Server Actions — delegation + cache invalidation", () => {
     expect(out).toEqual({ ok: false, reason: "protected" });
   });
 
+  it("maps a 409 STALE_VERSION to reason=stale", async () => {
+    // §A1.6 optimistic locking: a concurrent edit advanced the version.
+    apiMocks.updateEntry.mockRejectedValue(
+      new ApiError(409, "conflict", { code: "STALE_VERSION" }),
+    );
+    const out = await updateEntryAction("alpha", "e1", { content: "v2" });
+    expect(out).toEqual({ ok: false, reason: "stale" });
+  });
+
   it("maps a 400 to reason=validation carrying the backend reason", async () => {
     apiMocks.createEntry.mockRejectedValue(
       new ApiError(400, "bad request", { message: "content exceeds 1500 characters" }),

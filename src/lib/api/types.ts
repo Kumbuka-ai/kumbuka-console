@@ -62,6 +62,28 @@ export type EntryView = {
   updatedAt: string;
 };
 
+/**
+ * The backend `EntryView` wire shape (mirrors `AdminDtos.EntryView`). ADR-0024
+ * Amendment 3 made `logicalId` the entry's reference identity, so the wire field
+ * is `logicalId` (not `id`); `deriveEntryView` maps it to the internal
+ * `EntryView.id` at the adapter seam. `updatedBy`/`updatedSource` (Amendment 4)
+ * are received here so the type is honest, but deliberately NOT mapped onto the
+ * internal `EntryView` — a "last edited by" display is a later feature.
+ */
+export type RawEntryView = {
+  logicalId: string;
+  type: EntryType;
+  key: string | null;
+  content: string;
+  reference: string | null;
+  authorSubject: string;
+  source: EntrySource;
+  updatedBy: string | null;
+  updatedSource: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type WritePolicy = "ask" | "project" | "global";
 export type CreateScopes = "admins" | "members";
 export type DefaultScopeStatus = "ok" | "missing" | "archived" | "invalid";
@@ -249,7 +271,14 @@ export type UpdateEntryRequest = { type?: EntryType; content?: string; reference
  * the editor can render a translated message instead of crashing the render
  * (SESSION_016/017). `validation` may carry the backend's specific reason.
  */
-export type EntryWriteError = "muted" | "forbidden" | "protected" | "exists" | "validation" | "generic";
+export type EntryWriteError =
+  | "muted"
+  | "forbidden"
+  | "protected"
+  | "exists"
+  | "validation"
+  | "stale"
+  | "generic";
 export type EntryActionResult =
   | { ok: true }
   | { ok: false; reason: EntryWriteError; detail?: string };

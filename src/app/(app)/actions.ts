@@ -66,6 +66,11 @@ function mapApiError(err: ApiError): WriteFailure {
   if (err.status === 409 && body?.code === "KEY_EXISTS") {
     return { ok: false, reason: "exists" };
   }
+  // §A1.6 optimistic locking: a concurrent edit advanced the version under this
+  // write — offer a reload-and-retry, never a silent clobber.
+  if (err.status === 409 && body?.code === "STALE_VERSION") {
+    return { ok: false, reason: "stale" };
+  }
   if (err.status === 400) {
     return { ok: false, reason: "validation", detail: body?.message };
   }
