@@ -15,6 +15,7 @@ import type {
   InviteUserRequest,
   MemberDirectoryEntry,
   OverviewView,
+  RawEntryView,
   RawUserView,
   ScopeView,
   SessionView,
@@ -53,10 +54,38 @@ export const unarchiveScope = (slug: string) =>
   serverFetch<void>(`/api/scopes/${encodeURIComponent(slug)}:unarchive`, { method: "POST" });
 
 // ---------- Entries ----------------------------------------------------
-export const listEntries = (slug: string) =>
-  serverFetch<EntryView[]>(`/api/scopes/${encodeURIComponent(slug)}/entries`);
-export const createEntry = (slug: string, req: CreateEntryRequest) =>
-  serverFetch<EntryView>(`/api/scopes/${encodeURIComponent(slug)}/entries`, { method: "POST", body: req });
+/**
+ * Anti-corruption seam (mirrors `deriveUserView`): the backend `EntryView` wire
+ * shape addresses the entry by `logicalId` (ADR-0024 Amendment 3), so we map it
+ * to the internal `EntryView.id` here and keep the UI on `id`. The Amendment 4
+ * `updatedBy`/`updatedSource` fields are received on `RawEntryView` but
+ * deliberately dropped — not mapped, not displayed (a later feature).
+ */
+function deriveEntryView(raw: RawEntryView): EntryView {
+  return {
+    id: raw.logicalId,
+    type: raw.type,
+    key: raw.key,
+    content: raw.content,
+    reference: raw.reference,
+    authorSubject: raw.authorSubject,
+    source: raw.source,
+    createdAt: raw.createdAt,
+    updatedAt: raw.updatedAt,
+  };
+}
+
+export async function listEntries(slug: string): Promise<EntryView[]> {
+  const raw = await serverFetch<RawEntryView[]>(`/api/scopes/${encodeURIComponent(slug)}/entries`);
+  return raw.map(deriveEntryView);
+}
+export async function createEntry(slug: string, req: CreateEntryRequest): Promise<EntryView> {
+  const raw = await serverFetch<RawEntryView>(`/api/scopes/${encodeURIComponent(slug)}/entries`, {
+    method: "POST",
+    body: req,
+  });
+  return deriveEntryView(raw);
+}
 // D-CORE-17: re-home an entry to another shared scope (admin). Optional key
 // override dodges a target key-collision.
 export const remapEntry = (sourceSlug: string, id: string, targetScope: string, key?: string) =>
@@ -64,11 +93,17 @@ export const remapEntry = (sourceSlug: string, id: string, targetScope: string, 
     `/api/scopes/${encodeURIComponent(sourceSlug)}/entries/${encodeURIComponent(id)}:remap`,
     { method: "POST", body: key ? { targetScope, key } : { targetScope } },
   );
-export const updateEntry = (slug: string, id: string, req: UpdateEntryRequest) =>
-  serverFetch<EntryView>(`/api/scopes/${encodeURIComponent(slug)}/entries/${encodeURIComponent(id)}`, {
-    method: "PATCH",
-    body: req,
-  });
+export async function updateEntry(
+  slug: string,
+  id: string,
+  req: UpdateEntryRequest,
+): Promise<EntryView> {
+  const raw = await serverFetch<RawEntryView>(
+    `/api/scopes/${encodeURIComponent(slug)}/entries/${encodeURIComponent(id)}`,
+    { method: "PATCH", body: req },
+  );
+  return deriveEntryView(raw);
+}
 export const deleteEntry = (slug: string, id: string) =>
   serverFetch<void>(`/api/scopes/${encodeURIComponent(slug)}/entries/${encodeURIComponent(id)}`, {
     method: "DELETE",
