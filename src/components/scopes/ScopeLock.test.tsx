@@ -35,18 +35,18 @@ function renderLock(locked: boolean, isAdmin: boolean) {
 }
 
 describe("ScopeLock — member (non-interactive status)", () => {
-  it("open scope: role=status, never a button, open-state tooltip", () => {
+  it("open scope: implicit status role (an <output>), never a button, open-state tooltip", () => {
     const { container } = renderLock(false, false);
     const el = container.querySelector(".scope-lock")!;
-    expect(el.tagName).toBe("SPAN");
-    expect(el.getAttribute("role")).toBe("status");
+    expect(el.tagName).toBe("OUTPUT"); // <output> carries an implicit role=status
+    expect(screen.getByRole("status")).toBe(el);
     expect(el.getAttribute("title")).toMatch(/scope is open/i);
   });
 
   it("locked scope: grey status with the read-only tooltip", () => {
     const { container } = renderLock(true, false);
     const el = container.querySelector(".scope-lock")!;
-    expect(el.tagName).toBe("SPAN");
+    expect(el.tagName).toBe("OUTPUT");
     expect(el.getAttribute("title")).toMatch(/read-only/i);
   });
 });
@@ -83,5 +83,16 @@ describe("ScopeLock — admin (toggle button)", () => {
 
     await waitFor(() => expect(unlockMock).toHaveBeenCalledWith("atlas-web"));
     expect(lockMock).not.toHaveBeenCalled();
+  });
+
+  it("a failed toggle surfaces an error and keeps the confirm open", async () => {
+    lockMock.mockReset().mockResolvedValue({ ok: false });
+    const { container } = renderLock(false, true);
+    fireEvent.click(container.querySelector<HTMLButtonElement>(".scope-lock")!);
+    fireEvent.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: /lock content/i }));
+
+    await waitFor(() => expect(lockMock).toHaveBeenCalledWith("atlas-web"));
+    // the !ok branch returns early (no setConfirm(false)) → the dialog stays.
+    expect(screen.getByRole("alertdialog")).toBeTruthy();
   });
 });

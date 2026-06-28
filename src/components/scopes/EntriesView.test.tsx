@@ -63,11 +63,11 @@ const openRowMenu = (container: HTMLElement) =>
   fireEvent.click(container.querySelector<HTMLButtonElement>(".row-menu-btn")!);
 
 describe("EntriesView — locked scope, member (FEAT-19 §B2)", () => {
-  it("the lock control is a non-interactive status, never a button", () => {
+  it("the lock control is a non-interactive status (an <output>), never a button", () => {
     const { container } = renderView();
     const lock = container.querySelector(".scope-lock")!;
-    expect(lock.tagName).toBe("SPAN");
-    expect(lock.getAttribute("role")).toBe("status");
+    expect(lock.tagName).toBe("OUTPUT"); // implicit role=status, not a button
+    expect(lock.tagName).not.toBe("BUTTON");
   });
 
   it("renders the read-only lock-band over the list", () => {

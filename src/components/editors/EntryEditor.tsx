@@ -21,6 +21,49 @@ function isMalformedKey(key: string): boolean {
   return k.length > 0 && !KEY_RE.test(k);
 }
 
+type Mode = {
+  /** Entry-level system-seed lock (D-CORE-11) — always read-only. */
+  systemLocked: boolean;
+  /** Member viewing an entry in a content-locked scope (read-only "View"). */
+  memberView: boolean;
+  /** Admin editing in a locked scope, before the "Edit despite lock" gesture. */
+  lockHold: boolean;
+  /** Admin editing in a locked scope, after the gesture (Cancel resets). */
+  overrideEdit: boolean;
+  /** Fields are non-editable. */
+  readOnlyFields: boolean;
+  /** The write, when it lands, is an audited admin override. */
+  overrideActive: boolean;
+  /** A fully read-only entry (system seed or member view) — OK-to-close footer. */
+  readOnly: boolean;
+};
+
+// FEAT-19 / D-CORE-18: derive the editor's lock mode. Kept out of the component
+// so the && composition doesn't blow the cognitive-complexity gate. The entry
+// axis (systemLocked) and the scope axis compose — never replace each other.
+function lockMode(
+  editing: boolean,
+  isSystemSeed: boolean,
+  scopeLocked: boolean,
+  isAdmin: boolean,
+  override: boolean,
+): Mode {
+  const systemLocked = editing && isSystemSeed;
+  const memberView = scopeLocked && !isAdmin && !systemLocked;
+  const adminEditLocked = scopeLocked && isAdmin && editing && !systemLocked;
+  const adminCreateLocked = scopeLocked && isAdmin && !editing;
+  const lockHold = adminEditLocked && !override;
+  return {
+    systemLocked,
+    memberView,
+    lockHold,
+    overrideEdit: adminEditLocked && override,
+    readOnlyFields: systemLocked || memberView || lockHold,
+    overrideActive: (adminEditLocked && override) || adminCreateLocked,
+    readOnly: systemLocked || memberView,
+  };
+}
+
 export function EntryEditor({
   entry,
   scope,
@@ -42,21 +85,8 @@ export function EntryEditor({
   onClose: () => void;
 }>) {
   const editing = !!entry;
-  // Entry-level lock (D-CORE-11): a protected system-seed entry is always
-  // read-only, regardless of who opens it or whether the scope is locked. This
-  // axis composes with — and is never replaced by — the scope-lock below.
-  const systemLocked = editing && entry?.authorSubject === SYSTEM_SUBJECT;
-
-  // FEAT-19 / D-CORE-18 scope-lock editor states (B3):
-  //  - member: a fully read-only "View" of an entry in a locked scope.
-  //  - admin editing an EXISTING entry: read-only until an explicit
-  //    "Edit despite lock" gesture flips `override` on.
-  //  - admin CREATING in a locked scope: the create IS the override (nothing to
-  //    protect yet), so it starts enabled but shows the same audit note.
-  const memberView = scopeLocked && !isAdmin && !systemLocked;
-  const adminEditLocked = scopeLocked && isAdmin && editing && !systemLocked;
-  const adminCreateLocked = scopeLocked && isAdmin && !editing;
   const [override, setOverride] = useState(false);
+  const m = lockMode(editing, entry?.authorSubject === SYSTEM_SUBJECT, scopeLocked, isAdmin, override);
 
   const [type, setType] = useState<EntryType>(entry?.type ?? "decision");
   const [key, setKey] = useState(entry?.key ?? "");
@@ -68,17 +98,11 @@ export function EntryEditor({
   const tErr = useTranslations("entryError");
   const tTypes = useTranslations("entryTypes");
 
-  // Fields are read-only when the entry is a system seed, when a member views a
-  // locked scope, or when an admin hasn't yet taken the override gesture.
-  const readOnlyFields = systemLocked || memberView || (adminEditLocked && !override);
-  // The write, when it lands, is an audited admin override (drives the note + toast).
-  const overrideActive = (adminEditLocked && override) || adminCreateLocked;
-
   const keyInvalid = isMalformedKey(key);
   // D-CORE-16: on a NEW entry, a key already in this scope collides (no overwrite).
   // Editing an existing entry by its own key never collides (you're editing it).
   const keyCollides = !editing && key.trim().length > 0 && existingKeys.includes(key.trim());
-  const canSave = !readOnlyFields && content.trim().length > 0 && !keyInvalid && !keyCollides && !pending;
+  const canSave = !m.readOnlyFields && content.trim().length > 0 && !keyInvalid && !keyCollides && !pending;
 
   const submit = () => {
     if (!canSave) return;
@@ -102,8 +126,9 @@ export function EntryEditor({
         toast.push({ message: entryWriteErrorMessage(res, tErr) });
         return;
       }
+      // Flat (no nested ternary): the override toast wins when the write was one.
       let okMsg = editing ? t("updated") : t("created", { slug: scope.slug });
-      if (overrideActive) okMsg = t("override.saved");
+      if (m.overrideActive) okMsg = t("override.saved");
       toast.push({ message: okMsg });
       onClose();
     });
@@ -111,7 +136,7 @@ export function EntryEditor({
 
   let title = editing ? t("editTitle") : t("newTitle");
   let aria = editing ? t("editAria") : t("newAria");
-  if (memberView) {
+  if (m.memberView) {
     title = t("viewTitle");
     aria = t("viewAria");
   }
@@ -124,9 +149,9 @@ export function EntryEditor({
       onClose={onClose}
       footer={
         <EditorFooter
-          readOnly={systemLocked || memberView}
-          lockHold={adminEditLocked && !override}
-          overrideEdit={adminEditLocked && override}
+          readOnly={m.readOnly}
+          lockHold={m.lockHold}
+          overrideEdit={m.overrideEdit}
           editing={editing}
           entry={entry}
           canSave={canSave}
@@ -137,24 +162,7 @@ export function EntryEditor({
         />
       }
     >
-      {memberView ? (
-        <div className="override-band" role="status">
-          <Icon name="lock" />
-          <span>{t("override.memberBand")}</span>
-        </div>
-      ) : null}
-      {adminEditLocked && !override ? (
-        <div className="override-band" role="status">
-          <Icon name="lock" />
-          <span>{t("override.lockHoldBand")}</span>
-        </div>
-      ) : null}
-      {overrideActive ? (
-        <div className="override-band warn" role="status">
-          <Icon name="warn" />
-          <span>{t("override.band")}</span>
-        </div>
-      ) : null}
+      <OverrideBanner memberView={m.memberView} lockHold={m.lockHold} overrideActive={m.overrideActive} t={t} />
 
       <Field label={t("typeLabel")} required>
         <div className="type-grid">
@@ -164,7 +172,7 @@ export function EntryEditor({
               type="button"
               className={`type-opt${type === et ? " on" : ""}`}
               style={{ ["--tc" as unknown as string]: `var(--type-${et})` }}
-              disabled={readOnlyFields}
+              disabled={m.readOnlyFields}
               onClick={() => setType(et)}
             >
               <span className="sw" />
@@ -180,7 +188,7 @@ export function EntryEditor({
           className={`input mono${keyInvalid || keyCollides ? " invalid" : ""}`}
           value={key}
           spellCheck={false}
-          disabled={editing || readOnlyFields}
+          disabled={editing || m.readOnlyFields}
           aria-invalid={keyInvalid || keyCollides || undefined}
           placeholder={t("keyPlaceholder")}
           onChange={(e) => setKey(e.target.value.replace(/\s+/g, "-").toLowerCase())}
@@ -196,7 +204,7 @@ export function EntryEditor({
           className="textarea"
           value={content}
           rows={6}
-          readOnly={readOnlyFields}
+          readOnly={m.readOnlyFields}
           placeholder={t("contentPlaceholder")}
           onChange={(e) => setContent(e.target.value)}
         />
@@ -208,7 +216,7 @@ export function EntryEditor({
           type="url"
           value={reference}
           spellCheck={false}
-          readOnly={readOnlyFields}
+          readOnly={m.readOnlyFields}
           placeholder={t("refPlaceholder")}
           onChange={(e) => setReference(e.target.value)}
         />
@@ -232,8 +240,47 @@ export function EntryEditor({
   );
 }
 
+/** The read-only / override notice band at the top of the editor (B3). */
+function OverrideBanner({
+  memberView,
+  lockHold,
+  overrideActive,
+  t,
+}: Readonly<{
+  memberView: boolean;
+  lockHold: boolean;
+  overrideActive: boolean;
+  t: ReturnType<typeof useTranslations<"editors.entry">>;
+}>) {
+  if (memberView) {
+    return (
+      <output className="override-band">
+        <Icon name="lock" />
+        <span>{t("override.memberBand")}</span>
+      </output>
+    );
+  }
+  if (lockHold) {
+    return (
+      <output className="override-band">
+        <Icon name="lock" />
+        <span>{t("override.lockHoldBand")}</span>
+      </output>
+    );
+  }
+  if (overrideActive) {
+    return (
+      <output className="override-band warn">
+        <Icon name="warn" />
+        <span>{t("override.band")}</span>
+      </output>
+    );
+  }
+  return null;
+}
+
 /**
- * The editor's footer. Extracted so EntryEditor itself stays under the cognitive
+ * The editor's footer. Extracted so EntryEditor stays under the cognitive
  * complexity gate. Modes: a read-only entry (system seed / member view) gets an
  * OK to close; an admin holding a locked scope gets an explicit "Edit despite
  * lock" gesture; otherwise the normal Cancel + Save (Cancel resets the override

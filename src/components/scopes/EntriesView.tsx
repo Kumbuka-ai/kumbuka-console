@@ -248,6 +248,11 @@ export function EntriesView({
   if (scope.kind === "global") kindLabel = t("kind.globalFixed");
   else if (isArchived) kindLabel = t("kind.archived");
 
+  // Flat (no nested ternary): the override variant vs. the normal delete, with
+  // the working label while the action is in flight.
+  let deleteConfirmLabel = deleteOverride ? t("deleteOverride.confirm") : t("deleteConfirm.confirm");
+  if (pending) deleteConfirmLabel = t("deleteConfirm.working");
+
   return (
     <>
       <section className="entries-pane">
@@ -324,10 +329,10 @@ export function EntriesView({
         {/* B2: read-only status band over the list when the scope is content-locked.
             Distinct from WriteNote (muted/global/archived) — role-dependent copy. */}
         {scope.locked ? (
-          <div className="lock-band" role="status">
+          <output className="lock-band">
             <Icon name="lock" />
             <span>{isAdmin ? t("lockBand.admin") : t("lockBand.member")}</span>
-          </div>
+          </output>
         ) : null}
 
         <div className="entries-body">
@@ -517,13 +522,7 @@ export function EntriesView({
           title={deleteOverride ? t("deleteOverride.title") : t("deleteConfirm.title")}
           body={deleteOverride ? t("deleteOverride.body") : t("deleteConfirm.body")}
           target={confirmDel.key ?? confirmDel.content.slice(0, 60) + "…"}
-          confirmLabel={
-            pending
-              ? t("deleteConfirm.working")
-              : deleteOverride
-                ? t("deleteOverride.confirm")
-                : t("deleteConfirm.confirm")
-          }
+          confirmLabel={deleteConfirmLabel}
           confirmIcon="trash"
           danger
           lockWarn={deleteOverride}

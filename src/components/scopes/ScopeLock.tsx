@@ -11,49 +11,70 @@ import type { ScopeView } from "@/lib/api/types";
 /**
  * FEAT-19 / D-CORE-18 scope content-lock control (icon-only), in the entries
  * header. Visible to everyone — it reflects the lock state — but only an admin
- * can toggle it. The server is the guarantee (a member who forged a call is
- * rejected by @RolesAllowed); this is UX + the endpoint call. The console never
- * audits: the server emits the scope.lock / scope.unlock governance event.
+ * can toggle it. The server is the guarantee; this is UX + the endpoint call.
+ * The console never audits: the server emits the scope.lock / scope.unlock event.
  *
- * Admin: a real <button aria-pressed> (closed lock = locked/accent, open lock =
- * unlocked/grey) that opens a plain confirm with an audit hint. Member: a
- * non-interactive role="status" badge — never a button — so the lock state is
- * transparent without offering an action they can't take.
+ * Admin: a real <button aria-pressed> (closed lock/accent when locked, open
+ * lock/grey when unlocked) that opens a plain confirm with an audit hint.
+ * Member: a non-interactive status badge (an <output>, implicit role="status")
+ * — never a button — so the lock state is transparent without an action they
+ * can't take.
  */
 export function ScopeLock({ scope, isAdmin }: Readonly<{ scope: ScopeView; isAdmin: boolean }>) {
   const t = useTranslations("scopes.lock");
+  if (!isAdmin) return <MemberLockBadge locked={scope.locked} t={t} />;
+  return <AdminLockToggle scope={scope} t={t} />;
+}
+
+type T = ReturnType<typeof useTranslations<"scopes.lock">>;
+
+function MemberLockBadge({ locked, t }: Readonly<{ locked: boolean; t: T }>) {
+  const tip = locked ? t("tip.memberLocked") : t("tip.memberOpen");
+  return (
+    <output className={`scope-lock member${locked ? " locked" : ""}`} title={tip} aria-label={tip}>
+      <Icon name={locked ? "lock" : "lockOpen"} />
+    </output>
+  );
+}
+
+function AdminLockToggle({ scope, t }: Readonly<{ scope: ScopeView; t: T }>) {
   const toast = useToast();
   const [confirm, setConfirm] = useState(false);
   const [pending, start] = useTransition();
   const locked = scope.locked;
-  const iconName = locked ? "lock" : "lockOpen";
 
-  // Member: non-interactive status reflecting the state (design §B1).
-  if (!isAdmin) {
-    const tip = locked ? t("tip.memberLocked") : t("tip.memberOpen");
-    return (
-      <span
-        className={`scope-lock member${locked ? " locked" : ""}`}
-        role="status"
-        title={tip}
-        aria-label={tip}
-      >
-        <Icon name={iconName} />
-      </span>
-    );
-  }
-
-  const tip = locked ? t("tip.adminLocked") : t("tip.adminOpen");
+  // One ternary collapses the whole open/locked copy + action — keeps this
+  // component well under the cognitive-complexity gate.
+  const c = locked
+    ? {
+        tip: t("tip.adminLocked"),
+        eyebrow: t("confirm.unlockEyebrow"),
+        title: t("confirm.unlockTitle", { slug: scope.slug }),
+        body: t("confirm.unlockBody"),
+        confirm: t("confirm.unlock"),
+        icon: "lockOpen" as const,
+        run: unlockScopeAction,
+        done: t("toast.unlocked"),
+      }
+    : {
+        tip: t("tip.adminOpen"),
+        eyebrow: t("confirm.lockEyebrow"),
+        title: t("confirm.lockTitle", { slug: scope.slug }),
+        body: t("confirm.lockBody"),
+        confirm: t("confirm.lock"),
+        icon: "lock" as const,
+        run: lockScopeAction,
+        done: t("toast.locked"),
+      };
 
   const apply = () => {
     start(async () => {
-      const action = locked ? unlockScopeAction : lockScopeAction;
-      const res = await action(scope.slug).catch(() => ({ ok: false as const }));
+      const res = await c.run(scope.slug).catch(() => ({ ok: false as const }));
       if (!res.ok) {
         toast.push({ message: t("toast.failed") });
         return;
       }
-      toast.push({ message: locked ? t("toast.unlocked") : t("toast.locked") });
+      toast.push({ message: c.done });
       setConfirm(false);
     });
   };
@@ -64,20 +85,20 @@ export function ScopeLock({ scope, isAdmin }: Readonly<{ scope: ScopeView; isAdm
         type="button"
         className={`scope-lock admin${locked ? " locked" : ""}`}
         aria-pressed={locked}
-        title={tip}
-        aria-label={tip}
+        title={c.tip}
+        aria-label={c.tip}
         onClick={() => setConfirm(true)}
       >
-        <Icon name={iconName} />
+        <Icon name={locked ? "lock" : "lockOpen"} />
       </button>
       {confirm ? (
         <ConfirmModal
-          eyebrow={locked ? t("confirm.unlockEyebrow") : t("confirm.lockEyebrow")}
-          title={locked ? t("confirm.unlockTitle", { slug: scope.slug }) : t("confirm.lockTitle", { slug: scope.slug })}
-          body={locked ? t("confirm.unlockBody") : t("confirm.lockBody")}
+          eyebrow={c.eyebrow}
+          title={c.title}
+          body={c.body}
           target={scope.slug}
-          confirmLabel={pending ? t("confirm.working") : locked ? t("confirm.unlock") : t("confirm.lock")}
-          confirmIcon={locked ? "lockOpen" : "lock"}
+          confirmLabel={pending ? t("confirm.working") : c.confirm}
+          confirmIcon={c.icon}
           onCancel={() => setConfirm(false)}
           onConfirm={apply}
         />

@@ -78,6 +78,14 @@ describe("impl-live thin REST wrappers", () => {
     expect(serverFetchMock).toHaveBeenCalledWith("/api/scopes/alpha:archive", { method: "POST" });
   });
 
+  it("lockScope / unlockScope POST to the ':lock' / ':unlock' subresources (FEAT-19)", async () => {
+    serverFetchMock.mockResolvedValue(undefined);
+    await live.lockScope("atlas web");
+    expect(serverFetchMock).toHaveBeenCalledWith("/api/scopes/atlas%20web:lock", { method: "POST" });
+    await live.unlockScope("atlas-web");
+    expect(serverFetchMock).toHaveBeenCalledWith("/api/scopes/atlas-web:unlock", { method: "POST" });
+  });
+
   // ---------- Entries ----------------------------------------------------
 
   it("listEntries URL-encodes the slug", async () => {
