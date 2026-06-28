@@ -52,6 +52,11 @@ export const archiveScope = (slug: string) =>
   serverFetch<void>(`/api/scopes/${encodeURIComponent(slug)}:archive`, { method: "POST" });
 export const unarchiveScope = (slug: string) =>
   serverFetch<void>(`/api/scopes/${encodeURIComponent(slug)}:unarchive`, { method: "POST" });
+// FEAT-19 / D-CORE-18: content-lock toggle (admin-only, 204). Mirrors archive/unarchive.
+export const lockScope = (slug: string) =>
+  serverFetch<void>(`/api/scopes/${encodeURIComponent(slug)}:lock`, { method: "POST" });
+export const unlockScope = (slug: string) =>
+  serverFetch<void>(`/api/scopes/${encodeURIComponent(slug)}:unlock`, { method: "POST" });
 
 // ---------- Entries ----------------------------------------------------
 /**

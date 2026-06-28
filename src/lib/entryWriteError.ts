@@ -18,6 +18,8 @@ export function entryWriteErrorMessage(
       return t("onlyAdmins");
     case "protected":
       return t("protected");
+    case "readOnly":
+      return t("readOnly");
     case "exists":
       return t("exists");
     case "validation":

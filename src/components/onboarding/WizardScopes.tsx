@@ -55,6 +55,7 @@ export function WizardScopes({
     kind: "project",
     fixed: false,
     archived: false,
+    locked: false,
     description: null,
     entryCount: 0,
     createdAt: "",

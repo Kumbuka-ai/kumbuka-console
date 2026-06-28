@@ -25,6 +25,8 @@ export function EntryEditor({
   entry,
   scope,
   existingKeys = [],
+  scopeLocked = false,
+  isAdmin = false,
   onClose,
 }: Readonly<{
   entry: EntryView | null;
@@ -33,12 +35,29 @@ export function EntryEditor({
    *  curator renames instead of silently overwriting (dogfood-21). The server 409
    *  KEY_EXISTS is the backstop for the race/unloaded case. */
   existingKeys?: readonly string[];
+  /** FEAT-19 / D-CORE-18: the scope carries the content lock. */
+  scopeLocked?: boolean;
+  /** FEAT-19: an admin may override a locked scope (audited server-side). */
+  isAdmin?: boolean;
   onClose: () => void;
 }>) {
   const editing = !!entry;
-  // Protected D-CORE-11 system-seed entries are read-only: view the content,
-  // can't change type/key/content, no save/cancel — just an OK to close.
-  const locked = editing && entry?.authorSubject === SYSTEM_SUBJECT;
+  // Entry-level lock (D-CORE-11): a protected system-seed entry is always
+  // read-only, regardless of who opens it or whether the scope is locked. This
+  // axis composes with — and is never replaced by — the scope-lock below.
+  const systemLocked = editing && entry?.authorSubject === SYSTEM_SUBJECT;
+
+  // FEAT-19 / D-CORE-18 scope-lock editor states (B3):
+  //  - member: a fully read-only "View" of an entry in a locked scope.
+  //  - admin editing an EXISTING entry: read-only until an explicit
+  //    "Edit despite lock" gesture flips `override` on.
+  //  - admin CREATING in a locked scope: the create IS the override (nothing to
+  //    protect yet), so it starts enabled but shows the same audit note.
+  const memberView = scopeLocked && !isAdmin && !systemLocked;
+  const adminEditLocked = scopeLocked && isAdmin && editing && !systemLocked;
+  const adminCreateLocked = scopeLocked && isAdmin && !editing;
+  const [override, setOverride] = useState(false);
+
   const [type, setType] = useState<EntryType>(entry?.type ?? "decision");
   const [key, setKey] = useState(entry?.key ?? "");
   const [content, setContent] = useState(entry?.content ?? "");
@@ -49,11 +68,17 @@ export function EntryEditor({
   const tErr = useTranslations("entryError");
   const tTypes = useTranslations("entryTypes");
 
+  // Fields are read-only when the entry is a system seed, when a member views a
+  // locked scope, or when an admin hasn't yet taken the override gesture.
+  const readOnlyFields = systemLocked || memberView || (adminEditLocked && !override);
+  // The write, when it lands, is an audited admin override (drives the note + toast).
+  const overrideActive = (adminEditLocked && override) || adminCreateLocked;
+
   const keyInvalid = isMalformedKey(key);
   // D-CORE-16: on a NEW entry, a key already in this scope collides (no overwrite).
   // Editing an existing entry by its own key never collides (you're editing it).
   const keyCollides = !editing && key.trim().length > 0 && existingKeys.includes(key.trim());
-  const canSave = content.trim().length > 0 && !keyInvalid && !keyCollides && !pending;
+  const canSave = !readOnlyFields && content.trim().length > 0 && !keyInvalid && !keyCollides && !pending;
 
   const submit = () => {
     if (!canSave) return;
@@ -77,28 +102,60 @@ export function EntryEditor({
         toast.push({ message: entryWriteErrorMessage(res, tErr) });
         return;
       }
-      toast.push({ message: editing ? t("updated") : t("created", { slug: scope.slug }) });
+      let okMsg = editing ? t("updated") : t("created", { slug: scope.slug });
+      if (overrideActive) okMsg = t("override.saved");
+      toast.push({ message: okMsg });
       onClose();
     });
   };
 
+  let title = editing ? t("editTitle") : t("newTitle");
+  let aria = editing ? t("editAria") : t("newAria");
+  if (memberView) {
+    title = t("viewTitle");
+    aria = t("viewAria");
+  }
+
   return (
     <SidePanel
-      ariaLabel={editing ? t("editAria") : t("newAria")}
+      ariaLabel={aria}
       eyebrow={editing ? t("eyebrowEdit", { slug: scope.slug }) : t("eyebrowNew", { slug: scope.slug })}
-      title={editing ? t("editTitle") : t("newTitle")}
+      title={title}
       onClose={onClose}
       footer={
         <EditorFooter
-          locked={locked}
+          readOnly={systemLocked || memberView}
+          lockHold={adminEditLocked && !override}
+          overrideEdit={adminEditLocked && override}
           editing={editing}
           entry={entry}
           canSave={canSave}
+          onEnterOverride={() => setOverride(true)}
+          onCancelOverride={() => setOverride(false)}
           onClose={onClose}
           onSubmit={submit}
         />
       }
     >
+      {memberView ? (
+        <div className="override-band" role="status">
+          <Icon name="lock" />
+          <span>{t("override.memberBand")}</span>
+        </div>
+      ) : null}
+      {adminEditLocked && !override ? (
+        <div className="override-band" role="status">
+          <Icon name="lock" />
+          <span>{t("override.lockHoldBand")}</span>
+        </div>
+      ) : null}
+      {overrideActive ? (
+        <div className="override-band warn" role="status">
+          <Icon name="warn" />
+          <span>{t("override.band")}</span>
+        </div>
+      ) : null}
+
       <Field label={t("typeLabel")} required>
         <div className="type-grid">
           {ENTRY_TYPE_ORDER.map((et) => (
@@ -107,7 +164,7 @@ export function EntryEditor({
               type="button"
               className={`type-opt${type === et ? " on" : ""}`}
               style={{ ["--tc" as unknown as string]: `var(--type-${et})` }}
-              disabled={locked}
+              disabled={readOnlyFields}
               onClick={() => setType(et)}
             >
               <span className="sw" />
@@ -123,7 +180,7 @@ export function EntryEditor({
           className={`input mono${keyInvalid || keyCollides ? " invalid" : ""}`}
           value={key}
           spellCheck={false}
-          disabled={editing}
+          disabled={editing || readOnlyFields}
           aria-invalid={keyInvalid || keyCollides || undefined}
           placeholder={t("keyPlaceholder")}
           onChange={(e) => setKey(e.target.value.replace(/\s+/g, "-").toLowerCase())}
@@ -139,7 +196,7 @@ export function EntryEditor({
           className="textarea"
           value={content}
           rows={6}
-          readOnly={locked}
+          readOnly={readOnlyFields}
           placeholder={t("contentPlaceholder")}
           onChange={(e) => setContent(e.target.value)}
         />
@@ -151,7 +208,7 @@ export function EntryEditor({
           type="url"
           value={reference}
           spellCheck={false}
-          readOnly={locked}
+          readOnly={readOnlyFields}
           placeholder={t("refPlaceholder")}
           onChange={(e) => setReference(e.target.value)}
         />
@@ -177,31 +234,53 @@ export function EntryEditor({
 
 /**
  * The editor's footer. Extracted so EntryEditor itself stays under the cognitive
- * complexity gate (the locked/editing branching lives here, not in the parent).
- * Locked = a protected system seed: just an OK to close.
+ * complexity gate. Modes: a read-only entry (system seed / member view) gets an
+ * OK to close; an admin holding a locked scope gets an explicit "Edit despite
+ * lock" gesture; otherwise the normal Cancel + Save (Cancel resets the override
+ * when one is in progress).
  */
 function EditorFooter({
-  locked,
+  readOnly,
+  lockHold,
+  overrideEdit,
   editing,
   entry,
   canSave,
+  onEnterOverride,
+  onCancelOverride,
   onClose,
   onSubmit,
 }: Readonly<{
-  locked: boolean;
+  readOnly: boolean;
+  lockHold: boolean;
+  overrideEdit: boolean;
   editing: boolean;
   entry: EntryView | null;
   canSave: boolean;
+  onEnterOverride: () => void;
+  onCancelOverride: () => void;
   onClose: () => void;
   onSubmit: () => void;
 }>) {
   const t = useTranslations("editors.entry");
   const tCommon = useTranslations("common");
-  if (locked) {
+  if (readOnly) {
     return (
       <>
         <span className="spacer" />
         <Button variant="primary" onClick={onClose}>{tCommon("ok")}</Button>
+      </>
+    );
+  }
+  if (lockHold) {
+    return (
+      <>
+        <span className="spacer" />
+        <Button onClick={onClose}>{tCommon("cancel")}</Button>
+        <Button variant="primary" onClick={onEnterOverride}>
+          <Icon name="edit" />
+          <span className="txt">{t("override.editDespite")}</span>
+        </Button>
       </>
     );
   }
@@ -216,7 +295,7 @@ function EditorFooter({
         </span>
       ) : null}
       <span className="spacer" />
-      <Button onClick={onClose}>{tCommon("cancel")}</Button>
+      <Button onClick={overrideEdit ? onCancelOverride : onClose}>{tCommon("cancel")}</Button>
       <Button variant="primary" disabled={!canSave} onClick={onSubmit}>
         <Icon name="check" />
         <span className="txt">{editing ? t("saveChanges") : t("create")}</span>

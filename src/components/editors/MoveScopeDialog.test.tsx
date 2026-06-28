@@ -20,6 +20,7 @@ const scope = (slug: string, over: Partial<ScopeView> = {}): ScopeView => ({
   kind: "project",
   fixed: false,
   archived: false,
+  locked: false,
   description: null,
   entryCount: 0,
   createdAt: "2026-06-18T00:00:00Z",

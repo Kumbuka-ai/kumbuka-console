@@ -372,10 +372,40 @@
     },
     "entryMenu": {
       "edit": "Edit",
+      "view": "View",
       "copyKey": "Copy key",
       "delete": "Delete",
       "protectedHint": "This entry is required for Kumbuka to work correctly and can't be deleted.",
+      "lockedDeleteHint": "Read-only — delete blocked. Only an admin can delete entries in a locked scope.",
       "move": "Move to scope…"
+    },
+    "lock": {
+      "tip": {
+        "adminOpen": "Click to make this scope read-only. Members keep read & copy-out; only admins can override entries. Recorded in the audit log.",
+        "adminLocked": "This scope is read-only — members can't add, edit, or delete entries. Click to unlock. Recorded in the audit log.",
+        "memberLocked": "This scope is read-only — only admins can change entries, and only from the console.",
+        "memberOpen": "This scope is open — members can add and edit entries here."
+      },
+      "confirm": {
+        "lockEyebrow": "lock scope",
+        "unlockEyebrow": "unlock scope",
+        "lockTitle": "Make {slug} read-only?",
+        "unlockTitle": "Unlock {slug}?",
+        "lockBody": "Members will no longer be able to add, edit, or delete entries here — they keep read and copy-out. Admins can still override individual entries, only from the console. This is recorded in the audit log.",
+        "unlockBody": "Members will be able to add, edit, and delete entries here again. This is recorded in the audit log.",
+        "lock": "Lock content",
+        "unlock": "Unlock",
+        "working": "Saving…"
+      },
+      "toast": {
+        "locked": "Scope locked · recorded in audit log",
+        "unlocked": "Scope unlocked · recorded in audit log",
+        "failed": "Couldn't change the lock — please try again."
+      }
+    },
+    "lockBand": {
+      "member": "This scope is read-only. You can read entries and copy them out — only admins can add, edit, or delete here, and only from the console.",
+      "admin": "This scope is read-only for members. Your changes here save as admin overrides and are recorded in the audit log."
     },
     "toast": {
       "idCopied": "Scope id copied",
@@ -385,7 +415,7 @@
       "archived": "Scope {slug} archived",
       "archiveFailed": "Archive failed",
       "keyCopied": "Key copied",
-      "entryDeleted": "Entry deleted",
+      "entryDeleted": "Entry deleted · permanent",
       "deleteFailed": "Delete failed"
     },
     "archiveConfirm": {
@@ -437,9 +467,15 @@
     "deleteConfirm": {
       "eyebrow": "delete entry",
       "title": "Delete this memory?",
-      "body": "The assistant will immediately stop recalling it.",
+      "body": "The assistant will immediately stop recalling it. This can't be undone.",
       "working": "Deleting…",
       "confirm": "Delete"
+    },
+    "deleteOverride": {
+      "eyebrow": "delete · override",
+      "title": "Delete in a read-only scope?",
+      "body": "This scope is read-only. Deleting here is an admin override and is recorded in the audit log — actor, entry, operation, and time. This can't be undone.",
+      "confirm": "Delete anyway"
     },
     "writeNote": {
       "muted": "Shared writes are suspended for your account — reading is unaffected, and your private memory stays yours.",
@@ -473,10 +509,19 @@
     "entry": {
       "editAria": "Edit entry",
       "newAria": "New entry",
+      "viewAria": "View entry (read-only)",
       "eyebrowEdit": "{slug} · edit",
       "eyebrowNew": "{slug} · new entry",
       "editTitle": "Edit memory",
       "newTitle": "New memory",
+      "viewTitle": "View memory",
+      "override": {
+        "memberBand": "This scope is read-only — you're viewing this entry. Only admins can change entries here, and only from the console.",
+        "lockHoldBand": "This scope is read-only. To change this entry as an admin override, choose Edit despite lock.",
+        "band": "Your change saves as an admin override and is recorded in the audit log — actor, entry, operation, and time.",
+        "editDespite": "Edit despite lock",
+        "saved": "Override saved · recorded in audit log"
+      },
       "editedAgo": "edited {time}",
       "saveChanges": "Save changes",
       "create": "Create entry",
@@ -524,6 +569,7 @@
     "muted": "Your account is muted — shared-scope writes are suspended. Ask a team admin to lift the mute.",
     "onlyAdmins": "Only admins can edit this.",
     "protected": "This entry is protected and can't be changed.",
+    "readOnly": "This scope is read-only — only admins can add, edit, or delete entries here, and only from the console. You can still read and copy entries out.",
     "exists": "A memory with this key already exists in this scope. Choose a different key — the existing one won't be overwritten.",
     "validation": "This entry couldn't be saved: {reason}",
     "validationFallback": "some fields are invalid",

@@ -372,10 +372,40 @@
     },
     "entryMenu": {
       "edit": "Bearbeiten",
+      "view": "Ansehen",
       "copyKey": "Key kopieren",
       "delete": "Löschen",
       "protectedHint": "Dieser Eintrag ist für die korrekte Nutzung von Kumbuka notwendig und kann nicht gelöscht werden.",
+      "lockedDeleteHint": "Schreibgeschützt — Löschen blockiert. Nur Admins können Einträge in einem gesperrten Scope löschen.",
       "move": "In Scope verschieben…"
+    },
+    "lock": {
+      "tip": {
+        "adminOpen": "Klicken, um diesen Scope schreibzuschützen. Mitglieder behalten Lesen & Herauskopieren; nur Admins können Einträge überschreiben. Wird im Audit-Log protokolliert.",
+        "adminLocked": "Dieser Scope ist schreibgeschützt — Mitglieder können keine Einträge hinzufügen, bearbeiten oder löschen. Klicken, um zu entsperren. Wird im Audit-Log protokolliert.",
+        "memberLocked": "Dieser Scope ist schreibgeschützt — nur Admins können Einträge ändern, und nur über die Console.",
+        "memberOpen": "Dieser Scope ist offen — Mitglieder können hier Einträge hinzufügen und bearbeiten."
+      },
+      "confirm": {
+        "lockEyebrow": "scope sperren",
+        "unlockEyebrow": "scope entsperren",
+        "lockTitle": "{slug} schreibschützen?",
+        "unlockTitle": "{slug} entsperren?",
+        "lockBody": "Mitglieder können hier keine Einträge mehr hinzufügen, bearbeiten oder löschen — Lesen und Herauskopieren bleibt. Admins können einzelne Einträge weiterhin überschreiben, nur über die Console. Wird im Audit-Log protokolliert.",
+        "unlockBody": "Mitglieder können hier wieder Einträge hinzufügen, bearbeiten und löschen. Wird im Audit-Log protokolliert.",
+        "lock": "Inhalt sperren",
+        "unlock": "Entsperren",
+        "working": "Speichern…"
+      },
+      "toast": {
+        "locked": "Scope gesperrt · im Audit-Log protokolliert",
+        "unlocked": "Scope entsperrt · im Audit-Log protokolliert",
+        "failed": "Sperrzustand konnte nicht geändert werden — bitte erneut versuchen."
+      }
+    },
+    "lockBand": {
+      "member": "Dieser Scope ist schreibgeschützt. Du kannst Einträge lesen und herauskopieren — nur Admins können hier hinzufügen, bearbeiten oder löschen, und nur über die Console.",
+      "admin": "Dieser Scope ist für Mitglieder schreibgeschützt. Deine Änderungen hier werden als Admin-Overrides gespeichert und im Audit-Log protokolliert."
     },
     "toast": {
       "idCopied": "Scope-ID kopiert",
@@ -385,7 +415,7 @@
       "archived": "Scope {slug} archiviert",
       "archiveFailed": "Archivieren fehlgeschlagen",
       "keyCopied": "Key kopiert",
-      "entryDeleted": "Eintrag gelöscht",
+      "entryDeleted": "Eintrag gelöscht · endgültig",
       "deleteFailed": "Löschen fehlgeschlagen"
     },
     "archiveConfirm": {
@@ -437,9 +467,15 @@
     "deleteConfirm": {
       "eyebrow": "Eintrag löschen",
       "title": "Diese Erinnerung löschen?",
-      "body": "Der Assistent ruft sie sofort nicht mehr ab.",
+      "body": "Der Assistent ruft sie sofort nicht mehr ab. Das kann nicht rückgängig gemacht werden.",
       "working": "Lösche…",
       "confirm": "Löschen"
+    },
+    "deleteOverride": {
+      "eyebrow": "löschen · override",
+      "title": "In einem schreibgeschützten Scope löschen?",
+      "body": "Dieser Scope ist schreibgeschützt. Das Löschen hier ist ein Admin-Override und wird im Audit-Log protokolliert — Akteur, Eintrag, Operation und Zeit. Das kann nicht rückgängig gemacht werden.",
+      "confirm": "Trotzdem löschen"
     },
     "writeNote": {
       "muted": "Geteilte Schreibzugriffe sind für dein Konto ausgesetzt — Lesen ist unberührt, und dein privates Gedächtnis bleibt deins.",
@@ -473,10 +509,19 @@
     "entry": {
       "editAria": "Eintrag bearbeiten",
       "newAria": "Neuer Eintrag",
+      "viewAria": "Eintrag ansehen (schreibgeschützt)",
       "eyebrowEdit": "{slug} · bearbeiten",
       "eyebrowNew": "{slug} · neuer Eintrag",
       "editTitle": "Erinnerung bearbeiten",
       "newTitle": "Neue Erinnerung",
+      "viewTitle": "Erinnerung ansehen",
+      "override": {
+        "memberBand": "Dieser Scope ist schreibgeschützt — du siehst diesen Eintrag nur an. Nur Admins können Einträge hier ändern, und nur über die Console.",
+        "lockHoldBand": "Dieser Scope ist schreibgeschützt. Um diesen Eintrag als Admin-Override zu ändern, wähle „Trotz Sperre bearbeiten“.",
+        "band": "Deine Änderung wird als Admin-Override gespeichert und im Audit-Log protokolliert — Akteur, Eintrag, Operation und Zeit.",
+        "editDespite": "Trotz Sperre bearbeiten",
+        "saved": "Override gespeichert · im Audit-Log protokolliert"
+      },
       "editedAgo": "bearbeitet {time}",
       "saveChanges": "Änderungen speichern",
       "create": "Eintrag erstellen",
@@ -524,6 +569,7 @@
     "muted": "Dein Konto ist stummgeschaltet — Schreibzugriffe auf geteilte Scopes sind ausgesetzt. Bitte eine Team-Admin, die Stummschaltung aufzuheben.",
     "onlyAdmins": "Nur Admins können das bearbeiten.",
     "protected": "Dieser Eintrag ist geschützt und kann nicht geändert werden.",
+    "readOnly": "Dieser Scope ist schreibgeschützt — nur Admins können Einträge hinzufügen, bearbeiten oder löschen, und nur über die Console. Lesen und Herauskopieren bleibt möglich.",
     "exists": "Eine Mnemonik mit diesem Key existiert in diesem Scope bereits. Wähle einen anderen Key — der vorhandene wird nicht überschrieben.",
     "validation": "Dieser Eintrag konnte nicht gespeichert werden: {reason}",
     "validationFallback": "einige Felder sind ungültig",

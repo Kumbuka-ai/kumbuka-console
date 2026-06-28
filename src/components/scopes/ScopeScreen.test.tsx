@@ -40,6 +40,7 @@ const SCOPE: ScopeView = {
   kind: "global",
   fixed: true,
   archived: false,
+  locked: false,
   description: null,
   entryCount: 3,
   createdAt: "2026-01-01T00:00:00Z",

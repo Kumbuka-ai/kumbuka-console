@@ -30,6 +30,13 @@ export type ScopeView = {
   kind: ScopeKind;
   fixed: boolean;
   archived: boolean;
+  /**
+   * FEAT-19 / D-CORE-18: scope-level content lock (read-only). Orthogonal to
+   * `fixed` (existence/identity) and `archived` (hidden) — never conflate them.
+   * Server-returned; a member's mutation of a locked scope is rejected
+   * (`409 SCOPE_READ_ONLY`), an admin's console write is an audited override.
+   */
+  locked: boolean;
   description: string | null;
   entryCount: number;
   createdAt: string;
@@ -275,6 +282,7 @@ export type EntryWriteError =
   | "muted"
   | "forbidden"
   | "protected"
+  | "readOnly"
   | "exists"
   | "validation"
   | "stale"
