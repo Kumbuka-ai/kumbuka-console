@@ -420,7 +420,41 @@ button { font-family: inherit; }
 }
 .eh-title .scope-kind.global { background: var(--accent); color: #1a0d05; }
 .eh-title .desc { font-family: var(--font-body); font-size: 13px; color: var(--c-muted); margin-top: 7px; }
-.eh-actions { margin-left: auto; display: flex; gap: 9px; flex: none; }
+
+/* FEAT-19: icon-only header section (top-right). The scope-lock is its only
+   occupant in CE. */
+.eh-ico { margin-left: auto; display: flex; align-items: center; gap: 6px; flex: none; }
+.scope-lock {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border: 1px solid transparent; background: transparent;
+  color: var(--c-muted); padding: 0;
+}
+.scope-lock .ico { width: 17px; height: 17px; }
+/* Admin: a real toggle button. Open lock (unlocked) is grey; closed lock
+   (locked) is accent. Member: a non-interactive status badge, always grey. */
+.scope-lock.admin { cursor: pointer; transition: color 110ms ease, border-color 110ms ease, background 110ms ease; }
+.scope-lock.admin:hover { color: var(--c-text); border-color: var(--c-border); background: var(--c-hover); }
+.scope-lock.locked.admin { color: var(--c-accent); }
+.scope-lock.member { cursor: default; }
+
+/* B2: read-only status band over the list (full width), the lock analog of the
+   write-note. Calm, informative — the disabled CTA + row-menu are the gate. */
+.lock-band {
+  display: flex; align-items: center; gap: 9px; padding: 11px 26px;
+  border-bottom: 1px solid var(--c-border); background: var(--c-inset);
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .04em; color: var(--c-text-2);
+}
+.lock-band .ico { width: 14px; height: 14px; color: var(--c-accent); flex: none; }
+
+/* B3: the read-only / override notice band inside the entry editor (SidePanel). */
+.override-band {
+  display: flex; align-items: flex-start; gap: 9px; margin-bottom: 16px; padding: 11px 13px;
+  border: 1px solid var(--c-border); background: var(--c-inset);
+  font-family: var(--font-mono); font-size: 11px; line-height: 1.5; letter-spacing: .02em; color: var(--c-text-2);
+}
+.override-band .ico { width: 15px; height: 15px; color: var(--c-muted); flex: none; margin-top: 1px; }
+.override-band.warn { border-color: var(--c-accent); }
+.override-band.warn .ico { color: var(--c-accent); }
 
 .write-note {
   display: inline-flex; align-items: center; gap: 8px; margin-top: 14px;
@@ -650,6 +684,20 @@ button { font-family: inherit; }
   font-family: var(--font-mono); font-size: 12px; color: var(--c-text);
 }
 .modal-foot { padding: 16px 26px; border-top: 1px solid var(--c-border); display: flex; justify-content: flex-end; gap: 10px; }
+
+/* FEAT-19 (B4): the lock-override delete dialog. Accent border + a big alert
+   block so the audited-override gravity is unmistakable. Reuses --c-accent (the
+   console's accent; CE has no --chip-warn token). */
+.modal.warn { border-color: var(--c-accent); }
+.lock-warn {
+  display: flex; align-items: flex-start; gap: 13px; margin: 4px 0 2px;
+}
+.lock-warn .lw-mark {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 34px; height: 34px; border: 1.5px solid var(--c-accent); color: var(--c-accent);
+}
+.lock-warn .lw-mark .ico { width: 19px; height: 19px; }
+.lock-warn .lw-text { font-size: 14px; line-height: 1.55; color: var(--c-text-2); }
 
 /* ============================================================
    Empty / loading / error states
@@ -1116,8 +1164,9 @@ button { font-family: inherit; }
   }
   .typefilters::-webkit-scrollbar { display: none; }
   .tf { padding: 5px 8px; font-size: 9.5px; }
-  .toolbar-right { width: 100%; margin-left: 0; }
-  .eh-actions .btn span.txt { display: none; }
+  .toolbar-right { width: 100%; margin-left: 0; flex-wrap: wrap; }
+  /* A3: the relocated primary CTA goes full-width under the toolbar on phone. */
+  .etb-cta { flex: 1 0 100%; justify-content: center; }
   .etable { table-layout: fixed; }
   .col-author, .col-key, .col-updated { display: none; }
   .col-type { width: 92px; }

@@ -9,6 +9,8 @@ import {
   ApiError,
   archiveScope,
   unarchiveScope,
+  lockScope,
+  unlockScope,
   cancelInvite,
   createEntry,
   createScope,
@@ -59,6 +61,12 @@ function mapApiError(err: ApiError): WriteFailure {
   const body = err.body as { code?: string; message?: string } | undefined;
   if (err.status === 409 && body?.code && PROTECTED_CODES.has(body.code)) {
     return { ok: false, reason: "protected" };
+  }
+  // FEAT-19 / D-CORE-18: a member's write to a content-locked scope is rejected
+  // by the server with 409 SCOPE_READ_ONLY. Surface a read-only message, never a
+  // generic failure. (Admins don't hit this — their console write is an override.)
+  if (err.status === 409 && body?.code === "SCOPE_READ_ONLY") {
+    return { ok: false, reason: "readOnly" };
   }
   // D-CORE-16: a key already exists in the scope — surface the rename hint, never
   // a silent overwrite. (Until the server ships KEY_EXISTS, a duplicate may be a
@@ -173,6 +181,34 @@ export async function archiveScopeAction(slug: string): Promise<ScopeActionResul
 export async function unarchiveScopeAction(slug: string): Promise<ScopeActionResult> {
   try {
     await unarchiveScope(slug);
+  } catch (err) {
+    return scopeWriteFailure(err);
+  }
+  revalidatePath(`/scopes/${slug}`);
+  revalidatePath("/scopes");
+  revalidatePath("/overview");
+  return { ok: true };
+}
+
+// FEAT-19 / D-CORE-18: content-lock toggle (admin-only; the server @RolesAllowed
+// is the guarantee, a 403 → forbidden). Mirrors archiveScopeAction's shape —
+// returns a typed ScopeActionResult, revalidates the scope + list + overview so
+// the lock state and the derived gating re-render. The console never audits;
+// the server emits the scope.lock / scope.unlock governance event.
+export async function lockScopeAction(slug: string): Promise<ScopeActionResult> {
+  try {
+    await lockScope(slug);
+  } catch (err) {
+    return scopeWriteFailure(err);
+  }
+  revalidatePath(`/scopes/${slug}`);
+  revalidatePath("/scopes");
+  revalidatePath("/overview");
+  return { ok: true };
+}
+export async function unlockScopeAction(slug: string): Promise<ScopeActionResult> {
+  try {
+    await unlockScope(slug);
   } catch (err) {
     return scopeWriteFailure(err);
   }

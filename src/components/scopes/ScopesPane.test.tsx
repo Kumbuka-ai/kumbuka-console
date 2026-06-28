@@ -21,6 +21,7 @@ const project: ScopeView = {
   kind: "project",
   fixed: false,
   archived: false,
+  locked: false,
   description: null,
   entryCount: 3,
   createdAt: "2026-06-18T00:00:00Z",

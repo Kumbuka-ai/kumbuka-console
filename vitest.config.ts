@@ -83,6 +83,8 @@ export default defineConfig({
         // secret rendering) and the mobile scope-pane toggle.
         "src/components/settings/SettingsForm.tsx",
         "src/components/scopes/ScopeScreen.tsx",
+        // FEAT-19 scope content-lock control — unit-tested in ScopeLock.test.tsx.
+        "src/components/scopes/ScopeLock.tsx",
         // Version footer: small but the only path that surfaces the
         // running console + backend build to the operator UI.
         "src/lib/version.ts",

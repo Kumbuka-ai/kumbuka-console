@@ -20,6 +20,7 @@ function scope(slug: string, kind: "global" | "project"): ScopeView {
     kind,
     fixed: kind === "global",
     archived: false,
+    locked: false,
     description: null,
     entryCount: 0,
     createdAt: "2026-06-17T00:00:00Z",

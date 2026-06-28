@@ -4,7 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import en from "@/i18n/messages/en.json";
 import { ToastHost } from "@/components/ui/Toast";
 import { EntryEditor } from "./EntryEditor";
-import type { ScopeView } from "@/lib/api/types";
+import { SYSTEM_SUBJECT, type EntryView, type ScopeView } from "@/lib/api/types";
 
 // Editor imports server actions; stub them (jsdom can't reach the BFF).
 vi.mock("@/app/(app)/actions", () => ({
@@ -18,9 +18,22 @@ const SCOPE: ScopeView = {
   kind: "project",
   fixed: false,
   archived: false,
+  locked: false,
   description: null,
   entryCount: 0,
   createdAt: "2026-06-18T00:00:00Z",
+};
+
+const ENTRY: EntryView = {
+  id: "e1",
+  type: "decision",
+  key: "ship.cadence",
+  content: "We ship daily.",
+  reference: null,
+  authorSubject: "u-1",
+  source: "console",
+  createdAt: "2026-06-18T00:00:00Z",
+  updatedAt: "2026-06-18T00:00:00Z",
 };
 
 function renderEditor(existingKeys: readonly string[] = []) {
@@ -32,6 +45,22 @@ function renderEditor(existingKeys: readonly string[] = []) {
     </NextIntlClientProvider>,
   );
 }
+
+function renderEditing(
+  over: Partial<Parameters<typeof EntryEditor>[0]> = {},
+  entry: EntryView = ENTRY,
+) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={en}>
+      <ToastHost>
+        <EntryEditor entry={entry} scope={SCOPE} onClose={() => {}} {...over} />
+      </ToastHost>
+    </NextIntlClientProvider>,
+  );
+}
+
+const contentArea = () =>
+  screen.getAllByRole("textbox").find((el) => el.tagName === "TEXTAREA") as HTMLTextAreaElement;
 
 const keyField = () => screen.getByPlaceholderText(/db\.system-of-record/i) as HTMLInputElement;
 const saveBtn = () => screen.getByRole("button", { name: /create/i }) as HTMLButtonElement;
@@ -94,5 +123,54 @@ describe("EntryEditor — key-collision guard on a new entry (D-CORE-16, dogfood
     fireEvent.change(keyField(), { target: { value: "db.replica" } });
     expect(screen.queryByRole("alert")).toBeNull();
     expect(saveBtn().disabled).toBe(false);
+  });
+});
+
+describe("EntryEditor — scope-lock override (FEAT-19 §B3)", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("member in a locked scope: read-only View, fields disabled, no Save", () => {
+    renderEditing({ scopeLocked: true, isAdmin: false });
+    expect(screen.getByText("View memory")).toBeTruthy();
+    expect(contentArea().readOnly).toBe(true);
+    expect(screen.queryByRole("button", { name: /save changes/i })).toBeNull();
+    expect(screen.getByRole("button", { name: /^ok$/i })).toBeTruthy();
+    // the member read-only band, not the override audit note
+    expect(screen.getByText(/only admins can change entries/i)).toBeTruthy();
+  });
+
+  it("admin in a locked scope: read-only until the Edit-despite-lock gesture", () => {
+    renderEditing({ scopeLocked: true, isAdmin: true });
+    // starts read-only with the gesture offered
+    expect(contentArea().readOnly).toBe(true);
+    expect(screen.queryByRole("button", { name: /save changes/i })).toBeNull();
+    const gesture = screen.getByRole("button", { name: /edit despite lock/i });
+
+    fireEvent.click(gesture);
+
+    // fields unlock, the audit note appears, Save is active
+    expect(contentArea().readOnly).toBe(false);
+    expect(screen.getByText(/saves as an admin override and is recorded in the audit log/i)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /save changes/i })).toBeTruthy();
+  });
+
+  it("admin override Cancel resets to the read-only hold", () => {
+    renderEditing({ scopeLocked: true, isAdmin: true });
+    fireEvent.click(screen.getByRole("button", { name: /edit despite lock/i }));
+    expect(contentArea().readOnly).toBe(false);
+
+    fireEvent.click(screen.getByRole("button", { name: /^cancel$/i }));
+    // back to the hold: fields read-only again, the gesture offered again
+    expect(contentArea().readOnly).toBe(true);
+    expect(screen.getByRole("button", { name: /edit despite lock/i })).toBeTruthy();
+  });
+
+  it("axis composition: a system-seed entry stays read-only even for an admin in a locked scope", () => {
+    const sysEntry: EntryView = { ...ENTRY, authorSubject: SYSTEM_SUBJECT };
+    renderEditing({ scopeLocked: true, isAdmin: true }, sysEntry);
+    expect(contentArea().readOnly).toBe(true);
+    // the entry-level lock wins: no override gesture, just OK-to-close
+    expect(screen.queryByRole("button", { name: /edit despite lock/i })).toBeNull();
+    expect(screen.getByRole("button", { name: /^ok$/i })).toBeTruthy();
   });
 });

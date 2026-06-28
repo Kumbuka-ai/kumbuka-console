@@ -119,6 +119,7 @@ export async function createScope(req: CreateScopeRequest): Promise<ScopeView> {
     kind: "project",
     fixed: false,
     archived: false,
+    locked: false,
     description: req.description ?? null,
     entryCount: 0,
     createdAt: nowIso(),
@@ -146,6 +147,18 @@ export async function unarchiveScope(slug: string): Promise<void> {
   const s = state.scopes.find((x) => x.slug === slug);
   if (!s) throw new Error(`no scope: ${slug}`);
   s.archived = false;
+}
+// FEAT-19 / D-CORE-18: content-lock toggle (orthogonal to fixed/archived — a
+// fixed scope is lockable). Mirrors the server's setLocked.
+export async function lockScope(slug: string): Promise<void> {
+  const s = state.scopes.find((x) => x.slug === slug);
+  if (!s) throw new Error(`no scope: ${slug}`);
+  s.locked = true;
+}
+export async function unlockScope(slug: string): Promise<void> {
+  const s = state.scopes.find((x) => x.slug === slug);
+  if (!s) throw new Error(`no scope: ${slug}`);
+  s.locked = false;
 }
 
 // ---------- Entries ----------------------------------------------------

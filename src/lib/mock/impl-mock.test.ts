@@ -102,6 +102,17 @@ describe("impl-mock — scopes", () => {
     await expect(mock.archiveScope("nope")).rejects.toThrow(/no scope/);
     await expect(mock.archiveScope("global")).rejects.toThrow(/cannot be archived/);
   });
+
+  it("lockScope / unlockScope flip the content-lock flag; refuse unknown (FEAT-19)", async () => {
+    const s = await mock.createScope({ slug: "to-lock", name: "L" });
+    await mock.lockScope(s.slug);
+    expect((await mock.getScope(s.slug))?.locked).toBe(true);
+    await mock.unlockScope(s.slug);
+    expect((await mock.getScope(s.slug))?.locked).toBe(false);
+
+    await expect(mock.lockScope("nope")).rejects.toThrow(/no scope/);
+    await expect(mock.unlockScope("nope")).rejects.toThrow(/no scope/);
+  });
 });
 
 describe("impl-mock — entries", () => {

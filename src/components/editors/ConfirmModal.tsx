@@ -13,6 +13,7 @@ export function ConfirmModal({
   confirmLabel,
   confirmIcon,
   danger,
+  lockWarn,
   onCancel,
   onConfirm,
 }: Readonly<{
@@ -23,6 +24,13 @@ export function ConfirmModal({
   confirmLabel: string;
   confirmIcon?: IconName;
   danger?: boolean;
+  /**
+   * FEAT-19 / D-CORE-18: render the body as a big-alert override block (a large
+   * exclamation + a warn border) instead of a plain paragraph — used when an
+   * admin deletes in a content-locked scope, so the audited-override gravity is
+   * unmistakable. Purely presentational; the confirm copy stays in `body`.
+   */
+  lockWarn?: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 }>) {
@@ -39,13 +47,22 @@ export function ConfirmModal({
   return (
     <>
       <div className="scrim" onClick={onCancel} aria-hidden />
-      <div className="modal" role="alertdialog" aria-label={title} aria-modal="true">
+      <div className={`modal${lockWarn ? " warn" : ""}`} role="alertdialog" aria-label={title} aria-modal="true">
         <div className="modal-body">
           <span className="eyebrow" style={danger ? undefined : { color: "var(--c-accent)" }}>
             {"// "}{eyebrow}
           </span>
           <h3>{title}</h3>
-          <p>{body}</p>
+          {lockWarn ? (
+            <div className="lock-warn">
+              <span className="lw-mark" aria-hidden>
+                <Icon name="warn" />
+              </span>
+              <div className="lw-text">{body}</div>
+            </div>
+          ) : (
+            <p>{body}</p>
+          )}
           {target ? <div className="target">{target}</div> : null}
         </div>
         <div className="modal-foot">

@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
-import { Seg, SegButton } from "@/components/ui/Seg";
 import { TypeChip } from "@/components/ui/Chip";
 import { Avatar } from "@/components/ui/Avatar";
 import { useMenu } from "@/components/ui/Menu";
@@ -14,6 +13,7 @@ import { EmptyState, ErrorState } from "@/components/ui/State";
 import { EntryEditor } from "@/components/editors/EntryEditor";
 import { MoveScopeDialog } from "@/components/editors/MoveScopeDialog";
 import { ConfirmModal } from "@/components/editors/ConfirmModal";
+import { ScopeLock } from "./ScopeLock";
 import { deleteEntryAction } from "@/app/(app)/actions";
 import { entryWriteErrorMessage } from "@/lib/entryWriteError";
 import { relTime, absTime } from "@/lib/time";
@@ -154,17 +154,33 @@ export function EntriesView({
     setParam("types", set.size ? Array.from(set).join(",") : null);
   };
 
-  // D-CORE-2: a muted caller (or an archived scope) makes shared entries
-  // read-only here. The console only ever shows shared scopes, so muted gates
-  // every visible scope; private memory is never shown and never affected.
-  const readOnly = scope.archived || Boolean(callerMuted);
+  // Read-only axes (D-CORE-2 mute, archived, FEAT-19 scope-lock) compose here.
+  // `baseReadOnly` (archived/muted) is read-only for EVERYONE and not overridable.
+  // FEAT-19 / D-CORE-18: a content-locked scope is read-only for MEMBERS only —
+  // an admin's console write is a server-audited override, so writes stay enabled
+  // for an admin in a locked scope. `lockedForMember` drives the member-only
+  // gating (CTA, delete) and the "Edit"→"View" relabel.
+  const baseReadOnly = scope.archived || Boolean(callerMuted);
+  const lockedForMember = scope.locked && !isAdmin;
+  const memberReadOnly = baseReadOnly || lockedForMember;
+  // B4: an admin who reaches a delete in a locked scope is performing an audited
+  // override (members are delete-blocked before this). Drives the lockWarn dialog.
+  const deleteOverride = scope.locked && isAdmin;
 
   // D-CORE-17: at least one other shared, non-archived scope must exist to move into.
   const hasMoveTargets = scopes.some((s) => s.slug !== scope.slug && !s.archived);
 
   const openRowMenu = (e: MouseEvent, entry: EntryView) =>
     menu.open(e, [
-      { label: t("entryMenu.edit"), icon: "edit", disabled: readOnly, onSelect: () => setEditor({ entry }) },
+      {
+        // FEAT-19: a member in a locked scope gets a read-only "View" (the editor
+        // opens disabled); an admin gets the override "Edit". Archived/muted still
+        // disable opening entirely.
+        label: lockedForMember ? t("entryMenu.view") : t("entryMenu.edit"),
+        icon: lockedForMember ? "eye" : "edit",
+        disabled: baseReadOnly,
+        onSelect: () => setEditor({ entry }),
+      },
       {
         label: t("entryMenu.copyKey"),
         icon: "copy",
@@ -176,12 +192,14 @@ export function EntriesView({
       },
       // Scope-remap is admin-only (D-CORE-17) and never offered for the protected
       // system seed; hidden entirely for non-admins (the #55 admin-gating pattern).
+      // An admin in a locked scope CAN move (server-audited override) — gate on
+      // baseReadOnly only, not the lock.
       ...(isAdmin && !isSystemEntry(entry)
         ? [
             {
               label: t("entryMenu.move"),
               icon: "folder",
-              disabled: readOnly || !hasMoveTargets,
+              disabled: baseReadOnly || !hasMoveTargets,
               onSelect: () => setMoveTarget(entry),
             } as const,
           ]
@@ -192,13 +210,20 @@ export function EntriesView({
         icon: "trash",
         danger: true,
         // System-seed entries are structurally undeletable (D-CORE-11 DB trigger);
-        // grey out the action rather than let it fail server-side.
-        disabled: readOnly || isSystemEntry(entry),
+        // a member in a locked scope is delete-blocked (FEAT-19); an admin deletes
+        // as an audited override. Grey out rather than let it fail server-side.
+        disabled: baseReadOnly || isSystemEntry(entry) || lockedForMember,
         struck: isSystemEntry(entry),
-        title: isSystemEntry(entry) ? t("entryMenu.protectedHint") : undefined,
+        title: deleteHint(entry),
         onSelect: () => setConfirmDel(entry),
       },
     ]);
+
+  const deleteHint = (entry: EntryView): string | undefined => {
+    if (isSystemEntry(entry)) return t("entryMenu.protectedHint");
+    if (lockedForMember) return t("entryMenu.lockedDeleteHint");
+    return undefined;
+  };
 
   const doDelete = () => {
     if (!confirmDel) return;
@@ -210,6 +235,7 @@ export function EntriesView({
         toast.push({ message: entryWriteErrorMessage(res, tErr) });
         return;
       }
+      // Delete permanence (B4): hard delete, no undo affordance, on every path.
       toast.push({ message: t("toast.entryDeleted") });
       setConfirmDel(null);
     });
@@ -221,6 +247,11 @@ export function EntriesView({
   let kindLabel = t("kind.project");
   if (scope.kind === "global") kindLabel = t("kind.globalFixed");
   else if (isArchived) kindLabel = t("kind.archived");
+
+  // Flat (no nested ternary): the override variant vs. the normal delete, with
+  // the working label while the action is in flight.
+  let deleteConfirmLabel = deleteOverride ? t("deleteOverride.confirm") : t("deleteConfirm.confirm");
+  if (pending) deleteConfirmLabel = t("deleteConfirm.working");
 
   return (
     <>
@@ -236,15 +267,10 @@ export function EntriesView({
               </h2>
               <div className="desc">{scope.description}</div>
             </div>
-            <div className="eh-actions">
-              <Button
-                variant="primary"
-                disabled={readOnly}
-                onClick={() => setEditor({ entry: null })}
-              >
-                <Icon name="plus" />
-                <span className="txt">{t("newEntry")}</span>
-              </Button>
+            {/* B1: icon-only header section (the space A3 freed). The lock is its
+                only occupant — Export CSV / review-queue icons are out of CE scope. */}
+            <div className="eh-ico">
+              <ScopeLock scope={scope} isAdmin={isAdmin} />
             </div>
           </div>
           <div className={`write-note${callerMuted ? " muted" : ""}`}>
@@ -286,26 +312,28 @@ export function EntriesView({
             <span className="result-count">
               {t("resultCount", { count: rows.length })}
             </span>
-            <Seg ariaLabel={t("layout.aria")}>
-              <SegButton on={layout === "table"} onClick={() => setParam("layout", "table")} title={t("layout.table")}>
-                <Icon name="grid" />
-              </SegButton>
-              <SegButton on={layout === "cards"} onClick={() => setParam("layout", "cards")} title={t("layout.cards")}>
-                <Icon name="layers" />
-              </SegButton>
-            </Seg>
-            {layout === "table" ? (
-              <Seg ariaLabel={t("density.aria")}>
-                <SegButton on={!density} onClick={() => setParam("density", null)} title={t("density.comfort")}>
-                  {t("density.comfort")}
-                </SegButton>
-                <SegButton on={density} onClick={() => setParam("density", "compact")} title={t("density.compact")}>
-                  {t("density.compact")}
-                </SegButton>
-              </Seg>
-            ) : null}
+            {/* A3: the primary CTA lives on the toolbar row (header top-right is
+                freed for the lock control). density/layout stay URL-param driven. */}
+            <Button
+              className="etb-cta"
+              variant="primary"
+              disabled={memberReadOnly}
+              onClick={() => setEditor({ entry: null })}
+            >
+              <Icon name="plus" />
+              <span className="txt">{t("newEntry")}</span>
+            </Button>
           </div>
         </div>
+
+        {/* B2: read-only status band over the list when the scope is content-locked.
+            Distinct from WriteNote (muted/global/archived) — role-dependent copy. */}
+        {scope.locked ? (
+          <output className="lock-band">
+            <Icon name="lock" />
+            <span>{isAdmin ? t("lockBand.admin") : t("lockBand.member")}</span>
+          </output>
+        ) : null}
 
         <div className="entries-body">
           {syncError ? (
@@ -327,7 +355,7 @@ export function EntriesView({
             >
               <Button
                 variant="primary"
-                disabled={readOnly}
+                disabled={memberReadOnly}
                 onClick={() => setEditor({ entry: null })}
               >
                 <Icon name="plus" />
@@ -473,6 +501,8 @@ export function EntriesView({
           entry={editor.entry}
           scope={scope}
           existingKeys={entries.map((e) => e.key).filter((k): k is string => !!k)}
+          scopeLocked={scope.locked}
+          isAdmin={isAdmin}
           onClose={() => setEditor(null)}
         />
       ) : null}
@@ -486,13 +516,16 @@ export function EntriesView({
       ) : null}
       {confirmDel ? (
         <ConfirmModal
-          eyebrow={t("deleteConfirm.eyebrow")}
-          title={t("deleteConfirm.title")}
-          body={t("deleteConfirm.body")}
+          // B4: an admin delete in a locked scope is an audited override — the
+          // lockWarn alert variant. Delete is permanent on every path (no undo).
+          eyebrow={deleteOverride ? t("deleteOverride.eyebrow") : t("deleteConfirm.eyebrow")}
+          title={deleteOverride ? t("deleteOverride.title") : t("deleteConfirm.title")}
+          body={deleteOverride ? t("deleteOverride.body") : t("deleteConfirm.body")}
           target={confirmDel.key ?? confirmDel.content.slice(0, 60) + "…"}
-          confirmLabel={pending ? t("deleteConfirm.working") : t("deleteConfirm.confirm")}
+          confirmLabel={deleteConfirmLabel}
           confirmIcon="trash"
           danger
+          lockWarn={deleteOverride}
           onCancel={() => setConfirmDel(null)}
           onConfirm={doDelete}
         />

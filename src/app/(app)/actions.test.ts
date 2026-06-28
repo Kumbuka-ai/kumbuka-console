@@ -35,6 +35,8 @@ const { revalidatePathMock, apiMocks, persistThemeMock, persistLocaleMock, ApiEr
         renameScope: vi.fn(),
         archiveScope: vi.fn(),
         unarchiveScope: vi.fn(),
+        lockScope: vi.fn(),
+        unlockScope: vi.fn(),
         createEntry: vi.fn(),
         updateEntry: vi.fn(),
         deleteEntry: vi.fn(),
@@ -67,6 +69,8 @@ vi.mock("@/lib/api", () => ({ ...apiMocks, ApiError, ApiAuthError }));
 import {
   archiveScopeAction,
   unarchiveScopeAction,
+  lockScopeAction,
+  unlockScopeAction,
   cancelInviteAction,
   createEntryAction,
   createScopeAction,
@@ -165,6 +169,42 @@ describe("Server Actions — delegation + cache invalidation", () => {
     expect(apiMocks.archiveScope).toHaveBeenCalledWith("alpha");
     expect(revalidatePathMock).toHaveBeenCalledWith("/scopes");
     expect(revalidatePathMock).toHaveBeenCalledWith("/overview");
+  });
+
+  // ---------- scopes: content-lock toggle (FEAT-19 / D-CORE-18) ----------
+
+  it("lockScopeAction calls the BFF, returns ok, revalidates scope + list + overview", async () => {
+    apiMocks.lockScope.mockResolvedValue(undefined);
+    const out = await lockScopeAction("alpha");
+    expect(out).toEqual({ ok: true });
+    expect(apiMocks.lockScope).toHaveBeenCalledWith("alpha");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/scopes/alpha");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/scopes");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/overview");
+  });
+
+  it("unlockScopeAction calls the BFF, returns ok, revalidates scope + list + overview", async () => {
+    apiMocks.unlockScope.mockResolvedValue(undefined);
+    const out = await unlockScopeAction("alpha");
+    expect(out).toEqual({ ok: true });
+    expect(apiMocks.unlockScope).toHaveBeenCalledWith("alpha");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/scopes/alpha");
+  });
+
+  it("lockScopeAction maps a 403 (non-admin) to reason=forbidden (no revalidate)", async () => {
+    apiMocks.lockScope.mockRejectedValue(new ApiError(403, "forbidden"));
+    const out = await lockScopeAction("alpha");
+    expect(out).toEqual({ ok: false, reason: "forbidden" });
+    expect(revalidatePathMock).not.toHaveBeenCalled();
+  });
+
+  it("maps a 409 SCOPE_READ_ONLY (member write to a locked scope) to reason=readOnly", async () => {
+    apiMocks.createEntry.mockRejectedValue(
+      new ApiError(409, "conflict", { code: "SCOPE_READ_ONLY" }),
+    );
+    const out = await createEntryAction("alpha", { type: "decision", content: "x" });
+    expect(out).toEqual({ ok: false, reason: "readOnly" });
+    expect(revalidatePathMock).not.toHaveBeenCalled();
   });
 
   // ---------- entries ----------------------------------------------------
