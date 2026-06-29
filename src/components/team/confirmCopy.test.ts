@@ -15,6 +15,7 @@ import { confirmCopy } from "./TeamTable";
 // unaugmented messages) — next-intl v4 tightened the generics so a translator
 // inferred over the concrete `typeof en` no longer fits that contract. Runtime
 // is unchanged: the real `en` messages still back the assertions.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- deliberate: widens to the loose message type next-intl v4 production passes (see comment above)
 const t = createTranslator<Record<string, any>, "team.confirm">({
   locale: "en",
   messages: en,
