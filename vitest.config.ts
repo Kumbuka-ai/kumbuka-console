@@ -99,6 +99,11 @@ export default defineConfig({
         "src/components/onboarding/WizardScopes.tsx",
         "src/components/onboarding/SetupGuide.tsx",
         "src/components/onboarding/steps.ts",
+        // FEAT-11 beta feedback channel: the BFF forward route (env-webhook,
+        // fail-loud 503/502) + the in-product form and its footer entry point.
+        "src/app/api/feedback/route.ts",
+        "src/components/feedback/FeedbackDialog.tsx",
+        "src/components/feedback/FeedbackLink.tsx",
       ],
       exclude: [
         "**/*.test.*",

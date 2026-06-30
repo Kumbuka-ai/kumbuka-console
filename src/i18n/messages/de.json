@@ -48,6 +48,30 @@
     "close": "Schließen",
     "ok": "OK"
   },
+  "feedback": {
+    "entry": "Feedback",
+    "ariaLabel": "Beta-Feedback senden",
+    "eyebrow": "Beta-Feedback",
+    "title": "Sag uns deine Meinung",
+    "betaNotice": "Kumbuka ist in der <b>Beta</b> — dein Feedback prägt, was wir als Nächstes bauen. Danke für deine Hilfe.",
+    "categoryLabel": "Art",
+    "category": {
+      "bug": "Fehlerbericht",
+      "feature": "Feature-Wunsch",
+      "general": "Allgemeines Feedback"
+    },
+    "messageLabel": "Deine Nachricht",
+    "messageHint": "Was passiert ist, was du dir wünschst oder was dir sonst auf dem Herzen liegt.",
+    "messagePlaceholder": "Beschreib es in deinen eigenen Worten…",
+    "contactLabel": "Kontakt (optional)",
+    "contactHint": "Hinterlass eine E-Mail, wenn wir nachfragen dürfen — sonst bleibt es anonym.",
+    "contactPlaceholder": "du@beispiel.de",
+    "cancel": "Abbrechen",
+    "send": "Feedback senden",
+    "sending": "Wird gesendet…",
+    "sent": "Danke — dein Feedback wurde gesendet.",
+    "failed": "Feedback konnte nicht gesendet werden. Bitte später erneut versuchen."
+  },
   "overview": {
     "stat": {
       "shared": "Geteilte Erinnerungen",
