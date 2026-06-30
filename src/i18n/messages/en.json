@@ -48,6 +48,30 @@
     "close": "Close",
     "ok": "OK"
   },
+  "feedback": {
+    "entry": "Feedback",
+    "ariaLabel": "Send beta feedback",
+    "eyebrow": "Beta feedback",
+    "title": "Tell us what you think",
+    "betaNotice": "Kumbuka is in <b>beta</b> — your feedback shapes what we build next. Thanks for helping out.",
+    "categoryLabel": "Type",
+    "category": {
+      "bug": "Bug report",
+      "feature": "Feature request",
+      "general": "General feedback"
+    },
+    "messageLabel": "Your message",
+    "messageHint": "What happened, what you'd like, or anything else on your mind.",
+    "messagePlaceholder": "Describe it in your own words…",
+    "contactLabel": "Contact (optional)",
+    "contactHint": "Leave an email if you'd like us to follow up — otherwise this stays anonymous.",
+    "contactPlaceholder": "you@example.com",
+    "cancel": "Cancel",
+    "send": "Send feedback",
+    "sending": "Sending…",
+    "sent": "Thanks — your feedback was sent.",
+    "failed": "Couldn't send your feedback. Please try again later."
+  },
   "overview": {
     "stat": {
       "shared": "Shared memories",
