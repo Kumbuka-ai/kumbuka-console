@@ -2,21 +2,56 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { POST } from "./route";
 
 const WEBHOOK = "https://n8n.example.test/webhook/feedback";
+const SESSION_COOKIE = "q_session=valid";
 
-function reqWith(body: unknown): Request {
+function reqWith(body: unknown, cookie: string | null = SESSION_COOKIE): Request {
   return new Request("http://console.test/api/feedback", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: {
+      "content-type": "application/json",
+      ...(cookie ? { cookie } : {}),
+    },
     body: JSON.stringify(body),
   });
 }
 
-function reqBadJson(): Request {
+function reqBadJson(cookie: string | null = SESSION_COOKIE): Request {
   return new Request("http://console.test/api/feedback", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: {
+      "content-type": "application/json",
+      ...(cookie ? { cookie } : {}),
+    },
     body: "{ not json",
   });
+}
+
+/**
+ * Route fetch is used for two things: the auth probe (`/api/auth/me`) and the
+ * webhook forward. Mock both: the probe answers `authStatus` (default 200 =
+ * authenticated), the webhook answers `webhook` (a Response or an Error to
+ * throw). Returns the spy so tests can assert what was — and was not — forwarded.
+ */
+function mockFetch({
+  authStatus = 200,
+  webhook,
+}: {
+  authStatus?: number;
+  webhook?: Response | Error;
+} = {}) {
+  return vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+    const url = typeof input === "string" ? input : (input as Request).url;
+    if (url.includes("/api/auth/me")) {
+      return Promise.resolve(new Response(null, { status: authStatus }));
+    }
+    if (webhook instanceof Error) return Promise.reject(webhook);
+    return Promise.resolve(webhook ?? new Response(null, { status: 200 }));
+  });
+}
+
+/** Calls made to the webhook URL (i.e. actual forwards), excluding the auth probe. */
+function webhookCalls(spy: ReturnType<typeof mockFetch>) {
+  return spy.mock.calls.filter((c) => String(c[0]) === WEBHOOK);
 }
 
 describe("feedback BFF route", () => {
@@ -28,33 +63,69 @@ describe("feedback BFF route", () => {
     delete process.env.KUMBUKA_FEEDBACK_WEBHOOK_URL;
   });
 
+  // --- session gate (auth) ---------------------------------------------------
+
+  it("401 unauthorized when no session cookie is present (webhook NEVER read/forwarded)", async () => {
+    process.env.KUMBUKA_FEEDBACK_WEBHOOK_URL = WEBHOOK;
+    const fetchSpy = mockFetch();
+    const res = await POST(reqWith({ category: "bug", message: "boom" }, null));
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ ok: false, reason: "unauthorized" });
+    // No probe, no forward — an anonymous request short-circuits before any fetch.
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("401 when the session probe returns non-2xx (cookie present but invalid)", async () => {
+    process.env.KUMBUKA_FEEDBACK_WEBHOOK_URL = WEBHOOK;
+    const fetchSpy = mockFetch({ authStatus: 401 });
+    const res = await POST(reqWith({ category: "bug", message: "boom" }));
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ ok: false, reason: "unauthorized" });
+    // Gate failed -> nothing forwarded to the webhook.
+    expect(webhookCalls(fetchSpy)).toHaveLength(0);
+  });
+
+  it("401 when the session probe throws / times out", async () => {
+    process.env.KUMBUKA_FEEDBACK_WEBHOOK_URL = WEBHOOK;
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/api/auth/me")) return Promise.reject(new Error("timeout"));
+      return Promise.resolve(new Response(null, { status: 200 }));
+    });
+    const res = await POST(reqWith({ category: "bug", message: "boom" }));
+    expect(res.status).toBe(401);
+    expect(webhookCalls(fetchSpy)).toHaveLength(0);
+  });
+
+  // --- post-gate behaviour (authenticated) -----------------------------------
+
   it("503 unconfigured when the webhook env var is unset (fail-loud, no silent drop)", async () => {
-    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const fetchSpy = mockFetch();
     const res = await POST(reqWith({ category: "bug", message: "boom" }));
     expect(res.status).toBe(503);
     expect(await res.json()).toEqual({ ok: false, reason: "unconfigured" });
     // Nothing was forwarded.
-    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(webhookCalls(fetchSpy)).toHaveLength(0);
   });
 
   it("503 when the webhook env var is blank/whitespace", async () => {
     process.env.KUMBUKA_FEEDBACK_WEBHOOK_URL = "   ";
+    mockFetch();
     const res = await POST(reqWith({ category: "bug", message: "boom" }));
     expect(res.status).toBe(503);
   });
 
   it("forwards to the webhook and returns 200 when set + valid", async () => {
     process.env.KUMBUKA_FEEDBACK_WEBHOOK_URL = WEBHOOK;
-    const fetchSpy = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValue(new Response(null, { status: 200 }));
+    const fetchSpy = mockFetch({ webhook: new Response(null, { status: 200 }) });
 
     const res = await POST(reqWith({ category: "feature", message: "please add X", contact: "me@x.de" }));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
 
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
-    const [url, init] = fetchSpy.mock.calls[0];
+    const calls = webhookCalls(fetchSpy);
+    expect(calls).toHaveLength(1);
+    const [url, init] = calls[0];
     expect(url).toBe(WEBHOOK);
     expect(init?.method).toBe("POST");
     const sent = JSON.parse(String(init?.body));
@@ -66,38 +137,38 @@ describe("feedback BFF route", () => {
 
   it("normalises a blank contact to null", async () => {
     process.env.KUMBUKA_FEEDBACK_WEBHOOK_URL = WEBHOOK;
-    const fetchSpy = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValue(new Response(null, { status: 200 }));
+    const fetchSpy = mockFetch({ webhook: new Response(null, { status: 200 }) });
     await POST(reqWith({ category: "general", message: "hi", contact: "   " }));
-    const sent = JSON.parse(String(fetchSpy.mock.calls[0][1]?.body));
+    const sent = JSON.parse(String(webhookCalls(fetchSpy)[0][1]?.body));
     expect(sent.contact).toBeNull();
   });
 
   it("400 invalid on an unknown category", async () => {
     process.env.KUMBUKA_FEEDBACK_WEBHOOK_URL = WEBHOOK;
-    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const fetchSpy = mockFetch();
     const res = await POST(reqWith({ category: "spam", message: "x" }));
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ ok: false, reason: "invalid" });
-    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(webhookCalls(fetchSpy)).toHaveLength(0);
   });
 
   it("400 invalid on an empty message", async () => {
     process.env.KUMBUKA_FEEDBACK_WEBHOOK_URL = WEBHOOK;
+    mockFetch();
     const res = await POST(reqWith({ category: "bug", message: "   " }));
     expect(res.status).toBe(400);
   });
 
   it("400 invalid on malformed JSON", async () => {
     process.env.KUMBUKA_FEEDBACK_WEBHOOK_URL = WEBHOOK;
+    mockFetch();
     const res = await POST(reqBadJson());
     expect(res.status).toBe(400);
   });
 
   it("502 upstream when the webhook returns a non-2xx (message NOT delivered)", async () => {
     process.env.KUMBUKA_FEEDBACK_WEBHOOK_URL = WEBHOOK;
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(null, { status: 500 }));
+    mockFetch({ webhook: new Response(null, { status: 500 }) });
     const res = await POST(reqWith({ category: "bug", message: "boom" }));
     expect(res.status).toBe(502);
     expect(await res.json()).toEqual({ ok: false, reason: "upstream" });
@@ -105,7 +176,7 @@ describe("feedback BFF route", () => {
 
   it("502 upstream when the webhook fetch throws (timeout / network)", async () => {
     process.env.KUMBUKA_FEEDBACK_WEBHOOK_URL = WEBHOOK;
-    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("network"));
+    mockFetch({ webhook: new Error("network") });
     const res = await POST(reqWith({ category: "bug", message: "boom" }));
     expect(res.status).toBe(502);
   });
