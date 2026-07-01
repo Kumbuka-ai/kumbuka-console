@@ -1,4 +1,5 @@
 import { CONSOLE_VERSION } from "@/lib/version";
+import { serverFetch } from "@/lib/api/client";
 import { hasSessionCookie } from "@/lib/auth/sessionCookies";
 
 /**
@@ -13,9 +14,10 @@ import { hasSessionCookie } from "@/lib/auth/sessionCookies";
  *
  * Session-gated: this route can trigger an outbound webhook (a mail), so it is
  * restricted to authenticated console users. We validate a real BFF session by
- * probing the backend `/api/auth/me` with the browser's forwarded cookies —
- * the same auth-probe pattern the middleware uses. Cookie *presence* alone is
- * forgeable, so a present cookie still requires a 2xx probe.
+ * probing the backend `/api/auth/me` through the shared server-to-server client
+ * (`serverFetch`, src/lib/api/client.ts), which forwards the browser's session
+ * cookie. Cookie *presence* alone is forgeable, so a present cookie still
+ * requires a successful probe.
  *
  * Fail-loud, no silent drop:
  *   - no valid BFF session   -> 401 unauthorized (BEFORE any webhook read/forward)
@@ -26,12 +28,10 @@ import { hasSessionCookie } from "@/lib/auth/sessionCookies";
  */
 export const dynamic = "force-dynamic";
 
-const BACKEND = process.env.KUMBUKA_BACKEND_URL ?? "http://kumbuka-backend:8080";
 const CATEGORIES = new Set(["bug", "feature", "general"]);
 const MESSAGE_MAX = 5000;
 const CONTACT_MAX = 200;
 const UPSTREAM_TIMEOUT_MS = 5000;
-const AUTH_TIMEOUT_MS = 3000;
 
 type FeedbackPayload = {
   category?: unknown;
@@ -45,23 +45,17 @@ function bad(reason: string, status: number) {
 
 /**
  * Validate a real BFF session. `hasSessionCookie` is a cheap pre-check to skip
- * the probe on obviously-anonymous requests; a present cookie still needs the
- * probe (presence is forgeable). Any non-2xx / throw / timeout -> not a session.
+ * the backend round-trip on obviously-anonymous requests; a present cookie is
+ * forgeable, so it still needs real validation. That is delegated to the vetted
+ * server-to-server client (`serverFetch`), which forwards the session cookie and
+ * treats a 401/redirect from `/api/auth/me` as `ApiAuthError` (ADR-0009). Any
+ * throw — unauthenticated, or the backend unreachable — means "no session".
  */
 async function hasValidSession(cookie: string | null): Promise<boolean> {
   if (!hasSessionCookie(cookie)) return false;
   try {
-    const probe = await fetch(`${BACKEND}/api/auth/me`, {
-      headers: {
-        cookie,
-        accept: "application/json",
-        "x-requested-with": "kumbuka-console",
-      },
-      redirect: "manual",
-      cache: "no-store",
-      signal: AbortSignal.timeout(AUTH_TIMEOUT_MS),
-    });
-    return probe.ok;
+    await serverFetch("/api/auth/me");
+    return true;
   } catch {
     return false;
   }

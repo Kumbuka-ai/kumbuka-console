@@ -1,4 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+
+// The route's session gate delegates to serverFetch (src/lib/api/client.ts),
+// which reads next/headers and is server-only. Mock both so the route is unit
+// testable without a Next request context.
+vi.mock("server-only", () => ({}));
+vi.mock("next/headers", () => ({
+  cookies: () => ({ getAll: () => [{ name: "q_session", value: "valid" }] }),
+  headers: () => ({ get: () => null }),
+}));
+
 import { POST } from "./route";
 
 const WEBHOOK = "https://n8n.example.test/webhook/feedback";
@@ -42,7 +52,13 @@ function mockFetch({
   return vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
     const url = typeof input === "string" ? input : (input as Request).url;
     if (url.includes("/api/auth/me")) {
-      return Promise.resolve(new Response(null, { status: authStatus }));
+      // serverFetch parses the body on a 2xx, so give the probe a JSON body.
+      return Promise.resolve(
+        new Response(JSON.stringify({ authenticated: true }), {
+          status: authStatus,
+          headers: { "content-type": "application/json" },
+        }),
+      );
     }
     if (webhook instanceof Error) return Promise.reject(webhook);
     return Promise.resolve(webhook ?? new Response(null, { status: 200 }));
