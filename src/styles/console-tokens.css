@@ -610,10 +610,13 @@ button { font-family: inherit; }
 .scrim { position: fixed; inset: 0; background: var(--c-scrim); z-index: 90; animation: fade 140ms ease; }
 @keyframes fade { from { opacity: 0; } }
 .sidepanel {
-  position: fixed; top: 0; right: 0; bottom: 0; width: 480px; max-width: 94vw; z-index: 91;
+  position: fixed; top: 0; right: 0; bottom: 0; width: 100%; z-index: 91;
   background: var(--c-raised); border-left: 1.5px solid var(--c-text);
   display: flex; flex-direction: column; animation: slidein 200ms cubic-bezier(.2,.7,.2,1);
 }
+/* Responsive: full-width on phone/tablet (incl. iPad portrait 768 + landscape 1024);
+   at desktop (>=1280px) narrow to 40vw so the panel sits beside the content. */
+@media (min-width: 1280px) { .sidepanel { width: 40vw; } }
 [data-theme="dark"] .sidepanel { border-left-color: var(--c-border); }
 @keyframes slidein { from { transform: translateX(28px); opacity: .4; } }
 .sp-head {

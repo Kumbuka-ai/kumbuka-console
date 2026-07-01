@@ -69,7 +69,6 @@ export function ScopeEditor({
       ariaLabel={editing ? t("renameAria") : t("newAria")}
       eyebrow={editing ? t("renameEyebrow") : t("newEyebrow")}
       title={editing ? t("renameTitle") : t("createTitle")}
-      width={440}
       onClose={onClose}
       footer={
         <>

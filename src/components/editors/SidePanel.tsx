@@ -8,7 +8,6 @@ export function SidePanel({
   ariaLabel,
   eyebrow,
   title,
-  width,
   footer,
   children,
   onClose,
@@ -16,7 +15,6 @@ export function SidePanel({
   ariaLabel: string;
   eyebrow: string;
   title: string;
-  width?: number;
   footer: ReactNode;
   children: ReactNode;
   onClose: () => void;
@@ -43,7 +41,6 @@ export function SidePanel({
         role="dialog"
         aria-modal="true"
         aria-label={ariaLabel}
-        style={width ? { width } : undefined}
         ref={ref}
       >
         <div className="sp-head">

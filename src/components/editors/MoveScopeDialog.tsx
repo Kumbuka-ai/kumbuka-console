@@ -84,7 +84,6 @@ export function MoveScopeDialog({
       ariaLabel={t("aria")}
       eyebrow={t("eyebrow", { slug: scope.slug })}
       title={t("title")}
-      width={440}
       onClose={onClose}
       footer={
         <>
