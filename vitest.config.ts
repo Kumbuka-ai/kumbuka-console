@@ -58,6 +58,7 @@ export default defineConfig({
         "src/lib/api/client.ts",
         "src/lib/api/session.ts",
         "src/lib/api/impl-live.ts",
+        "src/lib/api/index.ts",
         "src/lib/api/types.ts",
         "src/lib/mock/impl-mock.ts",
         "src/lib/auth/sessionCookies.ts",

@@ -1099,6 +1099,26 @@ button { font-family: inherit; }
 .session .s-revoke:hover { color: var(--type-constraint); }
 .session.cur .s-icon { border-color: var(--type-status); color: var(--type-status); }
 
+/* credential cards (FEAT-32: authenticator apps, passkeys, recovery codes) */
+.cred-card { border: 1px solid var(--c-border); margin-top: 16px; }
+.cred-head { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 15px 18px; }
+.cred-head .ch-icon { width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid var(--c-border); color: var(--c-text-2); }
+.cred-head .ch-icon .ico { width: 18px; height: 18px; }
+.cred-head .ch-title { font-size: 14px; font-weight: 500; color: var(--c-text); }
+.cred-head .ch-desc { font-size: 12px; line-height: 1.5; color: var(--c-muted); margin-top: 3px; max-width: 52ch; text-wrap: pretty; }
+.cred-badge { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--c-muted); border: 1px solid var(--c-border); padding: 3px 8px; white-space: nowrap; }
+.cred-empty { padding: 0 18px 4px; font-family: var(--font-mono); font-size: 11px; color: var(--c-muted); }
+.cred-list { border-top: 1px solid var(--c-border-soft); }
+.cred-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 12px 18px; border-top: 1px solid var(--c-border-soft); }
+.cred-row:first-child { border-top: 0; }
+.cred-row .cr-label { font-size: 13.5px; color: var(--c-text); }
+.cred-row .cr-meta { font-family: var(--font-mono); font-size: 11px; color: var(--c-muted); margin-top: 3px; }
+.cred-row .cr-remove { border: 0; background: transparent; cursor: pointer; color: var(--c-muted); padding: 7px; display: grid; place-items: center; }
+.cred-row .cr-remove .ico { width: 16px; height: 16px; }
+.cred-row .cr-remove:hover { color: var(--type-constraint); }
+.cred-row .cr-remove:disabled { opacity: .45; cursor: not-allowed; }
+.btn.cred-add { margin: 14px 18px 16px; }
+
 @media (max-width: 1080px) {
   .acct-identity { grid-template-columns: auto 1fr; }
   .acct-identity .ai-meta { grid-column: 1 / -1; }

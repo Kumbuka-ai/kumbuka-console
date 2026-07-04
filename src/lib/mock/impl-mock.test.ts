@@ -396,4 +396,32 @@ describe("impl-mock — active sessions (D-CORE-8)", () => {
 
     await expect(mock.terminateSession("no-such-session")).rejects.toThrow(/no session/);
   });
+
+  it("logoutOtherSessions keeps only the current session (F-0082 parity)", async () => {
+    await mock.logoutOtherSessions();
+    const after = await mock.listSessions();
+    expect(after.length).toBeGreaterThanOrEqual(1);
+    expect(after.every((s) => s.current)).toBe(true);
+  });
+});
+
+describe("impl-mock — credentials (FEAT-32)", () => {
+  it("lists credentials with the recovery-codes flag", async () => {
+    const view = await mock.listCredentials();
+    expect(Array.isArray(view.credentials)).toBe(true);
+    expect(typeof view.recoveryCodesConfigured).toBe("boolean");
+  });
+
+  it("deletes a known credential and refreshes the list", async () => {
+    const { credentials } = await mock.listCredentials();
+    expect(credentials.length).toBeGreaterThan(0);
+    const id = credentials[0].id;
+    await mock.deleteCredential(id);
+    const after = await mock.listCredentials();
+    expect(after.credentials.find((c) => c.id === id)).toBeUndefined();
+  });
+
+  it("throws 404 parity on an unknown credential id", async () => {
+    await expect(mock.deleteCredential("no-such-credential")).rejects.toThrow();
+  });
 });

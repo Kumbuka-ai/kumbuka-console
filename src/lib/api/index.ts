@@ -48,6 +48,9 @@ export const {
   getOverview,
   listSessions,
   terminateSession,
+  logoutOtherSessions,
+  listCredentials,
+  deleteCredential,
 } = impl;
 
 export { ApiAuthError, ApiError } from "./client";

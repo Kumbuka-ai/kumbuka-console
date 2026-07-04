@@ -2,24 +2,40 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Icon } from "@/components/ui/Icon";
+import { Icon, type IconName } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { Avatar, initialsOf } from "@/components/ui/Avatar";
 import { useToast } from "@/components/ui/Toast";
-import { terminateSessionAction, updateMeAction } from "@/app/(app)/actions";
+import { ConfirmModal } from "@/components/editors/ConfirmModal";
+import {
+  deleteCredentialAction,
+  logoutOtherSessionsAction,
+  terminateSessionAction,
+  updateMeAction,
+} from "@/app/(app)/actions";
 import { relTime } from "@/lib/time";
-import type { ActiveSession, SessionView } from "@/lib/api/types";
+import type {
+  ActiveSession,
+  CredentialsView,
+  CredentialType,
+  CredentialView,
+  SessionView,
+} from "@/lib/api/types";
 
 /**
- * Keycloak Application-Initiated-Action aliases for the three security
- * deep-links. The already-authenticated user is sent straight into the
- * matching flow instead of the generic account-console signing-in page.
+ * Keycloak Application-Initiated-Action aliases for the security deep-links.
+ * The already-authenticated user is sent straight into the matching flow
+ * instead of the generic account-console signing-in page.
  */
 const KC_ACTIONS = {
   credentials: "UPDATE_PASSWORD",
   twofa: "CONFIGURE_TOTP",
   passkey: "webauthn-register-passwordless",
+  recovery: "CONFIGURE_RECOVERY_AUTHN_CODES",
 } as const;
+
+/** The two passkey credential types Keycloak may store, shown as one card. */
+const PASSKEY_TYPES: ReadonlyArray<CredentialType> = ["webauthn", "webauthn-passwordless"];
 
 /**
  * Build the authorize-endpoint deep-link for one security action by appending
@@ -36,17 +52,25 @@ export function aiaHref(base: string | undefined, origin: string | null, action:
 }
 
 /**
- * Account screen — D2 hybrid. Display name is the only in-app editable
- * field; password, 2FA, and passkey deep-link into the matching Keycloak
- * Application-Initiated-Action (kc_action) — same tab, returning to /account
- * with a `kc_action_status` the screen surfaces as a toast. Active
- * connections (D-CORE-8) are managed inline — a member can see and terminate
- * their own sessions without leaving the console.
+ * Account screen — D2 hybrid. Display name is the only in-app editable field.
+ * Security credentials (authenticator apps, passkeys) are LISTED and REMOVABLE
+ * in-app (FEAT-32, fixes F-0075) — the backend reads/deletes them via the
+ * Keycloak Admin API scoped to the caller; adding one still deep-links into the
+ * matching Keycloak Application-Initiated-Action (kc_action), same tab,
+ * returning to /account with a `kc_action_status` surfaced as a toast. Recovery
+ * codes are a presence card that deep-links to Keycloak's own themed page (the
+ * codes are never shown in-app). Active connections (D-CORE-8) are managed
+ * inline, including "sign out all other sessions" (F-0082).
  */
 export function AccountForm({
   session,
   sessions,
-}: Readonly<{ session: SessionView; sessions: ActiveSession[] | null }>) {
+  credentials,
+}: Readonly<{
+  session: SessionView;
+  sessions: ActiveSession[] | null;
+  credentials: CredentialsView | null;
+}>) {
   const initial = session.displayName ?? "";
   const [displayName, setDisplayName] = useState(initial);
   const [savedName, setSavedName] = useState(initial);
@@ -98,6 +122,10 @@ export function AccountForm({
   // the fallback (no base / pre-mount / no-JS).
   const actionHref = (action: string) =>
     aiaHref(session.securityActionUrl, origin, action) ?? `${kc}#/security/signingin`;
+
+  const creds = credentials?.credentials ?? [];
+  const otp = creds.filter((c) => c.type === "otp");
+  const passkeys = creds.filter((c) => PASSKEY_TYPES.includes(c.type));
 
   return (
     <div className="page-scroll">
@@ -154,7 +182,7 @@ export function AccountForm({
           </div>
         </div>
 
-        {/* Credentials / MFA / Passkey — link-outs --------------------- */}
+        {/* Security — password link-out + credential lists ------------- */}
         <div className="set-block">
           <div className="set-intro">
             <span className="eyebrow">{"// "}{t("security.eyebrow")}</span>
@@ -169,19 +197,44 @@ export function AccountForm({
                 title={t("security.password_title")}
                 sub={t("security.password_sub")}
               />
-              <LinkOutMethod
-                href={actionHref(KC_ACTIONS.twofa)}
-                icon="phone"
-                title={t("security.twofa_title")}
-                sub={t("security.twofa_sub")}
-              />
-              <LinkOutMethod
-                href={actionHref(KC_ACTIONS.passkey)}
-                icon="shield"
-                title={t("security.passkey_title")}
-                sub={t("security.passkey_sub")}
-              />
             </div>
+
+            {credentials === null ? (
+              <div className="field" style={{ marginTop: 16 }}>
+                <span className="hint">
+                  {t("security.loadError")}{" "}
+                  <a href={`${kc}#/security/signingin`} target="_blank" rel="noreferrer">
+                    {t("security.manageIdp")}
+                  </a>
+                  {"."}
+                </span>
+              </div>
+            ) : (
+              <>
+                <CredentialCard
+                  icon="phone"
+                  title={t("security.otp_title")}
+                  desc={t("security.otp_desc")}
+                  items={otp}
+                  addLabel={t("security.otp_add")}
+                  addHref={actionHref(KC_ACTIONS.twofa)}
+                  genericLabel={t("security.otp_generic")}
+                />
+                <CredentialCard
+                  icon="shield"
+                  title={t("security.passkey_title")}
+                  desc={t("security.passkey_desc")}
+                  items={passkeys}
+                  addLabel={t("security.passkey_add")}
+                  addHref={actionHref(KC_ACTIONS.passkey)}
+                  genericLabel={t("security.passkey_generic")}
+                />
+                <RecoveryCard
+                  configured={credentials.recoveryCodesConfigured}
+                  addHref={actionHref(KC_ACTIONS.recovery)}
+                />
+              </>
+            )}
           </div>
         </div>
 
@@ -269,6 +322,150 @@ function LinkOutMethod({
 }
 
 /**
+ * A credential type card (authenticator apps OR passkeys). Lists the caller's
+ * enrolled credentials with a per-row remove (ConfirmModal + toast), a counter
+ * badge, and an "add" primary button that deep-links into the Keycloak AIA flow.
+ * Empty state invites the first enrolment. `addHref` is null before the origin
+ * resolves; the button falls back to the account-console link then.
+ */
+function CredentialCard({
+  icon,
+  title,
+  desc,
+  items,
+  addLabel,
+  addHref,
+  genericLabel,
+}: Readonly<{
+  icon: IconName;
+  title: string;
+  desc: string;
+  items: CredentialView[];
+  addLabel: string;
+  addHref: string;
+  genericLabel: string;
+}>) {
+  const t = useTranslations("account.security");
+  const toast = useToast();
+  const [pending, start] = useTransition();
+  const [confirming, setConfirming] = useState<CredentialView | null>(null);
+
+  const remove = (cred: CredentialView) => {
+    setConfirming(null);
+    start(async () => {
+      try {
+        await deleteCredentialAction(cred.id);
+        toast.push({ message: t("removed") });
+      } catch (err) {
+        toast.push({ message: err instanceof Error ? err.message : t("removeFailed") });
+      }
+    });
+  };
+
+  return (
+    <div className="cred-card">
+      <div className="cred-head">
+        <div className="ch-icon">
+          <Icon name={icon} />
+        </div>
+        <div className="ch-text">
+          <div className="ch-title">{title}</div>
+          <div className="ch-desc">{desc}</div>
+        </div>
+        <span className="cred-badge">{t("count", { count: items.length })}</span>
+      </div>
+
+      {items.length === 0 ? (
+        <div className="cred-empty">{t("none")}</div>
+      ) : (
+        <div className="cred-list">
+          {items.map((c) => (
+            <div className="cred-row" key={c.id}>
+              <div className="cr-main">
+                <div className="cr-label">{c.userLabel?.trim() || genericLabel}</div>
+                <div className="cr-meta">
+                  {c.createdDate ? t("added", { time: relTime(c.createdDate) }) : genericLabel}
+                </div>
+              </div>
+              <button
+                type="button"
+                className="cr-remove"
+                onClick={() => setConfirming(c)}
+                disabled={pending}
+                aria-label={t("remove")}
+                title={t("remove")}
+              >
+                <Icon name="trash" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <a className="btn cred-add" href={addHref}>
+        <Icon name="plus" />
+        <span className="txt">{addLabel}</span>
+      </a>
+
+      {confirming ? (
+        <ConfirmModal
+          eyebrow={t("removeEyebrow")}
+          title={t("removeTitle")}
+          body={t("removeBody")}
+          target={confirming.userLabel?.trim() || genericLabel}
+          confirmLabel={t("remove")}
+          confirmIcon="trash"
+          danger
+          onCancel={() => setConfirming(null)}
+          onConfirm={() => remove(confirming)}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * Recovery-codes card (FEAT-32). Presence-only: `configured` reflects whether
+ * the caller holds a Keycloak `recovery-authn-codes` credential — the codes
+ * themselves are never shown in-app. The primary action deep-links into the
+ * Keycloak AIA (`CONFIGURE_RECOVERY_AUTHN_CODES`), same tab, which displays the
+ * codes once on its own secure themed page and returns to /account.
+ */
+function RecoveryCard({
+  configured,
+  addHref,
+}: Readonly<{
+  configured: boolean;
+  addHref: string;
+}>) {
+  const t = useTranslations("account.security");
+
+  return (
+    <div className="cred-card">
+      <div className="cred-head">
+        <div className="ch-icon">
+          <Icon name="key" />
+        </div>
+        <div className="ch-text">
+          <div className="ch-title">{t("recovery_title")}</div>
+          <div className="ch-desc">{t("recovery_desc")}</div>
+        </div>
+      </div>
+
+      <div className="cred-empty">{configured ? t("recovery_on") : t("recovery_off")}</div>
+      <div className="cred-empty">{t("recovery_note")}</div>
+
+      <a className="btn cred-add" href={addHref}>
+        <Icon name="plus" />
+        <span className="txt">
+          {configured ? t("recovery_regenerate") : t("recovery_generate")}
+        </span>
+      </a>
+    </div>
+  );
+}
+
+/**
  * Classify the OAuth client ids on a session into an icon + a translation
  * descriptor. The visible label is resolved in SessionRow (where the i18n hook
  * lives) so this stays a pure, hook-free helper.
@@ -293,13 +490,19 @@ function describeClients(clients: string[]): ClientDesc {
 
 /**
  * Renders the active-connections body. Early returns keep the three states
- * (load failure → link-out, empty, list) flat — no nested ternary.
+ * (load failure → link-out, empty, list) flat — no nested ternary. Below the
+ * list, "sign out all other sessions" appears whenever there is more than one
+ * connection (F-0082).
  */
 function ConnectionsBody({
   sessions,
   kcUrl,
 }: Readonly<{ sessions: ActiveSession[] | null; kcUrl: string }>) {
   const t = useTranslations("account.connections");
+  const toast = useToast();
+  const [pending, start] = useTransition();
+  const [confirming, setConfirming] = useState(false);
+
   if (sessions === null) {
     return (
       <div className="field">
@@ -320,12 +523,52 @@ function ConnectionsBody({
       </div>
     );
   }
+
+  const logoutOthers = () => {
+    setConfirming(false);
+    start(async () => {
+      try {
+        await logoutOtherSessionsAction();
+        toast.push({ message: t("othersEnded") });
+      } catch (err) {
+        toast.push({ message: err instanceof Error ? err.message : t("othersFailed") });
+      }
+    });
+  };
+
   return (
-    <div className="sessions">
-      {sessions.map((s) => (
-        <SessionRow key={s.id} session={s} />
-      ))}
-    </div>
+    <>
+      <div className="sessions">
+        {sessions.map((s) => (
+          <SessionRow key={s.id} session={s} />
+        ))}
+      </div>
+      {sessions.length > 1 ? (
+        <div style={{ marginTop: 14 }}>
+          <button
+            type="button"
+            className="btn danger"
+            onClick={() => setConfirming(true)}
+            disabled={pending}
+          >
+            <Icon name="logout" />
+            <span className="txt">{t("logoutOthers")}</span>
+          </button>
+        </div>
+      ) : null}
+      {confirming ? (
+        <ConfirmModal
+          eyebrow={t("logoutOthersEyebrow")}
+          title={t("logoutOthersTitle")}
+          body={t("logoutOthersBody")}
+          confirmLabel={t("logoutOthers")}
+          confirmIcon="logout"
+          danger
+          onCancel={() => setConfirming(false)}
+          onConfirm={logoutOthers}
+        />
+      ) : null}
+    </>
   );
 }
 

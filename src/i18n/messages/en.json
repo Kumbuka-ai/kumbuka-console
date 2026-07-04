@@ -144,15 +144,37 @@
     "security": {
       "eyebrow": "security",
       "title": "Sign-in & credentials",
-      "desc": "Password, two-factor authentication, and passkeys are managed in your identity provider's account console.",
+      "desc": "Manage your password, two-factor authenticators, passkeys and recovery codes. Adding a method opens your identity provider; removing one takes effect here immediately.",
       "password_title": "Password",
-      "password_sub": "Change your password or set up recovery options.",
-      "twofa_title": "Two-factor authentication",
-      "twofa_sub": "Authenticator app or one-time codes by email.",
-      "passkey_title": "Passkey",
-      "passkey_sub": "Sign in with a hardware key or platform authenticator.",
+      "password_sub": "Change your password at your identity provider.",
+      "loadError": "Couldn't load your credentials right now.",
+      "manageIdp": "Manage them in the identity provider",
+      "otp_title": "Authenticator apps",
+      "otp_desc": "One-time codes from an authenticator app (TOTP).",
+      "otp_add": "Add authenticator app",
+      "otp_generic": "Authenticator app",
+      "passkey_title": "Passkeys & security keys",
+      "passkey_desc": "Sign in with a platform passkey or a hardware security key.",
+      "passkey_add": "Add passkey",
+      "passkey_generic": "Passkey",
+      "count": "{count, plural, =0 {none} one {# active} other {# active}}",
+      "none": "None enrolled yet.",
+      "added": "Added {time}",
+      "remove": "Remove",
+      "removed": "Credential removed",
+      "removeFailed": "Couldn't remove the credential",
+      "removeEyebrow": "remove credential",
+      "removeTitle": "Remove this credential?",
+      "removeBody": "You'll no longer be able to use it to sign in. You can add a new one anytime.",
       "actionDone": "Security settings updated.",
-      "actionCancelled": "Action cancelled."
+      "actionCancelled": "Action cancelled.",
+      "recovery_title": "Recovery codes",
+      "recovery_desc": "Single-use backup codes to sign in when your other factors aren't available.",
+      "recovery_on": "Recovery codes are configured.",
+      "recovery_off": "No recovery codes yet.",
+      "recovery_generate": "Generate codes",
+      "recovery_regenerate": "Regenerate codes",
+      "recovery_note": "The codes are shown once on the secure sign-in page — keep them somewhere safe."
     },
     "connections": {
       "eyebrow": "active connections",
@@ -170,7 +192,13 @@
       "useSignout": "use Sign out below",
       "end": "End",
       "ended": "Connection ended",
-      "endFailed": "Couldn't end the connection"
+      "endFailed": "Couldn't end the connection",
+      "logoutOthers": "Sign out all other sessions",
+      "logoutOthersEyebrow": "sign out others",
+      "logoutOthersTitle": "Sign out all other sessions?",
+      "logoutOthersBody": "Every connection except this device will be signed out immediately. You'll stay signed in here.",
+      "othersEnded": "Other sessions signed out",
+      "othersFailed": "Couldn't sign out the other sessions"
     },
     "private": {
       "eyebrow": "your private memory",
@@ -370,12 +398,30 @@
     }
   },
   "entryTypes": {
-    "decision": { "label": "Decision", "description": "A choice made and the reasoning that fixed it." },
-    "convention": { "label": "Convention", "description": "How the team does a thing — a recurring pattern." },
-    "constraint": { "label": "Constraint", "description": "A hard rule from outside the team (legal, perf, contract)." },
-    "open_question": { "label": "Open question", "description": "A known unknown, waiting on data or a stakeholder." },
-    "glossary": { "label": "Glossary", "description": "A term whose meaning the team needs to share." },
-    "status": { "label": "Status", "description": "Current state of a thing — short-lived." }
+    "decision": {
+      "label": "Decision",
+      "description": "A choice made and the reasoning that fixed it."
+    },
+    "convention": {
+      "label": "Convention",
+      "description": "How the team does a thing — a recurring pattern."
+    },
+    "constraint": {
+      "label": "Constraint",
+      "description": "A hard rule from outside the team (legal, perf, contract)."
+    },
+    "open_question": {
+      "label": "Open question",
+      "description": "A known unknown, waiting on data or a stakeholder."
+    },
+    "glossary": {
+      "label": "Glossary",
+      "description": "A term whose meaning the team needs to share."
+    },
+    "status": {
+      "label": "Status",
+      "description": "Current state of a thing — short-lived."
+    }
   },
   "scopes": {
     "toggle": "Scopes",
@@ -465,9 +511,24 @@
     "searchPlaceholder": "Search keys & content…",
     "searchAria": "Search entries",
     "resultCount": "{count, plural, one {# entry} other {# entries}}",
-    "layout": { "aria": "Layout", "table": "Table", "cards": "Cards" },
-    "density": { "aria": "Density", "comfort": "Comfort", "compact": "Compact" },
-    "th": { "type": "Type", "key": "Key", "content": "Content", "author": "Author", "updated": "Updated", "actionsAria": "Actions" },
+    "layout": {
+      "aria": "Layout",
+      "table": "Table",
+      "cards": "Cards"
+    },
+    "density": {
+      "aria": "Density",
+      "comfort": "Comfort",
+      "compact": "Compact"
+    },
+    "th": {
+      "type": "Type",
+      "key": "Key",
+      "content": "Content",
+      "author": "Author",
+      "updated": "Updated",
+      "actionsAria": "Actions"
+    },
     "entryActionsAria": "Entry actions",
     "noKey": "no key",
     "reference": "reference",

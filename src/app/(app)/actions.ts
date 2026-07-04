@@ -24,6 +24,8 @@ import {
   rotateConnectorSecret,
   updateEntry,
   terminateSession,
+  logoutOtherSessions,
+  deleteCredential,
   updateMe,
   updateSettings,
   updateUser,
@@ -349,5 +351,21 @@ export async function setOnboardingAction(state: OnboardingState) {
 // the account page re-reads the (now shorter) list.
 export async function terminateSessionAction(id: string) {
   await terminateSession(id);
+  revalidatePath("/account");
+}
+
+// F-0082: end every session except the current one. The backend spares the
+// caller's current session and 409s if it can't be identified (never a silent
+// "log out everything"); we revalidate so the account page re-reads the list.
+export async function logoutOtherSessionsAction() {
+  await logoutOtherSessions();
+  revalidatePath("/account");
+}
+
+// FEAT-32: remove one of the caller's own credentials (authenticator / passkey).
+// The backend enforces subject == caller + self-service type and 404s anything
+// else; we revalidate so the account page re-reads the (now shorter) list.
+export async function deleteCredentialAction(id: string) {
+  await deleteCredential(id);
   revalidatePath("/account");
 }
