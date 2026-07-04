@@ -29,4 +29,15 @@ describe("api index — impl picker surface", () => {
     expect(api.ApiError).toBeDefined();
     expect(api.ApiAuthError).toBeDefined();
   });
+
+  it("wires the in-process mock (incl. mock session) when the mock env is set", async () => {
+    vi.resetModules();
+    vi.stubEnv("KUMBUKA_API_MOCK", "1");
+    vi.stubEnv("KUMBUKA_API_MOCK_SESSION", "1");
+    const mockApi = await import("./index");
+    expect(typeof mockApi.listCredentials).toBe("function");
+    expect(typeof mockApi.getSession).toBe("function");
+    vi.unstubAllEnvs();
+    vi.resetModules();
+  });
 });
