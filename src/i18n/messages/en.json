@@ -167,7 +167,14 @@
       "removeTitle": "Remove this credential?",
       "removeBody": "You'll no longer be able to use it to sign in. You can add a new one anytime.",
       "actionDone": "Security settings updated.",
-      "actionCancelled": "Action cancelled."
+      "actionCancelled": "Action cancelled.",
+      "recovery_title": "Recovery codes",
+      "recovery_desc": "Single-use backup codes to sign in when your other factors aren't available.",
+      "recovery_on": "Recovery codes are configured.",
+      "recovery_off": "No recovery codes yet.",
+      "recovery_generate": "Generate codes",
+      "recovery_regenerate": "Regenerate codes",
+      "recovery_note": "The codes are shown once on the secure sign-in page — keep them somewhere safe."
     },
     "connections": {
       "eyebrow": "active connections",

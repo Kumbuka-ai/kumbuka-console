@@ -14,7 +14,13 @@ import {
   updateMeAction,
 } from "@/app/(app)/actions";
 import { relTime } from "@/lib/time";
-import type { ActiveSession, CredentialType, CredentialView, SessionView } from "@/lib/api/types";
+import type {
+  ActiveSession,
+  CredentialsView,
+  CredentialType,
+  CredentialView,
+  SessionView,
+} from "@/lib/api/types";
 
 /**
  * Keycloak Application-Initiated-Action aliases for the security deep-links.
@@ -25,6 +31,7 @@ const KC_ACTIONS = {
   credentials: "UPDATE_PASSWORD",
   twofa: "CONFIGURE_TOTP",
   passkey: "webauthn-register-passwordless",
+  recovery: "CONFIGURE_RECOVERY_AUTHN_CODES",
 } as const;
 
 /** The two passkey credential types Keycloak may store, shown as one card. */
@@ -62,7 +69,7 @@ export function AccountForm({
 }: Readonly<{
   session: SessionView;
   sessions: ActiveSession[] | null;
-  credentials: CredentialView[] | null;
+  credentials: CredentialsView | null;
 }>) {
   const initial = session.displayName ?? "";
   const [displayName, setDisplayName] = useState(initial);
@@ -116,8 +123,9 @@ export function AccountForm({
   const actionHref = (action: string) =>
     aiaHref(session.securityActionUrl, origin, action) ?? `${kc}#/security/signingin`;
 
-  const otp = credentials?.filter((c) => c.type === "otp") ?? [];
-  const passkeys = credentials?.filter((c) => PASSKEY_TYPES.includes(c.type)) ?? [];
+  const creds = credentials?.credentials ?? [];
+  const otp = creds.filter((c) => c.type === "otp");
+  const passkeys = creds.filter((c) => PASSKEY_TYPES.includes(c.type));
 
   return (
     <div className="page-scroll">
@@ -220,6 +228,10 @@ export function AccountForm({
                   addLabel={t("security.passkey_add")}
                   addHref={actionHref(KC_ACTIONS.passkey)}
                   genericLabel={t("security.passkey_generic")}
+                />
+                <RecoveryCard
+                  configured={credentials.recoveryCodesConfigured}
+                  addHref={actionHref(KC_ACTIONS.recovery)}
                 />
               </>
             )}
@@ -408,6 +420,47 @@ function CredentialCard({
           onConfirm={() => remove(confirming)}
         />
       ) : null}
+    </div>
+  );
+}
+
+/**
+ * Recovery-codes card (FEAT-32). Presence-only: `configured` reflects whether
+ * the caller holds a Keycloak `recovery-authn-codes` credential — the codes
+ * themselves are never shown in-app. The primary action deep-links into the
+ * Keycloak AIA (`CONFIGURE_RECOVERY_AUTHN_CODES`), same tab, which displays the
+ * codes once on its own secure themed page and returns to /account.
+ */
+function RecoveryCard({
+  configured,
+  addHref,
+}: Readonly<{
+  configured: boolean;
+  addHref: string;
+}>) {
+  const t = useTranslations("account.security");
+
+  return (
+    <div className="cred-card">
+      <div className="cred-head">
+        <div className="ch-icon">
+          <Icon name="key" />
+        </div>
+        <div className="ch-text">
+          <div className="ch-title">{t("recovery_title")}</div>
+          <div className="ch-desc">{t("recovery_desc")}</div>
+        </div>
+      </div>
+
+      <div className="cred-empty">{configured ? t("recovery_on") : t("recovery_off")}</div>
+      <div className="cred-empty">{t("recovery_note")}</div>
+
+      <a className="btn cred-add" href={addHref}>
+        <Icon name="plus" />
+        <span className="txt">
+          {configured ? t("recovery_regenerate") : t("recovery_generate")}
+        </span>
+      </a>
     </div>
   );
 }

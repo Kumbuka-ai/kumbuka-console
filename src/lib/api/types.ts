@@ -281,6 +281,17 @@ export type CredentialView = {
   createdDate: string | null;
 };
 
+/**
+ * FEAT-32: the `GET /api/credentials` payload. Wraps the credential list with
+ * `recoveryCodesConfigured` — presence-only (the caller holds a Keycloak
+ * `recovery-authn-codes` credential); the codes themselves are never returned
+ * (Keycloak shows them once on its own themed AIA page).
+ */
+export type CredentialsView = {
+  credentials: CredentialView[];
+  recoveryCodesConfigured: boolean;
+};
+
 // ---------- Requests ----------------------------------------------------
 
 export type CreateScopeRequest = { slug: string; name: string; description?: string };

@@ -4,7 +4,7 @@ import { AccountForm } from "@/components/account/AccountForm";
 import { requireSession } from "@/lib/api/session";
 import { listSessions, listCredentials } from "@/lib/api";
 import { getTheme } from "@/lib/theme";
-import type { ActiveSession, CredentialView } from "@/lib/api/types";
+import type { ActiveSession, CredentialsView } from "@/lib/api/types";
 
 export default async function AccountPage() {
   const [session, theme] = await Promise.all([requireSession(), getTheme()]);
@@ -17,7 +17,7 @@ export default async function AccountPage() {
   } catch {
     sessions = null;
   }
-  let credentials: CredentialView[] | null = null;
+  let credentials: CredentialsView | null = null;
   try {
     credentials = await listCredentials();
   } catch {

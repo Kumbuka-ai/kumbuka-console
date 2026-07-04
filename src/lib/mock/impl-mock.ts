@@ -6,6 +6,7 @@
  */
 import type {
   ActiveSession,
+  CredentialsView,
   CredentialView,
   ConnectorView,
   CreateEntryRequest,
@@ -69,6 +70,9 @@ const state = {
       createdDate: new Date(Date.now() - 8 * 864e5).toISOString(),
     },
   ] as CredentialView[],
+  // FEAT-32: presence-only recovery-codes flag (the codes themselves are never
+  // stored/returned — Keycloak shows them on its own themed AIA page).
+  recoveryCodesConfigured: false,
 };
 
 const slugify = (s: string) =>
@@ -400,8 +404,11 @@ export async function logoutOtherSessions(): Promise<void> {
 }
 
 // ---------- Credentials (FEAT-32) --------------------------------------
-export async function listCredentials(): Promise<CredentialView[]> {
-  return state.credentials.map((c) => ({ ...c }));
+export async function listCredentials(): Promise<CredentialsView> {
+  return {
+    credentials: state.credentials.map((c) => ({ ...c })),
+    recoveryCodesConfigured: state.recoveryCodesConfigured,
+  };
 }
 export async function deleteCredential(id: string): Promise<void> {
   const before = state.credentials.length;

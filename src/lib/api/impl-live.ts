@@ -7,7 +7,7 @@ import { serverFetch } from "./client";
 import { deriveUserView } from "./types";
 import type {
   ActiveSession,
-  CredentialView,
+  CredentialsView,
   ConnectorView,
   CreateEntryRequest,
   CreateScopeRequest,
@@ -43,7 +43,7 @@ export const logoutOtherSessions = () =>
   serverFetch<void>("/api/sessions/logout-others", { method: "POST" });
 
 // ---------- Credentials (FEAT-32) --------------------------------------
-export const listCredentials = () => serverFetch<CredentialView[]>("/api/credentials");
+export const listCredentials = () => serverFetch<CredentialsView>("/api/credentials");
 export const deleteCredential = (id: string) =>
   serverFetch<void>(`/api/credentials/${encodeURIComponent(id)}`, { method: "DELETE" });
 

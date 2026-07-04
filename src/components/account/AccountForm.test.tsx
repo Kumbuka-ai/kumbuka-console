@@ -3,15 +3,18 @@ import { render, screen, fireEvent, waitFor, within } from "@testing-library/rea
 import { NextIntlClientProvider } from "next-intl";
 import en from "@/i18n/messages/en.json";
 import { AccountForm } from "./AccountForm";
-import type { ActiveSession, CredentialView, SessionView } from "@/lib/api/types";
+import type { ActiveSession, CredentialsView, CredentialView, SessionView } from "@/lib/api/types";
 
 // Render under a fixed `en` provider so these assertions stay in English.
 function renderAccount(props: {
   session: SessionView;
   sessions: ActiveSession[] | null;
-  credentials?: CredentialView[] | null;
+  credentials?: CredentialsView | null;
 }) {
-  const { credentials = CREDENTIALS, ...rest } = props;
+  const {
+    credentials = { credentials: CREDENTIALS, recoveryCodesConfigured: false },
+    ...rest
+  } = props;
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
       <AccountForm {...rest} credentials={credentials} />
@@ -193,7 +196,11 @@ describe("AccountForm — credentials (FEAT-32)", () => {
   });
 
   it("shows the empty state for a credential type with no entries", () => {
-    renderAccount({ session: SESSION, sessions: [], credentials: [] });
+    renderAccount({
+      session: SESSION,
+      sessions: [],
+      credentials: { credentials: [], recoveryCodesConfigured: false },
+    });
     // Both the otp and passkey cards render the empty copy.
     expect(screen.getAllByText(/None enrolled yet/).length).toBeGreaterThanOrEqual(2);
   });
@@ -214,5 +221,29 @@ describe("AccountForm — credentials (FEAT-32)", () => {
     renderAccount({ session: SESSION, sessions: [], credentials: null });
     // The security card shows the load-error link-out (distinct from connections).
     expect(screen.getByText(/Couldn't load your credentials/)).toBeTruthy();
+  });
+
+  // FEAT-32: the recovery-codes card reflects presence-only state — GENERATE when
+  // no codes exist, RE-GENERATE once the caller holds a recovery-authn-codes cred.
+  it("renders the recovery card in the generate state when no codes are configured", () => {
+    renderAccount({
+      session: SESSION,
+      sessions: [],
+      credentials: { credentials: [], recoveryCodesConfigured: false },
+    });
+    expect(screen.getByText("Generate codes")).toBeTruthy();
+    expect(screen.getByText("No recovery codes yet.")).toBeTruthy();
+    expect(screen.queryByText("Regenerate codes")).toBeNull();
+  });
+
+  it("renders the recovery card in the re-generate state when codes are configured", () => {
+    renderAccount({
+      session: SESSION,
+      sessions: [],
+      credentials: { credentials: [], recoveryCodesConfigured: true },
+    });
+    expect(screen.getByText("Regenerate codes")).toBeTruthy();
+    expect(screen.getByText("Recovery codes are configured.")).toBeTruthy();
+    expect(screen.queryByText("Generate codes")).toBeNull();
   });
 });

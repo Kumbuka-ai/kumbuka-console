@@ -167,7 +167,14 @@
       "removeTitle": "Diese Zugangsdaten entfernen?",
       "removeBody": "Du kannst dich damit nicht mehr anmelden. Du kannst jederzeit neue hinzufügen.",
       "actionDone": "Sicherheitseinstellungen aktualisiert.",
-      "actionCancelled": "Aktion abgebrochen."
+      "actionCancelled": "Aktion abgebrochen.",
+      "recovery_title": "Wiederherstellungscodes",
+      "recovery_desc": "Einmalige Backup-Codes für die Anmeldung, wenn deine anderen Faktoren nicht verfügbar sind.",
+      "recovery_on": "Wiederherstellungscodes sind eingerichtet.",
+      "recovery_off": "Noch keine Wiederherstellungscodes.",
+      "recovery_generate": "Codes erzeugen",
+      "recovery_regenerate": "Codes neu erzeugen",
+      "recovery_note": "Die Codes werden einmalig auf der sicheren Anmeldeseite angezeigt — bewahre sie an einem sicheren Ort auf."
     },
     "connections": {
       "eyebrow": "aktive Verbindungen",
