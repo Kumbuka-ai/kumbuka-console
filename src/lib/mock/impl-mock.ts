@@ -6,6 +6,7 @@
  */
 import type {
   ActiveSession,
+  CredentialView,
   ConnectorView,
   CreateEntryRequest,
   CreateScopeRequest,
@@ -54,6 +55,20 @@ const state = {
       current: false,
     },
   ] as ActiveSession[],
+  credentials: [
+    {
+      id: "cred-otp",
+      type: "otp",
+      userLabel: "Authenticator app",
+      createdDate: new Date(Date.now() - 40 * 864e5).toISOString(),
+    },
+    {
+      id: "cred-passkey",
+      type: "webauthn-passwordless",
+      userLabel: "MacBook Touch ID",
+      createdDate: new Date(Date.now() - 8 * 864e5).toISOString(),
+    },
+  ] as CredentialView[],
 };
 
 const slugify = (s: string) =>
@@ -377,5 +392,22 @@ export async function terminateSession(id: string): Promise<void> {
   if (state.sessions.length === before) {
     // Parity with the backend: an unknown / foreign id is a 404, not a no-op.
     throw new Error(`no session: ${id}`);
+  }
+}
+// F-0082 parity: drop every session except the current one.
+export async function logoutOtherSessions(): Promise<void> {
+  state.sessions = state.sessions.filter((s) => s.current);
+}
+
+// ---------- Credentials (FEAT-32) --------------------------------------
+export async function listCredentials(): Promise<CredentialView[]> {
+  return state.credentials.map((c) => ({ ...c }));
+}
+export async function deleteCredential(id: string): Promise<void> {
+  const before = state.credentials.length;
+  state.credentials = state.credentials.filter((c) => c.id !== id);
+  if (state.credentials.length === before) {
+    // Parity with the backend: an unknown / foreign id is a 404, not a no-op.
+    throw new Error(`no credential: ${id}`);
   }
 }

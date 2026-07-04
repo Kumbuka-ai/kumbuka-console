@@ -7,6 +7,7 @@ import { serverFetch } from "./client";
 import { deriveUserView } from "./types";
 import type {
   ActiveSession,
+  CredentialView,
   ConnectorView,
   CreateEntryRequest,
   CreateScopeRequest,
@@ -37,6 +38,14 @@ export const updateMe = (req: UpdateMeRequest) =>
 export const listSessions = () => serverFetch<ActiveSession[]>("/api/sessions");
 export const terminateSession = (id: string) =>
   serverFetch<void>(`/api/sessions/${encodeURIComponent(id)}`, { method: "DELETE" });
+// F-0082: terminate every session except the one backing this request.
+export const logoutOtherSessions = () =>
+  serverFetch<void>("/api/sessions/logout-others", { method: "POST" });
+
+// ---------- Credentials (FEAT-32) --------------------------------------
+export const listCredentials = () => serverFetch<CredentialView[]>("/api/credentials");
+export const deleteCredential = (id: string) =>
+  serverFetch<void>(`/api/credentials/${encodeURIComponent(id)}`, { method: "DELETE" });
 
 // ---------- Scopes -----------------------------------------------------
 export const listScopes = () => serverFetch<ScopeView[]>("/api/scopes");

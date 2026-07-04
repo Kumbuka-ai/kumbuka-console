@@ -1,30 +1,39 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import en from "@/i18n/messages/en.json";
 import { AccountForm } from "./AccountForm";
-import type { ActiveSession, SessionView } from "@/lib/api/types";
+import type { ActiveSession, CredentialView, SessionView } from "@/lib/api/types";
 
 // Render under a fixed `en` provider so these assertions stay in English.
-function renderAccount(props: { session: SessionView; sessions: ActiveSession[] | null }) {
+function renderAccount(props: {
+  session: SessionView;
+  sessions: ActiveSession[] | null;
+  credentials?: CredentialView[] | null;
+}) {
+  const { credentials = CREDENTIALS, ...rest } = props;
   return render(
     <NextIntlClientProvider locale="en" messages={en}>
-      <AccountForm {...props} />
+      <AccountForm {...rest} credentials={credentials} />
     </NextIntlClientProvider>,
   );
 }
 
-// Server actions + toast are the two cross-cutting deps; stub them so the
-// test sees only AccountForm's own job — rendering the caller's connections
-// and wiring the per-row terminate to terminateSessionAction(id).
-const { updateMeMock, terminateMock, pushMock } = vi.hoisted(() => ({
+// Server actions + toast are the cross-cutting deps; stub them so the test sees
+// only AccountForm's own job — rendering the caller's connections + credentials
+// and wiring the actions.
+const { updateMeMock, terminateMock, logoutOthersMock, deleteCredMock, pushMock } = vi.hoisted(() => ({
   updateMeMock: vi.fn(),
   terminateMock: vi.fn(),
+  logoutOthersMock: vi.fn(),
+  deleteCredMock: vi.fn(),
   pushMock: vi.fn(),
 }));
 vi.mock("@/app/(app)/actions", () => ({
   updateMeAction: (...a: unknown[]) => updateMeMock(...a),
   terminateSessionAction: (...a: unknown[]) => terminateMock(...a),
+  logoutOtherSessionsAction: (...a: unknown[]) => logoutOthersMock(...a),
+  deleteCredentialAction: (...a: unknown[]) => deleteCredMock(...a),
 }));
 vi.mock("@/components/ui/Toast", () => ({ useToast: () => ({ push: pushMock }) }));
 
@@ -61,10 +70,17 @@ const SESSIONS: ActiveSession[] = [
   },
 ];
 
+const CREDENTIALS: CredentialView[] = [
+  { id: "c-otp", type: "otp", userLabel: "Google Authenticator", createdDate: "2026-05-01T00:00:00Z" },
+  { id: "c-pk", type: "webauthn-passwordless", userLabel: "MacBook Touch ID", createdDate: "2026-06-01T00:00:00Z" },
+];
+
 describe("AccountForm — active connections (D-CORE-8)", () => {
   beforeEach(() => {
     updateMeMock.mockReset();
     terminateMock.mockReset();
+    logoutOthersMock.mockReset();
+    deleteCredMock.mockReset();
     pushMock.mockReset();
     // Reset the URL between tests — the kc_action_status effect reads it on
     // mount and one test seeds a query that would otherwise leak forward.
@@ -102,30 +118,47 @@ describe("AccountForm — active connections (D-CORE-8)", () => {
     expect(screen.getByText(/No other active connections/)).toBeTruthy();
   });
 
-  // The method links render the AIA deep-link as their href once the origin is
+  // "Sign out all other sessions" (F-0082) only shows when there's more than one
+  // connection, and delegates to the logout-others action on confirm.
+  it("offers 'sign out all other sessions' and delegates on confirm", async () => {
+    logoutOthersMock.mockResolvedValue(undefined);
+    renderAccount({ session: SESSION, sessions: SESSIONS });
+    fireEvent.click(screen.getByRole("button", { name: /Sign out all other sessions/ }));
+    // Confirm inside the dialog.
+    const dialog = screen.getByRole("alertdialog");
+    fireEvent.click(within(dialog).getByText("Sign out all other sessions"));
+    await waitFor(() => expect(logoutOthersMock).toHaveBeenCalledTimes(1));
+  });
+
+  it("hides 'sign out all other sessions' with a single connection", () => {
+    renderAccount({ session: SESSION, sessions: [SESSIONS[0]] });
+    expect(screen.queryByRole("button", { name: /Sign out all other sessions/ })).toBeNull();
+  });
+
+  // The password method renders the AIA deep-link as its href once the origin is
   // known (after mount); a click then navigates same-tab into the Keycloak flow.
-  const methodHref = (label: string) =>
+  const hrefOf = (label: string) =>
     screen.getByText(label).closest("a")?.getAttribute("href") ?? "";
 
   it("deep-links the password method into the matching AIA (kc_action + redirect_uri)", () => {
     renderAccount({ session: SESSION, sessions: [] });
 
-    const href = methodHref("Password");
+    const href = hrefOf("Password");
     expect(href).toContain("/protocol/openid-connect/auth");
     expect(href).toContain("kc_action=UPDATE_PASSWORD");
     // The console supplies its OWN origin as redirect_uri (not the MCP host).
     expect(href).toContain(`redirect_uri=${encodeURIComponent(`${window.location.origin}/account`)}`);
   });
 
-  it("2FA and passkey carry their own kc_action", () => {
+  it("the card add-buttons carry their own kc_action", () => {
     renderAccount({ session: SESSION, sessions: [] });
-    expect(methodHref("Two-factor authentication")).toContain("kc_action=CONFIGURE_TOTP");
-    expect(methodHref("Passkey")).toContain("kc_action=webauthn-register-passwordless");
+    expect(hrefOf("Add authenticator app")).toContain("kc_action=CONFIGURE_TOTP");
+    expect(hrefOf("Add passkey")).toContain("kc_action=webauthn-register-passwordless");
   });
 
   it("falls back to the account-console signing-in page when no AIA base is supplied", () => {
     renderAccount({ session: { ...SESSION, securityActionUrl: undefined }, sessions: [] });
-    const href = methodHref("Password");
+    const href = hrefOf("Password");
     expect(href).toContain("#/security/signingin");
     expect(href).not.toContain("kc_action");
   });
@@ -143,5 +176,43 @@ describe("AccountForm — active connections (D-CORE-8)", () => {
     window.history.replaceState(null, "", "/account?kc_action_status=cancelled");
     renderAccount({ session: SESSION, sessions: [] });
     expect(pushMock).toHaveBeenCalledWith({ message: "Action cancelled." });
+  });
+});
+
+describe("AccountForm — credentials (FEAT-32)", () => {
+  beforeEach(() => {
+    deleteCredMock.mockReset();
+    pushMock.mockReset();
+    window.history.replaceState(null, "", "/account");
+  });
+
+  it("lists authenticator apps and passkeys by their labels", () => {
+    renderAccount({ session: SESSION, sessions: [] });
+    expect(screen.getByText("Google Authenticator")).toBeTruthy();
+    expect(screen.getByText("MacBook Touch ID")).toBeTruthy();
+  });
+
+  it("shows the empty state for a credential type with no entries", () => {
+    renderAccount({ session: SESSION, sessions: [], credentials: [] });
+    // Both the otp and passkey cards render the empty copy.
+    expect(screen.getAllByText(/None enrolled yet/).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("removing a credential confirms then delegates by id", async () => {
+    deleteCredMock.mockResolvedValue(undefined);
+    renderAccount({ session: SESSION, sessions: [] });
+
+    // The first Remove trash button is the otp credential (c-otp).
+    fireEvent.click(screen.getAllByRole("button", { name: "Remove" })[0]);
+    const dialog = screen.getByRole("alertdialog");
+    fireEvent.click(within(dialog).getByText("Remove"));
+
+    await waitFor(() => expect(deleteCredMock).toHaveBeenCalledWith("c-otp"));
+  });
+
+  it("falls back to the identity-provider link when credentials can't be loaded", () => {
+    renderAccount({ session: SESSION, sessions: [], credentials: null });
+    // The security card shows the load-error link-out (distinct from connections).
+    expect(screen.getByText(/Couldn't load your credentials/)).toBeTruthy();
   });
 });

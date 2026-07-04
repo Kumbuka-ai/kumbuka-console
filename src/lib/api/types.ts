@@ -266,6 +266,21 @@ export type ActiveSession = {
   current: boolean;
 };
 
+/** FEAT-32: the self-service credential types a member can see and remove. */
+export type CredentialType = "otp" | "webauthn" | "webauthn-passwordless";
+
+/**
+ * FEAT-32: one of the caller's own credentials (authenticator app or passkey /
+ * security key). Keycloak stores no "last used", so only `userLabel` (may be
+ * null) and `createdDate` are shown.
+ */
+export type CredentialView = {
+  id: string;
+  type: CredentialType;
+  userLabel: string | null;
+  createdDate: string | null;
+};
+
 // ---------- Requests ----------------------------------------------------
 
 export type CreateScopeRequest = { slug: string; name: string; description?: string };

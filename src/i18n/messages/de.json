@@ -142,17 +142,32 @@
       "saveFailed": "Speichern fehlgeschlagen"
     },
     "security": {
-      "eyebrow": "Sicherheit",
+      "eyebrow": "sicherheit",
       "title": "Anmeldung & Zugangsdaten",
-      "desc": "Passwort, Zwei-Faktor-Authentifizierung und Passkeys werden in der Kontoverwaltung deines Identitätsanbieters verwaltet.",
+      "desc": "Verwalte Passwort, Zwei-Faktor-Authenticator, Passkeys und Wiederherstellungscodes. Das Hinzufügen öffnet deinen Identity-Provider; das Entfernen wirkt hier sofort.",
       "password_title": "Passwort",
-      "password_sub": "Ändere dein Passwort oder richte Wiederherstellungsoptionen ein.",
-      "twofa_title": "Zwei-Faktor-Authentifizierung",
-      "twofa_sub": "Authenticator-App oder Einmalcodes per E-Mail.",
-      "passkey_title": "Passkey",
-      "passkey_sub": "Melde dich mit einem Hardware-Schlüssel oder Plattform-Authenticator an.",
-      "actionDone": "Sicherheitseinstellung aktualisiert.",
-      "actionCancelled": "Vorgang abgebrochen."
+      "password_sub": "Ändere dein Passwort beim Identity-Provider.",
+      "loadError": "Deine Zugangsdaten konnten gerade nicht geladen werden.",
+      "manageIdp": "Beim Identity-Provider verwalten",
+      "otp_title": "Authenticator-Apps",
+      "otp_desc": "Einmalcodes aus einer Authenticator-App (TOTP).",
+      "otp_add": "Authenticator-App hinzufügen",
+      "otp_generic": "Authenticator-App",
+      "passkey_title": "Passkeys & Sicherheitsschlüssel",
+      "passkey_desc": "Anmeldung per Plattform-Passkey oder Hardware-Sicherheitsschlüssel.",
+      "passkey_add": "Passkey hinzufügen",
+      "passkey_generic": "Passkey",
+      "count": "{count, plural, =0 {keine} one {# aktiv} other {# aktiv}}",
+      "none": "Noch nichts eingerichtet.",
+      "added": "Hinzugefügt {time}",
+      "remove": "Entfernen",
+      "removed": "Zugangsdaten entfernt",
+      "removeFailed": "Entfernen fehlgeschlagen",
+      "removeEyebrow": "zugangsdaten entfernen",
+      "removeTitle": "Diese Zugangsdaten entfernen?",
+      "removeBody": "Du kannst dich damit nicht mehr anmelden. Du kannst jederzeit neue hinzufügen.",
+      "actionDone": "Sicherheitseinstellungen aktualisiert.",
+      "actionCancelled": "Aktion abgebrochen."
     },
     "connections": {
       "eyebrow": "aktive Verbindungen",
@@ -170,7 +185,13 @@
       "useSignout": "unten abmelden",
       "end": "Beenden",
       "ended": "Verbindung beendet",
-      "endFailed": "Verbindung konnte nicht beendet werden"
+      "endFailed": "Verbindung konnte nicht beendet werden",
+      "logoutOthers": "Alle anderen Sitzungen abmelden",
+      "logoutOthersEyebrow": "andere abmelden",
+      "logoutOthersTitle": "Alle anderen Sitzungen abmelden?",
+      "logoutOthersBody": "Jede Verbindung außer diesem Gerät wird sofort abgemeldet. Hier bleibst du angemeldet.",
+      "othersEnded": "Andere Sitzungen abgemeldet",
+      "othersFailed": "Andere Sitzungen konnten nicht abgemeldet werden"
     },
     "private": {
       "eyebrow": "dein privates Gedächtnis",
@@ -370,12 +391,30 @@
     }
   },
   "entryTypes": {
-    "decision": { "label": "Entscheidung", "description": "Eine getroffene Wahl und die Begründung, die sie festgelegt hat." },
-    "convention": { "label": "Konvention", "description": "Wie das Team eine Sache macht — ein wiederkehrendes Muster." },
-    "constraint": { "label": "Vorgabe", "description": "Eine harte Regel von außerhalb des Teams (rechtlich, Performance, Vertrag)." },
-    "open_question": { "label": "Offene Frage", "description": "Eine bekannte Unbekannte, die auf Daten oder einen Stakeholder wartet." },
-    "glossary": { "label": "Glossar", "description": "Ein Begriff, dessen Bedeutung das Team teilen muss." },
-    "status": { "label": "Status", "description": "Aktueller Zustand von etwas — kurzlebig." }
+    "decision": {
+      "label": "Entscheidung",
+      "description": "Eine getroffene Wahl und die Begründung, die sie festgelegt hat."
+    },
+    "convention": {
+      "label": "Konvention",
+      "description": "Wie das Team eine Sache macht — ein wiederkehrendes Muster."
+    },
+    "constraint": {
+      "label": "Vorgabe",
+      "description": "Eine harte Regel von außerhalb des Teams (rechtlich, Performance, Vertrag)."
+    },
+    "open_question": {
+      "label": "Offene Frage",
+      "description": "Eine bekannte Unbekannte, die auf Daten oder einen Stakeholder wartet."
+    },
+    "glossary": {
+      "label": "Glossar",
+      "description": "Ein Begriff, dessen Bedeutung das Team teilen muss."
+    },
+    "status": {
+      "label": "Status",
+      "description": "Aktueller Zustand von etwas — kurzlebig."
+    }
   },
   "scopes": {
     "toggle": "Scopes",
@@ -465,9 +504,24 @@
     "searchPlaceholder": "Keys & Inhalte suchen…",
     "searchAria": "Einträge suchen",
     "resultCount": "{count, plural, one {# Eintrag} other {# Einträge}}",
-    "layout": { "aria": "Layout", "table": "Tabelle", "cards": "Karten" },
-    "density": { "aria": "Dichte", "comfort": "Komfort", "compact": "Kompakt" },
-    "th": { "type": "Typ", "key": "Key", "content": "Inhalt", "author": "Autor", "updated": "Aktualisiert", "actionsAria": "Aktionen" },
+    "layout": {
+      "aria": "Layout",
+      "table": "Tabelle",
+      "cards": "Karten"
+    },
+    "density": {
+      "aria": "Dichte",
+      "comfort": "Komfort",
+      "compact": "Kompakt"
+    },
+    "th": {
+      "type": "Typ",
+      "key": "Key",
+      "content": "Inhalt",
+      "author": "Autor",
+      "updated": "Aktualisiert",
+      "actionsAria": "Aktionen"
+    },
     "entryActionsAria": "Eintrags-Aktionen",
     "noKey": "kein Key",
     "reference": "Referenz",
