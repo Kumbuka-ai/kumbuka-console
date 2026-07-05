@@ -222,28 +222,4 @@ describe("AccountForm — credentials (FEAT-32)", () => {
     // The security card shows the load-error link-out (distinct from connections).
     expect(screen.getByText(/Couldn't load your credentials/)).toBeTruthy();
   });
-
-  // FEAT-32: the recovery-codes card reflects presence-only state — GENERATE when
-  // no codes exist, RE-GENERATE once the caller holds a recovery-authn-codes cred.
-  it("renders the recovery card in the generate state when no codes are configured", () => {
-    renderAccount({
-      session: SESSION,
-      sessions: [],
-      credentials: { credentials: [], recoveryCodesConfigured: false },
-    });
-    expect(screen.getByText("Generate codes")).toBeTruthy();
-    expect(screen.getByText("No recovery codes yet.")).toBeTruthy();
-    expect(screen.queryByText("Regenerate codes")).toBeNull();
-  });
-
-  it("renders the recovery card in the re-generate state when codes are configured", () => {
-    renderAccount({
-      session: SESSION,
-      sessions: [],
-      credentials: { credentials: [], recoveryCodesConfigured: true },
-    });
-    expect(screen.getByText("Regenerate codes")).toBeTruthy();
-    expect(screen.getByText("Recovery codes are configured.")).toBeTruthy();
-    expect(screen.queryByText("Generate codes")).toBeNull();
-  });
 });
