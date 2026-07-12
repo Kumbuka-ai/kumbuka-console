@@ -6,6 +6,10 @@ import { useTranslations } from "next-intl";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { Avatar, initialsOf } from "@/components/ui/Avatar";
 import { SetupGuide } from "@/components/onboarding/SetupGuide";
+// Overridable specifier (see docs/extension-points.md): a downstream build
+// rebinds it to contribute nav items; by default it returns [] and the
+// rail is unchanged.
+import { getNavExtensions } from "@kumbuka-ai/console/slots";
 import type { ReactNode } from "react";
 import type { ScopeView, SessionView } from "@/lib/api/types";
 
@@ -47,6 +51,9 @@ export function Rail({
   // RBAC: the team tab is admin-only (the route + its endpoints enforce this
   // server-side; this just hides the dead link for plain members).
   const nav = session.role === "admin" ? NAV : NAV.filter((n) => n.id !== "team");
+  // Contributed nav items render after the app's own set. Empty by
+  // default: nothing is appended — no placeholder, no badge.
+  const navExtensions = getNavExtensions("rail");
   // Own-identity chrome (D-CORE-12): show the human display name. Never the raw
   // Keycloak sub (a UUID) and never the email — fall back to a short, non-PII
   // id slug when the session carries no name.
@@ -85,6 +92,20 @@ export function Rail({
               <Icon name={n.icon} />
               <span className="txt">{t(n.id)}</span>
               {countNode}
+            </Link>
+          );
+        })}
+        {navExtensions.map((x) => {
+          const active = pathname.startsWith(x.href);
+          return (
+            <Link
+              key={x.id}
+              href={x.href}
+              className={`nav-item${active ? " active" : ""}`}
+              aria-current={active ? "page" : undefined}
+            >
+              <Icon name={x.icon} />
+              <span className="txt">{x.label}</span>
             </Link>
           );
         })}

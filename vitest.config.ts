@@ -105,6 +105,14 @@ export default defineConfig({
         "src/app/api/feedback/route.ts",
         "src/components/feedback/FeedbackDialog.tsx",
         "src/components/feedback/FeedbackLink.tsx",
+        // Extension seam (docs/extension-points.md): slot primitive + default
+        // registry, the env-gated support default, the route-manifest drift
+        // guard, and the rail (nav-extension point).
+        "src/slots/Slot.tsx",
+        "src/slots/registry.ts",
+        "src/components/feedback/SupportEntry.tsx",
+        "src/routes.manifest.ts",
+        "src/components/shell/Rail.tsx",
       ],
       exclude: [
         "**/*.test.*",
