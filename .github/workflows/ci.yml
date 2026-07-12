@@ -73,6 +73,32 @@ jobs:
           cache-to: type=gha,scope=console-ci,mode=max
 
   # ---------------------------------------------------------------------
+  # Package-consumption smoke — proves @kumbuka-ai/console is consumable
+  # as a package (docs/extension-points.md). Packs it and builds a minimal
+  # Next 15 consumer against the tarball (transpilePackages + "@/*" alias
+  # at the package src, one re-exported route, re-exported middleware).
+  # If this is red, no downstream build on top of the package can work.
+  # ---------------------------------------------------------------------
+  package-smoke:
+    name: package consumption (seam smoke)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - name: pack → consume → next build
+        run: bash e2e/package-consumption-smoke.sh
+
+  # ---------------------------------------------------------------------
   # SonarQube Cloud analysis. Pure TS/JS — no compile step needed; the
   # scan-action reads sources directly. Requires SONAR_TOKEN secret +
   # Automatic Analysis turned OFF in the Sonar UI (Project → Analysis

@@ -1,6 +1,7 @@
 import type { BackendVersion } from "@/lib/version";
 import { CONSOLE_VERSION } from "@/lib/version";
-import { FeedbackLink } from "@/components/feedback/FeedbackLink";
+import { SupportEntry } from "@/components/feedback/SupportEntry";
+import { Slot } from "@/slots/Slot";
 
 /**
  * Layout footer — small, fixed at the bottom of the main area, showing
@@ -12,8 +13,11 @@ import { FeedbackLink } from "@/components/feedback/FeedbackLink";
  * a null `backend` (transport hiccup) renders a `—` placeholder rather
  * than hiding the footer altogether.
  *
- * FEAT-11: the footer also carries the discreet beta feedback entry point —
- * the same "unobtrusive, always-reachable" slot the version chips live in.
+ * The footer also carries the `footer.support` slot, unconditionally —
+ * whether there is anything to show is the mounted component's own
+ * decision. The default (SupportEntry) renders the feedback entry only
+ * when its webhook sink is configured, so an unconfigured install shows
+ * version chips and nothing else.
  */
 export function Footer({ backend }: Readonly<{ backend: BackendVersion }>) {
   const backendVer = backend?.version ?? "—";
@@ -26,8 +30,7 @@ export function Footer({ backend }: Readonly<{ backend: BackendVersion }>) {
       <span>
         backend <code>{backendVer}</code>
       </span>
-      <span className="spacer" />
-      <FeedbackLink />
+      <Slot id="footer.support" fallback={<SupportEntry />} />
     </footer>
   );
 }

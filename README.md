@@ -133,8 +133,33 @@ The compose service is `kumbuka-console`. It binds only to the internal Docker n
 |---|---|---|
 | `KUMBUKA_BACKEND_URL` | `http://kumbuka-backend:8080` | Server-side base URL for the backend BFF. |
 | `KUMBUKA_API_MOCK` | `0` | Set to `1` to use the in-process mock instead of HTTP. |
+| `KUMBUKA_FEEDBACK_WEBHOOK_URL` | *(unset)* | Sink for the in-product feedback form (any webhook, e.g. n8n). Unset → the footer carries no feedback entry and `/api/feedback` answers `503`. |
 | `NEXT_PUBLIC_APP_NAME` | `kumbuka.ai` | Page title prefix. |
 | `NODE_ENV` | `production` (in Docker) | Standard Next.js mode flag. |
+
+---
+
+## Consuming the console as a package
+
+This app is also published as **`@kumbuka-ai/console`** to GitHub Packages on
+every release tag — as **TypeScript/TSX source**, not a compiled library (App
+Router pages with RSC / `"use client"` boundaries cannot be pre-compiled; the
+consumer transpiles).
+
+That means you can build your own console **on top of this one** instead of
+forking it: keep every screen this repo ships, re-export the routes you serve,
+and hang your own things into named mount points — **slots** for components,
+`getNavExtensions` for navigation, and a **route manifest** that keeps the two
+builds from drifting apart in silence.
+
+Every slot carries a required fallback, so a slot with nothing bound renders a
+complete surface rather than an empty box. This repo is a finished application,
+not a chassis with holes in it.
+
+The consumer contract is five one-liners (`transpilePackages`, the `@/*` alias in
+webpack *and* tsconfig, Tailwind's `@source`, the `public/` copy, the
+re-exports) — all of them, plus the reference consumer that CI builds on every
+run, are in **[`docs/extension-points.md`](docs/extension-points.md)**.
 
 ---
 
@@ -143,4 +168,4 @@ The compose service is `kumbuka-console`. It binds only to the internal Docker n
 - Component classes come from `src/styles/console-tokens.css`, a 1:1 copy of `design/prototype/console.css`. **Don't restyle existing components in Tailwind** — extend tokens.css if a real new surface is needed.
 - Mutations always go through Server Actions in `src/app/(app)/actions.ts`. The actions call `lib/api`, then `revalidatePath` the affected routes so the next render sees the new state.
 - The backend is the only source of truth for the private invariant. Reflect it in the UI in all five places; never add a code path that can show private rows.
-- AGPL-3.0. The reusable packages `@kumbuka-ai/ui` and `@kumbuka-ai/api-client` stay Apache-2.0 (see each package's `LICENSE`); D-LIC-3 CLA/DCO posture unchanged.
+- AGPL-3.0. The reusable packages `@kumbuka-ai/ui` and `@kumbuka-ai/api-client` stay Apache-2.0 (see each package's `LICENSE`). Contributions are accepted under the project's CLA/DCO.
