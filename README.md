@@ -134,7 +134,6 @@ The compose service is `kumbuka-console`. It binds only to the internal Docker n
 | `KUMBUKA_BACKEND_URL` | `http://kumbuka-backend:8080` | Server-side base URL for the backend BFF. |
 | `KUMBUKA_API_MOCK` | `0` | Set to `1` to use the in-process mock instead of HTTP. |
 | `KUMBUKA_BUILD_VERSION` | *(unset)* | Version of the deployable actually running. Unset in a standalone install — the footer shows this package's own version alone. A downstream composition build sets it to its own release version; the footer then names that build, with this package's version shown as its core. |
-| `KUMBUKA_FEEDBACK_WEBHOOK_URL` | *(unset)* | Sink for the in-product feedback form (any webhook, e.g. n8n). Unset → the footer carries no feedback entry and `/api/feedback` answers `503`. |
 | `NEXT_PUBLIC_APP_NAME` | `kumbuka.ai` | Page title prefix. |
 | `NODE_ENV` | `production` (in Docker) | Standard Next.js mode flag. |
 

@@ -154,7 +154,7 @@ feature ships one. Today there is one:
 
 | Slot id | Where | Default |
 |---|---|---|
-| `footer.support` | Layout footer, beside the version chips | The in-product feedback form — rendered only when `KUMBUKA_FEEDBACK_WEBHOOK_URL` is set |
+| `footer.support` | Layout footer, beside the version chips | Nothing — the footer shows the version chips alone. A downstream build may mount its own support entry here. |
 
 ---
 

@@ -100,17 +100,11 @@ export default defineConfig({
         "src/components/onboarding/WizardScopes.tsx",
         "src/components/onboarding/SetupGuide.tsx",
         "src/components/onboarding/steps.ts",
-        // FEAT-11 beta feedback channel: the BFF forward route (env-webhook,
-        // fail-loud 503/502) + the in-product form and its footer entry point.
-        "src/app/api/feedback/route.ts",
-        "src/components/feedback/FeedbackDialog.tsx",
-        "src/components/feedback/FeedbackLink.tsx",
         // Extension seam (docs/extension-points.md): slot primitive + default
-        // registry, the env-gated support default, the route-manifest drift
-        // guard, and the rail (nav-extension point).
+        // registry, the route-manifest drift guard, and the rail
+        // (nav-extension point).
         "src/slots/Slot.tsx",
         "src/slots/registry.ts",
-        "src/components/feedback/SupportEntry.tsx",
         "src/routes.manifest.ts",
         "src/components/shell/Rail.tsx",
       ],

@@ -1,6 +1,5 @@
 import type { BackendVersion } from "@/lib/version";
 import { CONSOLE_VERSION, getBuildVersion } from "@/lib/version";
-import { SupportEntry } from "@/components/feedback/SupportEntry";
 import { Slot } from "@/slots/Slot";
 
 /**
@@ -23,9 +22,9 @@ import { Slot } from "@/slots/Slot";
  *
  * The footer also carries the `footer.support` slot, unconditionally —
  * whether there is anything to show is the mounted component's own
- * decision. The default (SupportEntry) renders the feedback entry only
- * when its webhook sink is configured, so an unconfigured install shows
- * version chips and nothing else.
+ * decision. This app binds nothing to it, so the footer shows the version
+ * chips and nothing else; a downstream composition build may mount its own
+ * support entry here.
  */
 export function Footer({ backend }: Readonly<{ backend: BackendVersion }>) {
   const build = getBuildVersion();
@@ -51,7 +50,7 @@ export function Footer({ backend }: Readonly<{ backend: BackendVersion }>) {
           backend <code>{backendVer}</code>
         </span>
       )}
-      <Slot id="footer.support" fallback={<SupportEntry />} />
+      <Slot id="footer.support" fallback={null} />
     </footer>
   );
 }
