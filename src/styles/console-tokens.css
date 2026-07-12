@@ -1411,3 +1411,38 @@ button { font-family: inherit; }
   .wz-flow { grid-template-columns: 1fr; gap: 14px; }
   .wz-flow-mid { flex-direction: row; justify-content: center; }
 }
+
+/* ============ Help area (in-app user documentation shell) ============ */
+.help-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 26px; align-items: start; }
+.help-nav { display: flex; flex-direction: column; gap: 2px; }
+.help-nav a {
+  display: flex; align-items: center; gap: 9px; padding: 8px 11px;
+  border: 1px solid transparent; color: var(--c-muted);
+  font-family: var(--font-body); font-size: 13px; text-decoration: none;
+}
+.help-nav a:hover { color: var(--c-text); background: var(--c-panel); }
+.help-nav a.active { color: var(--c-text); background: var(--c-panel); border-color: var(--c-border); }
+.help-nav a .ico { width: 15px; height: 15px; }
+.help-content { min-width: 0; }
+.help-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 64px 20px; border: 1px dashed var(--c-border); text-align: center;
+}
+.help-empty .help-empty-ico { width: 26px; height: 26px; color: var(--c-faint); margin-bottom: 6px; }
+.help-empty h2 { font-size: 15px; }
+.help-empty p, .help-pending { font-family: var(--font-body); font-size: 13px; color: var(--c-muted); }
+.help-section h2 { font-size: 16px; margin-bottom: 10px; }
+@media (max-width: 860px) {
+  .help-layout { grid-template-columns: 1fr; }
+  .help-nav { flex-direction: row; flex-wrap: wrap; }
+}
+
+/* Small inline link/button, used by footer slot content and compact
+   inline actions: inherits the surrounding typography, no chrome. */
+.footer-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: none; border: none; padding: 0; cursor: pointer;
+  font: inherit; color: inherit; text-decoration: none;
+}
+.footer-link:hover { color: var(--c-text); }
+.footer-link .ico { width: 13px; height: 13px; }

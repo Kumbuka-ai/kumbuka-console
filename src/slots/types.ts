@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import type { Locale } from "@/i18n/config";
 
 /**
  * Extension-slot contract (see docs/extension-points.md). The console
@@ -21,8 +22,11 @@ export type SlotOverride = ComponentType;
 /** Absent id → the default renders. */
 export type SlotRegistry = Partial<Record<SlotId, SlotOverride>>;
 
-/** Nav areas that accept contributed items. */
-export type NavArea = "rail";
+/**
+ * Nav areas that accept contributed items: the primary rail, and the
+ * help area's sub-navigation (`/help/[section]`).
+ */
+export type NavArea = "rail" | "help";
 
 /**
  * An additive nav item contributed by a downstream build. This repo
@@ -34,8 +38,11 @@ export type NavExtension = {
   id: string;
   /** Route the item links to. */
   href: string;
-  /** Visible label. Contributed builds localize their own labels. */
-  label: string;
+  /**
+   * Visible label, one text per supported locale. The record type makes a
+   * missing translation a compile error rather than a silent fallback.
+   */
+  label: Record<Locale, string>;
   /** Icon vocabulary of `@/components/ui/Icon` (unknown names fall back). */
   icon: string;
 };

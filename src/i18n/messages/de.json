@@ -8,7 +8,8 @@
     "brandSub": "Gedächtnis-Konsole",
     "accountTitle": "Kontoeinstellungen",
     "accountSuffix": "(Konto)",
-    "signedIn": "angemeldet"
+    "signedIn": "angemeldet",
+    "help": "Hilfe"
   },
   "roles": {
     "admin": "Admin",
@@ -25,7 +26,9 @@
     "account_meta": "deine Einstellungen",
     "scopes_title": "Geteiltes Gedächtnis",
     "scopes_meta": "Scope-Browser",
-    "scopes_active": "{count} aktive Scopes"
+    "scopes_active": "{count} aktive Scopes",
+    "help_title": "Hilfe",
+    "help_meta": "Benutzerdokumentation"
   },
   "signin": {
     "brandSub": "Gedächtnis-Konsole",
@@ -710,5 +713,10 @@
       "createdToast": "{count, plural, one {# Scope} other {# Scopes}} angelegt",
       "createFailed": "{count, plural, one {# Scope} other {# Scopes}} konnte nicht angelegt werden"
     }
+  },
+  "help": {
+    "emptyTitle": "Die Hilfe ist im Aufbau",
+    "emptyBody": "Die einzelnen Themen erscheinen hier, sobald sie geschrieben sind.",
+    "sectionPending": "Diese Seite ist noch nicht geschrieben."
   }
 }

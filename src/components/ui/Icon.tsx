@@ -49,6 +49,8 @@ import {
   EyeOff,
   Inbox,
   MessageSquare,
+  CircleHelp,
+  Paperclip,
 } from "lucide-react";
 
 const REGISTRY: Record<string, LucideIcon> = {
@@ -94,6 +96,8 @@ const REGISTRY: Record<string, LucideIcon> = {
   eyeOff: EyeOff,
   inbox: Inbox,
   message: MessageSquare,
+  help: CircleHelp,
+  paperclip: Paperclip,
 };
 
 export type IconName = keyof typeof REGISTRY;

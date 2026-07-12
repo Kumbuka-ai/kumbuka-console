@@ -16,6 +16,7 @@ export const slots: SlotRegistry = {};
 
 const NAV_EXTENSIONS: Record<NavArea, NavExtension[]> = {
   rail: [],
+  help: [],
 };
 
 /** Nav items contributed to `area`. This app contributes none. */

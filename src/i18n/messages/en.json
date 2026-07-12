@@ -8,7 +8,8 @@
     "brandSub": "memory console",
     "accountTitle": "Account settings",
     "accountSuffix": "(account)",
-    "signedIn": "signed in"
+    "signedIn": "signed in",
+    "help": "Help"
   },
   "roles": {
     "admin": "admin",
@@ -25,7 +26,9 @@
     "account_meta": "your settings",
     "scopes_title": "Shared memory",
     "scopes_meta": "scope browser",
-    "scopes_active": "{count} active scopes"
+    "scopes_active": "{count} active scopes",
+    "help_title": "Help",
+    "help_meta": "User documentation"
   },
   "signin": {
     "brandSub": "memory console",
@@ -710,5 +713,10 @@
       "createdToast": "{count, plural, one {# scope} other {# scopes}} created",
       "createFailed": "{count, plural, one {# scope} other {# scopes}} couldn't be created"
     }
+  },
+  "help": {
+    "emptyTitle": "The help area is under construction",
+    "emptyBody": "Topics will appear here as they are written.",
+    "sectionPending": "This page has not been written yet."
   }
 }
