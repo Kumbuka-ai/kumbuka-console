@@ -677,7 +677,9 @@
   "help": {
     "emptyTitle": "Die Hilfe ist im Aufbau",
     "emptyBody": "Die einzelnen Themen erscheinen hier, sobald sie geschrieben sind.",
-    "sectionPending": "Diese Seite ist noch nicht geschrieben."
+    "catalog": {
+      "resultLabel": "Ergebnis"
+    }
   },
   "connect": {
     "eyebrow": "connect",

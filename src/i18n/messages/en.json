@@ -677,7 +677,9 @@
   "help": {
     "emptyTitle": "The help area is under construction",
     "emptyBody": "Topics will appear here as they are written.",
-    "sectionPending": "This page has not been written yet."
+    "catalog": {
+      "resultLabel": "Result"
+    }
   },
   "connect": {
     "eyebrow": "connect",
