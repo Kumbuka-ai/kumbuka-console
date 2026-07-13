@@ -171,15 +171,11 @@ function parseBodyLine(line: string, lineNo: number, title: string, steps: Guide
   return title;
 }
 
-/** Parse a full guide document. Throws GuideFormatError on any violation. */
-export function parseGuide(source: string): CellGuide {
-  const lines = source.split(/\r?\n/);
-  const { frontmatter, next } = parseFrontmatter(lines);
-
-  let title = "";
+/** Body lines with comments and blanks dropped, original line numbers kept. */
+function contentLines(lines: string[], start: number): { line: string; no: number }[] {
+  const out: { line: string; no: number }[] = [];
   let inComment = false;
-  const steps: GuideStep[] = [];
-  for (let i = next; i < lines.length; i++) {
+  for (let i = start; i < lines.length; i++) {
     const line = lines[i].trim();
     if (inComment) {
       if (line.endsWith("-->")) inComment = false;
@@ -189,8 +185,20 @@ export function parseGuide(source: string): CellGuide {
       if (!line.endsWith("-->")) inComment = true;
       continue;
     }
-    if (line === "") continue;
-    title = parseBodyLine(line, i + 1, title, steps);
+    if (line !== "") out.push({ line, no: i + 1 });
+  }
+  return out;
+}
+
+/** Parse a full guide document. Throws GuideFormatError on any violation. */
+export function parseGuide(source: string): CellGuide {
+  const lines = source.split(/\r?\n/);
+  const { frontmatter, next } = parseFrontmatter(lines);
+
+  let title = "";
+  const steps: GuideStep[] = [];
+  for (const { line, no } of contentLines(lines, next)) {
+    title = parseBodyLine(line, no, title, steps);
   }
 
   if (!title) throw new GuideFormatError("guide carries no # title");

@@ -1557,8 +1557,8 @@ button { font-family: inherit; }
 .iblock-out { position: relative; }
 .iblock-out.small .iblock-code { padding: 12px 52px 12px 16px; }
 .iblock-out.small .iblock-code code { font-size: 13px; }
-.iblock-code { margin: 0; padding: 18px 52px 18px 20px; background: var(--c-ink-panel); border: 1px solid var(--c-ink-panel-line); overflow-x: auto; }
-.iblock-code code { font-family: var(--font-mono); font-size: 13.6px; line-height: 1.62; color: var(--c-ink-panel-text); white-space: pre-wrap; }
+.iblock-code { margin: 0; padding: 18px 52px 18px 20px; background: var(--c-ink-panel); border: 1px solid var(--c-ink-panel-line); }
+.iblock-code code { font-family: var(--font-mono); font-size: 13.6px; line-height: 1.62; color: var(--c-ink-panel-text); white-space: pre-wrap; overflow-wrap: anywhere; }
 .iblock-copy {
   position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; display: grid; place-items: center;
   border: 1px solid var(--c-ink-panel-line); background: var(--c-ink-panel); color: var(--c-ink-panel-muted);
@@ -1571,7 +1571,7 @@ button { font-family: inherit; }
 .usage-ex { border: 1px solid var(--c-border); background: var(--c-inset); padding: 16px 18px; display: flex; flex-direction: column; gap: 13px; }
 .ux-label { font-family: var(--font-mono); font-size: 10.93px; letter-spacing: .12em; text-transform: uppercase; color: var(--c-accent); }
 .ux-say { position: relative; }
-.ux-sentence { margin: 0; padding: 13px 50px 13px 15px; background: var(--c-ink-panel); border: 1px solid var(--c-ink-panel-line); color: var(--c-ink-panel-text); font-family: var(--font-display); font-size: 15px; line-height: 1.45; }
+.ux-sentence { margin: 0; padding: 13px 50px 13px 15px; background: var(--c-ink-panel); border: 1px solid var(--c-ink-panel-line); color: var(--c-ink-panel-text); font-family: var(--font-display); font-size: 15px; line-height: 1.45; overflow-wrap: anywhere; }
 .ux-say .iblock-copy { top: 8px; right: 8px; }
 .ux-result { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .ux-result-label { font-family: var(--font-mono); font-size: 10.35px; letter-spacing: .1em; text-transform: uppercase; color: var(--c-faint); }
