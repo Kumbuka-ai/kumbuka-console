@@ -1,34 +1,18 @@
 ---
 agent: claude
 apparatus: web
-authoring: pending
 ---
 # Claude im Browser mit kumbuka verbinden
 
-<!-- ================= AUTORENZONE =================
-Dieses Dokument ist ein Skelett: die nummerierten Schritte sind noch
-nicht geschrieben. Sie entstehen in DEMSELBEN Durchlauf, der diese Zelle
-im Manifest (src/connect/manifest.ts) von `untested` auf `verified` hebt
-— erst durchklicken, dann beschreiben, nie umgekehrt.
-
-Format (strikt, der Parser prueft es):
-
-  1. Schritttext. `Code` in Backticks; Werte inline als {{ENDPOINT}}.
-     {{ENDPOINT}}
-     [shot 1: Bildunterschrift]
-
-- Eine Token-Zeile ({{ENDPOINT}}, {{SCOPE_SLUG}}, {{INSTRUCTION_BLOCK}})
-  allein auf einer Zeile wird zur Copy-Box mit Copy-Button. Andere Token
-  gibt es nicht — der Konnektor wird allein ueber die Endpoint-URL
-  eingerichtet, eine Client-ID existiert nicht. Ein unbekannter Token ist
-  ein Fehler, kein Leerstring.
-- [shot N: ...] ist ein nummerierter Screenshot-Slot; die Nummer
-  korrespondiert mit dem Schritt. Das Bild liegt unter
-  public/connect/claude-web/step-N.png (PNG 2x, enger Crop, Markierung
-  im Akzent #FF5B1F, ein Bildersatz, keine Secrets im Bild). Ohne Bild
-  rendert der Slot als Platzhalter — Bilder kommen ohne Code-Change dazu.
-- Wenn die Schritte geschrieben und verifiziert sind: die Zeile
-  `authoring: pending` oben ENTFERNEN und im Manifest den Status dieser
-  Zelle auf `verified` setzen. Solange der Marker steht, laesst der
-  Manifest-Test `verified` nicht zu.
-================================================== -->
+1. Öffne im Browser in claude.ai den Menüpunkt „Anpassen" und dort die Verwaltung für Konnektoren.
+   [shot 1: Claude: Konnektor-Verwaltung]
+2. Lege einen neuen Benutzerdefinierten-Connector an und trage die **Endpoint-URL** ein. Klicke dann auf **Hinzufügen**.
+   {{ENDPOINT}}
+   [shot 2: Claude: Endpoint-Feld]
+3. Der Connector zeigt „Du bist noch nicht mit Kumbuka verbunden." — klicke auf **Verbinden**.
+   [shot 3: Claude: noch nicht verbunden]
+4. Melde dich bei kumbuka an und **gewähre** die angefragten Zugriffsrechte.
+   [shot 4a: Bei kumbuka anmelden]
+   [shot 4b: Zugriffsrechte gewähren]
+5. Die Meldung **„Mit Kumbuka verbunden"** bestätigt den Abschluss. Folge jetzt der **Anweisung für den Assistenten** weiter unten, um dein Projekt einzurichten.
+   [shot 5: Claude: mit kumbuka verbunden]

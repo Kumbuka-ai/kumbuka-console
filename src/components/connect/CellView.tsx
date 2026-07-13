@@ -37,6 +37,7 @@ function Segments({ segments, values }: Readonly<{ segments: GuideSegment[]; val
     const key = `${seg.kind}-${offset}`;
     offset += seg.kind === "token" ? seg.token.length + 4 : seg.text.length;
     if (seg.kind === "code") return <code key={key}>{seg.text}</code>;
+    if (seg.kind === "bold") return <b key={key}>{seg.text}</b>;
     if (seg.kind === "token") return <code key={key}>{values[seg.token]}</code>;
     return <span key={key}>{seg.text}</span>;
   });
@@ -45,10 +46,10 @@ function Segments({ segments, values }: Readonly<{ segments: GuideSegment[]; val
 
 /** Screenshot slot — the real image when the operator dropped one, else
  *  an honest placeholder. Images arrive without a code change. */
-function ShotSlot({ n, caption, src }: Readonly<{ n: number; caption: string; src: string | null }>) {
+function ShotSlot({ id, caption, src }: Readonly<{ id: string; caption: string; src: string | null }>) {
   const t = useTranslations("connect.cell");
   return (
-    <figure className="shot-slot" aria-label={`Screenshot ${n}: ${caption}`}>
+    <figure className="shot-slot" aria-label={`Screenshot ${id}: ${caption}`}>
       <div className="shot-frame">
         {src ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -62,7 +63,7 @@ function ShotSlot({ n, caption, src }: Readonly<{ n: number; caption: string; sr
         )}
       </div>
       <figcaption className="shot-cap">
-        <span className="sc-n">{n}</span>
+        <span className="sc-n">{id}</span>
         {caption}
       </figcaption>
     </figure>
@@ -88,9 +89,17 @@ export function CellView({ cell, values }: Readonly<{ cell: RenderableCell; valu
               {step.boxes.map((token) => (
                 <ValueBox key={token} token={token} values={values} />
               ))}
-              {step.shots.map((shot) => (
-                <ShotSlot key={shot.n} n={shot.n} caption={shot.caption} src={shot.src} />
-              ))}
+              {step.shots.length > 1 ? (
+                <div className="shot-duo">
+                  {step.shots.map((shot) => (
+                    <ShotSlot key={shot.id} id={shot.id} caption={shot.caption} src={shot.src} />
+                  ))}
+                </div>
+              ) : (
+                step.shots.map((shot) => (
+                  <ShotSlot key={shot.id} id={shot.id} caption={shot.caption} src={shot.src} />
+                ))
+              )}
             </div>
           </li>
         ))}

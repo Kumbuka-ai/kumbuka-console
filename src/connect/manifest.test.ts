@@ -12,7 +12,7 @@
  *    coupling that makes it impossible to ship an unwritten guide.
  */
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
   CONNECT_AGENTS,
@@ -104,5 +104,43 @@ describe("connect manifest", () => {
         ).toBeGreaterThan(0);
       }
     }
+  });
+
+  it("screenshot files are language-bound and orphan-free — every image maps to a declared slot", () => {
+    const publicDir = path.join(__dirname, "..", "..", "public", "connect");
+    for (const cell of CONNECT_CELLS) {
+      if (!cell.doc) continue;
+      const cellDir = path.join(publicDir, cell.shots ?? cell.doc);
+      if (!existsSync(cellDir)) continue;
+      for (const locale of LOCALES) {
+        const localeDir = path.join(cellDir, locale);
+        if (!existsSync(localeDir)) continue;
+        const guide = parseGuide(
+          readFileSync(path.join(CELLS_DIR, `${cell.doc}.${locale}.md`), "utf8"),
+        );
+        const declared = new Set(guide.steps.flatMap((st) => st.shots.map((sh) => `step-${sh.id}.png`)));
+        for (const file of readdirSync(localeDir)) {
+          if (!file.endsWith(".png")) continue;
+          expect(
+            declared.has(file),
+            `${cell.doc}/${locale}/${file} maps to no declared [shot …] slot`,
+          ).toBe(true);
+        }
+      }
+      // Only locale folders (or docs) may live inside a cell's directory.
+      for (const entry of readdirSync(cellDir)) {
+        if (entry.endsWith(".png")) {
+          throw new Error(`${entry} sits language-neutral in ${cell.shots ?? cell.doc} — images must live under de/ or en/`);
+        }
+      }
+    }
+  });
+
+  it("a missing image in one language NEVER falls back to the other (live case: chatgpt step 6)", () => {
+    const base = path.join(__dirname, "..", "..", "public", "connect", "chatgpt-web");
+    // The attested material carries the English confirmation screen only —
+    // the German slot must render its placeholder, never the English image.
+    expect(existsSync(path.join(base, "en", "step-6.png"))).toBe(true);
+    expect(existsSync(path.join(base, "de", "step-6.png"))).toBe(false);
   });
 });

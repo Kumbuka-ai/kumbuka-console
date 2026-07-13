@@ -20,11 +20,16 @@
  * ---
  * # Title
  *
- * 1. Step text with `inline code` and {{ENDPOINT}} inline.
+ * 1. Step text with **bold**, `inline code` and {{ENDPOINT}} inline.
  *    {{ENDPOINT}}           <- value box with copy button
  *    [shot 1: Caption]      <- screenshot slot, numbered like the step
+ *    [shot 1b: Caption]     <- a letter suffix: two images on one step
  * 2. ...
  * ```
+ *
+ * Screenshots are language-bound: public/connect/<cell>/<locale>/
+ * step-<id>.png. A missing image renders the slot's placeholder — never
+ * the other language's image.
  *
  * Tokens are the closed set below. An unknown token is a thrown error —
  * never a silent empty string — so a typo fails the build/test pass
@@ -44,6 +49,7 @@ const TOKEN_SET = new Set<string>(GUIDE_TOKENS);
 /** Inline text is a list of segments so the renderer needs no HTML parsing. */
 export type GuideSegment =
   | { kind: "text"; text: string }
+  | { kind: "bold"; text: string }
   | { kind: "code"; text: string }
   | { kind: "token"; token: GuideToken };
 
@@ -52,8 +58,12 @@ export type GuideStep = {
   text: GuideSegment[];
   /** Value boxes below the step text — each renders as a copy box. */
   boxes: GuideToken[];
-  /** Screenshot slots below the step text. */
-  shots: { n: number; caption: string }[];
+  /**
+   * Screenshot slots below the step text. `id` is the step number with an
+   * optional letter suffix ("4", "4a") — two ids on one step render side
+   * by side. The image file is step-<id>.png in the cell's locale folder.
+   */
+  shots: { id: string; caption: string }[];
 };
 
 export type CellGuide = {
@@ -74,8 +84,8 @@ export class GuideFormatError extends Error {
 /** Split one line into text/code/token segments; unknown tokens throw. */
 export function parseInline(line: string, lineNo?: number): GuideSegment[] {
   const out: GuideSegment[] = [];
-  // Tokens {{NAME}} and `code` spans; everything else is plain text.
-  const re = /\{\{([A-Z_]+)\}\}|`([^`]*)`/g;
+  // Tokens {{NAME}}, `code` spans and **bold** runs; the rest is text.
+  const re = /\{\{([A-Z_]+)\}\}|`([^`]*)`|\*\*([^*]+)\*\*/g;
   let last = 0;
   for (let m = re.exec(line); m !== null; m = re.exec(line)) {
     if (m.index > last) out.push({ kind: "text", text: line.slice(last, m.index) });
@@ -84,8 +94,10 @@ export function parseInline(line: string, lineNo?: number): GuideSegment[] {
         throw new GuideFormatError(`unknown placeholder token {{${m[1]}}}`, lineNo);
       }
       out.push({ kind: "token", token: m[1] as GuideToken });
-    } else {
+    } else if (m[2] !== undefined) {
       out.push({ kind: "code", text: m[2] });
+    } else {
+      out.push({ kind: "bold", text: m[3] });
     }
     last = re.lastIndex;
   }
@@ -121,17 +133,17 @@ function parseFrontmatter(lines: string[]): { frontmatter: Record<string, string
   return { frontmatter, next: i + 1 };
 }
 
-/** `[shot N: Caption]` — string-parsed, or null if the line is no shot slot. */
-function parseShotLine(line: string, lineNo: number): { n: number; caption: string } | null {
+/** `[shot N: Caption]` / `[shot Na: Caption]` — or null if no shot slot. */
+function parseShotLine(line: string, lineNo: number): { id: string; caption: string } | null {
   if (!line.startsWith("[shot ") || !line.endsWith("]")) return null;
   const inner = line.slice("[shot ".length, -1);
   const colon = inner.indexOf(":");
   if (colon < 0) throw new GuideFormatError("shot slot needs a `:` before the caption", lineNo);
-  const n = Number(inner.slice(0, colon).trim());
-  if (!Number.isInteger(n) || n <= 0) {
-    throw new GuideFormatError("shot slot needs a positive number", lineNo);
+  const id = inner.slice(0, colon).trim();
+  if (!/^[1-9]\d*[a-z]?$/.test(id)) {
+    throw new GuideFormatError("shot slot needs a step number (optionally with a letter suffix)", lineNo);
   }
-  return { n, caption: inner.slice(colon + 1).trim() };
+  return { id, caption: inner.slice(colon + 1).trim() };
 }
 
 /** `{{TOKEN}}` alone on a line — a value box; unknown tokens throw. */

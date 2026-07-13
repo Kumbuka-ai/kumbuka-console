@@ -60,9 +60,11 @@ export async function ConnectSection({
         text: step.text,
         boxes: step.boxes,
         shots: step.shots.map((shot) => {
-          const rel = `/connect/${cell.shots ?? cell.doc}/step-${shot.n}.png`;
+          // Language-bound image path — a missing image stays a
+          // placeholder, NEVER the other language's screenshot.
+          const rel = `/connect/${cell.shots ?? cell.doc}/${locale}/step-${shot.id}.png`;
           const exists = existsSync(path.join(process.cwd(), "public", rel));
-          return { n: shot.n, caption: shot.caption, src: exists ? rel : null };
+          return { id: shot.id, caption: shot.caption, src: exists ? rel : null };
         }),
       })),
     };

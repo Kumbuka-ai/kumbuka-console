@@ -1,33 +1,16 @@
 ---
 agent: grok
 apparatus: web
-authoring: pending
 ---
 # Connect Grok in the browser to kumbuka
 
-<!-- ================= AUTHORING ZONE =================
-This document is a skeleton: the numbered steps have not been written
-yet. They are produced in the SAME pass that raises this cell from
-`untested` to `verified` in the manifest (src/connect/manifest.ts) —
-click through first, then describe, never the other way round.
-
-Format (strict, the parser enforces it):
-
-  1. Step text. `Code` in backticks; values inline as {{ENDPOINT}}.
-     {{ENDPOINT}}
-     [shot 1: Caption]
-
-- A token line ({{ENDPOINT}}, {{SCOPE_SLUG}}, {{INSTRUCTION_BLOCK}})
-  alone on a line becomes a copy box with a copy button. No other tokens
-  exist — the connector onboards by endpoint URL alone, there is no
-  client id. An unknown token is an error, not an empty string.
-- [shot N: ...] is a numbered screenshot slot; the number corresponds to
-  the step. The image lives at public/connect/grok-web/step-N.png
-  (PNG 2x, tight crop, accent #FF5B1F marker, one image set, no secrets
-  in the picture). Without an image the slot renders as a placeholder —
-  images arrive without a code change.
-- Once the steps are written and verified: REMOVE the `authoring:
-  pending` line above and set this cell's status to `verified` in the
-  manifest. While the marker is present, the manifest test refuses
-  `verified`.
-================================================== -->
+1. In Grok go to **Skills and Connectors** in the navigation, open the **Connectors** tab and click **“New Connector”** in the top right.
+   [shot 1: Grok: Skills and Connectors]
+2. Choose **“Custom Connector”**. In the dialog enter a **Name** and put the **Endpoint URL** as the **Server URL**. Then click **“Add Connector”**.
+   {{ENDPOINT}}
+   [shot 2: Grok: Custom Connector]
+3. A **popup** with the kumbuka sign-in opens — sign in and **grant** the requested access privileges.
+   [shot 3a: Sign in to kumbuka]
+   [shot 3b: Grant access]
+4. The message **“Connector added successfully”** confirms completion. Now follow the **Instruction for the assistant** below to set up your project.
+   [shot 4: Grok: Connector added]

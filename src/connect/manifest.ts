@@ -68,13 +68,13 @@ export type ConnectCell = {
 };
 
 export const CONNECT_CELLS: readonly ConnectCell[] = [
-  { agent: "claude", apparatus: "web", status: "untested", doc: "claude-web", shots: "claude-web" },
+  { agent: "claude", apparatus: "web", status: "verified", doc: "claude-web", shots: "claude-web" },
   { agent: "claude", apparatus: "desktop", status: "untested" },
   { agent: "claude", apparatus: "code", status: "untested" },
-  { agent: "chatgpt", apparatus: "web", status: "untested", doc: "chatgpt-web", shots: "chatgpt-web" },
+  { agent: "chatgpt", apparatus: "web", status: "verified", doc: "chatgpt-web", shots: "chatgpt-web" },
   { agent: "chatgpt", apparatus: "desktop", status: "untested" },
   { agent: "chatgpt", apparatus: "code", status: "untested" },
-  { agent: "grok", apparatus: "web", status: "untested", doc: "grok-web", shots: "grok-web" },
+  { agent: "grok", apparatus: "web", status: "verified", doc: "grok-web", shots: "grok-web" },
   { agent: "grok", apparatus: "desktop", status: "not-applicable" },
   { agent: "grok", apparatus: "code", status: "not-applicable" },
 ];

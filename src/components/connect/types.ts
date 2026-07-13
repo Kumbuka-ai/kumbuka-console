@@ -5,7 +5,7 @@ import type { ConnectAgentSlug, ConnectApparatus } from "@/connect/manifest";
  * Serializable render model of one verified cell — built server-side
  * (guide parsed, screenshot files probed), rendered client-side.
  */
-export type RenderableShot = { n: number; caption: string; src: string | null };
+export type RenderableShot = { id: string; caption: string; src: string | null };
 
 export type RenderableStep = {
   n: number;

@@ -1,34 +1,19 @@
 ---
 agent: chatgpt
 apparatus: web
-authoring: pending
 ---
 # ChatGPT im Browser mit kumbuka verbinden
 
-<!-- ================= AUTORENZONE =================
-Dieses Dokument ist ein Skelett: die nummerierten Schritte sind noch
-nicht geschrieben. Sie entstehen in DEMSELBEN Durchlauf, der diese Zelle
-im Manifest (src/connect/manifest.ts) von `untested` auf `verified` hebt
-— erst durchklicken, dann beschreiben, nie umgekehrt.
-
-Format (strikt, der Parser prueft es):
-
-  1. Schritttext. `Code` in Backticks; Werte inline als {{ENDPOINT}}.
-     {{ENDPOINT}}
-     [shot 1: Bildunterschrift]
-
-- Eine Token-Zeile ({{ENDPOINT}}, {{SCOPE_SLUG}}, {{INSTRUCTION_BLOCK}})
-  allein auf einer Zeile wird zur Copy-Box mit Copy-Button. Andere Token
-  gibt es nicht — der Konnektor wird allein ueber die Endpoint-URL
-  eingerichtet, eine Client-ID existiert nicht. Ein unbekannter Token ist
-  ein Fehler, kein Leerstring.
-- [shot N: ...] ist ein nummerierter Screenshot-Slot; die Nummer
-  korrespondiert mit dem Schritt. Das Bild liegt unter
-  public/connect/chatgpt-web/step-N.png (PNG 2x, enger Crop, Markierung
-  im Akzent #FF5B1F, ein Bildersatz, keine Secrets im Bild). Ohne Bild
-  rendert der Slot als Platzhalter — Bilder kommen ohne Code-Change dazu.
-- Wenn die Schritte geschrieben und verifiziert sind: die Zeile
-  `authoring: pending` oben ENTFERNEN und im Manifest den Status dieser
-  Zelle auf `verified` setzen. Solange der Marker steht, laesst der
-  Manifest-Test `verified` nicht zu.
-================================================== -->
+1. Wechsle in ChatGPT in der Navigation zu **Plugins** und klicke rechts oben auf das **+**.
+2. Es öffnet sich der Dialog **New Plugin**.
+   [shot 2: ChatGPT: New Plugin]
+3. Trage die **Endpoint-URL** unter **Server URL** ein, wähle bei **Authentifizierung** die Option **OAuth** und setze den Haken bei **„Ich verstehe und ich möchte fortfahren"**.
+   {{ENDPOINT}}
+   [shot 3: ChatGPT: OAuth + Bestätigung]
+4. Klicke auf **Erstellen**. Es öffnet sich der Verbinden-Dialog — klicke dort auf **„Mit Kumbuka anmelden"**.
+   [shot 4: ChatGPT: Kumbuka hinzufügen]
+5. Melde dich bei kumbuka an und **gewähre** die angefragten Zugriffsrechte.
+   [shot 5a: Bei kumbuka anmelden]
+   [shot 5b: Zugriffsrechte gewähren]
+6. Nach der Freigabe ist der Connector verbunden. Folge jetzt der **Anweisung für den Assistenten** weiter unten, um dein Projekt einzurichten.
+   [shot 6: ChatGPT: verbunden]

@@ -65,7 +65,7 @@ const CLAUDE_WEB_CELL: RenderableCell = {
         { kind: "text", text: " into the form." },
       ],
       boxes: ["ENDPOINT"],
-      shots: [{ n: 1, caption: "The form", src: null }],
+      shots: [{ id: "1", caption: "The form", src: null }],
     },
   ],
 };

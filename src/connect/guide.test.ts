@@ -31,11 +31,11 @@ describe("guide parser", () => {
     expect(g.title).toBe("Connect the fixture");
     expect(g.authoringPending).toBe(false);
     expect(g.steps).toHaveLength(3);
-    expect(g.steps[0].shots).toEqual([{ n: 1, caption: "The settings dialog" }]);
+    expect(g.steps[0].shots).toEqual([{ id: "1", caption: "The settings dialog" }]);
     expect(g.steps[1].boxes).toEqual(["ENDPOINT"]);
     expect(g.steps[1].text).toContainEqual({ kind: "token", token: "ENDPOINT" });
     expect(g.steps[1].text).toContainEqual({ kind: "code", text: "Endpoint URL" });
-    expect(g.steps[2].shots).toEqual([{ n: 3, caption: "Grant screen" }]);
+    expect(g.steps[2].shots).toEqual([{ id: "3", caption: "Grant screen" }]);
   });
 
   it("the token allowlist is exactly ENDPOINT, SCOPE_SLUG, INSTRUCTION_BLOCK — the connector onboards by URL alone", () => {
