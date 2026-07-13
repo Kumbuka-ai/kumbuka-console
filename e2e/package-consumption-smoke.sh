@@ -28,6 +28,19 @@ pnpm pack --pack-destination "$WORK" >/dev/null
 TARBALL="$(ls "$WORK"/kumbuka-ai-console-*.tgz)"
 echo "    $TARBALL"
 
+# The help-section documents (and the connect-cell guides) are loaded from
+# the packed src at runtime — a tarball without them builds green and then
+# serves empty pages in a consumer. Assert every document in the repo is in
+# the pack, so the gap fails loud here.
+echo "==> tarball carries every src markdown document"
+TARLIST="$(tar -tzf "$TARBALL")"
+for f in src/help/sections/*.md src/connect/cells/*.md; do
+  if ! grep -qx "package/$f" <<<"$TARLIST"; then
+    echo "MISSING from tarball: $f" >&2
+    exit 1
+  fi
+done
+
 CONSUMER="$WORK/consumer"
 mkdir -p "$CONSUMER/src/app/(app)/overview" "$CONSUMER/src/i18n"
 

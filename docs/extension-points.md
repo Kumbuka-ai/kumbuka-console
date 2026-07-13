@@ -182,7 +182,8 @@ A help contribution is the same shape with `area === "help"`; its `href`
 points at a route your build serves itself (a static route wins over the
 package's dynamic `/help/[section]` segment). The help area also renders
 sections from its own data-driven manifest (`src/help/manifest.ts`);
-contributed items are appended after those.
+contributed items are appended after those. The manifest sections and
+their document format are described in [help-content.md](./help-content.md).
 
 Contribute nothing and nothing is rendered — no gap, no placeholder. Icons come
 from the console's own icon vocabulary; an unknown name falls back rather than

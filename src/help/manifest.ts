@@ -5,9 +5,10 @@ import type { Locale } from "@/i18n/config";
  * sub-navigation (`/help/[section]`).
  *
  * The navigation is data-driven so future sections are an entry here plus
- * a content page, never a menu rebuild. The manifest is empty today: the
- * help content does not exist yet, and an empty help area renders a clean
- * empty state rather than invented placeholder documentation.
+ * a section document, never a menu rebuild. A section exists when its
+ * text exists: every manifest entry must have both locale documents under
+ * src/help/sections/<slug>.<locale>.md (a missing document is a thrown
+ * error at render time and a red test before that — see sections.test.ts).
  *
  * Labels carry one text per supported locale — the record type makes a
  * missing translation a compile error, not a silent fallback.
@@ -28,15 +29,26 @@ export type HelpSection = {
 };
 
 export const helpManifest: HelpSection[] = [
-  // The memory-types reference. Its content is written section by
-  // section; until then the section renders the pending note. The connect
-  // area's usage examples deep-link here with the type slug as anchor
-  // (/help/types#decision) — the content page carries one anchor per type.
+  {
+    slug: "concepts",
+    label: { de: "Konzepte", en: "Concepts" },
+    icon: "info",
+    order: 10,
+  },
+  // The memory-types reference. The connect area's usage examples
+  // deep-link here with the type slug as anchor (/help/types#decision) —
+  // the [type-catalog] block carries one anchor per type.
   {
     slug: "types",
     label: { de: "Speicherarten", en: "Memory types" },
     icon: "layers",
-    order: 10,
+    order: 20,
+  },
+  {
+    slug: "assistant",
+    label: { de: "Arbeiten mit dem Assistenten", en: "Working with your assistant" },
+    icon: "bot",
+    order: 30,
   },
 ];
 
