@@ -46,10 +46,15 @@ function Segments({ segments, values }: Readonly<{ segments: GuideSegment[]; val
 
 /** Screenshot slot — the real image when the operator dropped one, else
  *  an honest placeholder. Images arrive without a code change. */
-function ShotSlot({ id, caption, src }: Readonly<{ id: string; caption: string; src: string | null }>) {
+function ShotSlot({
+  id,
+  caption,
+  src,
+  labelled,
+}: Readonly<{ id: string; caption: string; src: string | null; labelled?: boolean }>) {
   const t = useTranslations("connect.cell");
   return (
-    <figure className="shot-slot" aria-label={`Screenshot ${id}: ${caption}`}>
+    <figure className={`shot-slot${src ? " has-shot" : ""}`} aria-label={`Screenshot ${id}: ${caption}`}>
       <div className="shot-frame">
         {src ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -63,7 +68,9 @@ function ShotSlot({ id, caption, src }: Readonly<{ id: string; caption: string; 
         )}
       </div>
       <figcaption className="shot-cap">
-        <span className="sc-n">{id}</span>
+        {/* The numbered chip lives on the STEP; captions carry it only
+            when two images share one step and need telling apart. */}
+        {labelled ? <span className="sc-n">{id}</span> : null}
         {caption}
       </figcaption>
     </figure>
@@ -92,7 +99,7 @@ export function CellView({ cell, values }: Readonly<{ cell: RenderableCell; valu
               {step.shots.length > 1 ? (
                 <div className="shot-duo">
                   {step.shots.map((shot) => (
-                    <ShotSlot key={shot.id} id={shot.id} caption={shot.caption} src={shot.src} />
+                    <ShotSlot key={shot.id} id={shot.id} caption={shot.caption} src={shot.src} labelled />
                   ))}
                 </div>
               ) : (

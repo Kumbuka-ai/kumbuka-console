@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { AgentMark } from "./AgentMark";
+import { AgentNotice } from "./AgentNotice";
 import { CellView } from "./CellView";
 import { AccessPanel } from "./AccessPanel";
 import { ConnectorCard } from "./ConnectorCard";
@@ -101,7 +102,9 @@ export function ConnectBlock1({
               </div>
 
               <div className="cell-shell">
-                {tabs.length <= 1 && apparatus ? (
+                {agent?.notice ? (
+                  <AgentNotice notice={agent.notice} />
+                ) : tabs.length <= 1 && apparatus ? (
                   <div className="appbar solo">
                     <span className="app-solo">
                       <Icon name={CONNECT_APPARATUS[apparatus].icon} />

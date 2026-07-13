@@ -3,8 +3,8 @@ import path from "node:path";
 import { getTranslations } from "next-intl/server";
 import { getLocale } from "@/lib/locale";
 import {
-  agentsWithVisibleCells,
   apparatusFor,
+  pickerAgents,
   visibleCells,
   type ConnectApparatus,
 } from "@/connect/manifest";
@@ -39,7 +39,7 @@ export async function ConnectSection({
     getTranslations("connect.instruction"),
   ]);
 
-  const agents = agentsWithVisibleCells();
+  const agents = pickerAgents();
   const tabsByAgent: Record<string, ConnectApparatus[]> = {};
   for (const a of agents) {
     tabsByAgent[a.slug] = apparatusFor(a.slug);

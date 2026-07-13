@@ -19,6 +19,7 @@ import {
   CONNECT_CELLS,
   agentsWithVisibleCells,
   apparatusFor,
+  pickerAgents,
   visibleCells,
   type ConnectCell,
 } from "./manifest";
@@ -142,5 +143,30 @@ describe("connect manifest", () => {
     // the German slot must render its placeholder, never the English image.
     expect(existsSync(path.join(base, "en", "step-6.png"))).toBe(true);
     expect(existsSync(path.join(base, "de", "step-6.png"))).toBe(false);
+  });
+
+  it("a notice agent is a verified refusal: tile visible, NO cells, NO tabs, never a guide", () => {
+    const noticeAgents = CONNECT_AGENTS.filter((a) => "notice" in a);
+    expect(noticeAgents.map((a) => a.slug)).toEqual(["mistral"]);
+    for (const a of noticeAgents) {
+      // structurally separate from cells: a notice agent carries none.
+      expect(CONNECT_CELLS.filter((c) => c.agent === a.slug)).toEqual([]);
+      expect(apparatusFor(a.slug)).toEqual([]);
+      // both languages, full wording present.
+      expect(a.notice.de.paras.length).toBeGreaterThan(0);
+      expect(a.notice.en.paras.length).toBe(a.notice.de.paras.length);
+    }
+    // the tile shows up in the picker...
+    expect(pickerAgents().map((a) => a.slug)).toContain("mistral");
+    // ...but never through the cell-visibility rule.
+    expect(agentsWithVisibleCells().map((a) => a.slug)).not.toContain("mistral");
+  });
+
+  it("unmeasured vendors stay invisible — no tile as a side effect of the notice state", () => {
+    const slugs = pickerAgents().map((a) => a.slug);
+    for (const absent of ["gemini", "copilot", "cursor"]) {
+      expect(slugs).not.toContain(absent);
+    }
+    expect(slugs).toEqual(["claude", "chatgpt", "grok", "mistral"]);
   });
 });

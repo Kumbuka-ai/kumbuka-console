@@ -15,6 +15,7 @@ import { NextIntlClientProvider } from "next-intl";
 import en from "@/i18n/messages/en.json";
 import { ToastHost } from "@/components/ui/Toast";
 import { ConnectBlock1 } from "./ConnectBlock1";
+import { MISTRAL_NOTICE } from "@/connect/notices";
 import type { RenderableCell, TokenValues } from "./types";
 import type { ConnectorView, ScopeView } from "@/lib/api/types";
 
@@ -170,5 +171,37 @@ describe("ConnectBlock1 — a verified cell", () => {
     fireEvent.click(screen.getByRole("button", { name: /copy: endpoint url/i }));
     await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
     expect(writeText).toHaveBeenCalledWith("https://acme.kumbuka.ai/mcp");
+  });
+});
+
+describe("ConnectBlock1 — a notice agent (verified refusal)", () => {
+  const props = {
+    agents: [
+      { slug: "claude", name: "Claude", vendor: "Anthropic" } as const,
+      { slug: "mistral", name: "Mistral", vendor: "Mistral AI", notice: MISTRAL_NOTICE } as never,
+    ],
+    tabsByAgent: { claude: ["web" as const] },
+    cells: { "claude/web": CLAUDE_WEB_CELL },
+  };
+
+  it("shows the tile; selecting it renders the notice — no tabs, no guide", () => {
+    renderBlock(props);
+    const tile = screen.getByRole("radio", { name: /mistral/i });
+    fireEvent.click(tile);
+    expect(screen.getByText(/not supported as a client yet/i)).toBeTruthy();
+    expect(screen.getByText(/fully supported/i)).toBeTruthy();
+    // no apparatus surface, no steps, no copy boxes
+    expect(screen.queryByRole("tablist")).toBeNull();
+    expect(screen.queryByText(/in the browser/i)).toBeNull();
+    expect(document.querySelector(".cstep")).toBeNull();
+    expect(document.querySelector(".copybox")).toBeNull();
+  });
+
+  it("switching back to a cell agent restores the guide", () => {
+    renderBlock(props);
+    fireEvent.click(screen.getByRole("radio", { name: /mistral/i }));
+    fireEvent.click(screen.getByRole("radio", { name: /claude/i }));
+    expect(document.querySelector(".cstep")).toBeTruthy();
+    expect(screen.queryByText(/not supported as a client yet/i)).toBeNull();
   });
 });

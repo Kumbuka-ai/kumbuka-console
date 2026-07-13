@@ -38,6 +38,15 @@ export function AgentMark({ id }: Readonly<{ id: string }>) {
         <path d="M9 19H5.8l4-6.2 1.7 2.6z" opacity="0.55" />
       </g>
     ),
+    mistral: (
+      <g fill="currentColor" stroke="none">
+        <rect x="4" y="5" width="4" height="3" />
+        <rect x="16" y="5" width="4" height="3" />
+        <rect x="4" y="10.5" width="16" height="3" />
+        <rect x="4" y="16" width="4" height="3" />
+        <rect x="16" y="16" width="4" height="3" opacity="0.55" />
+      </g>
+    ),
   };
   return (
     <svg className="agent-mark" viewBox="0 0 24 24" aria-hidden="true">

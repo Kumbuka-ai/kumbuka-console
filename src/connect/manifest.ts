@@ -31,14 +31,20 @@
  * cannot be `verified` while its guide still carries the authoring marker.
  */
 
+import { MISTRAL_NOTICE, type AgentNotice } from "./notices";
+
 export const CONNECT_AGENTS = [
   { slug: "claude", name: "Claude", vendor: "Anthropic" },
   { slug: "chatgpt", name: "ChatGPT", vendor: "OpenAI" },
   { slug: "grok", name: "Grok", vendor: "xAI" },
+  // The third agent state: a VERIFIED refusal. The tile is visible, the
+  // panel shows the notice — no cells, no apparatus tabs, no guide. The
+  // state lives here in the manifest; the renderer knows no agent names.
+  { slug: "mistral", name: "Mistral", vendor: "Mistral AI", notice: MISTRAL_NOTICE },
 ] as const;
 
-export type ConnectAgent = (typeof CONNECT_AGENTS)[number];
-export type ConnectAgentSlug = ConnectAgent["slug"];
+export type ConnectAgent = (typeof CONNECT_AGENTS)[number] & { notice?: AgentNotice };
+export type ConnectAgentSlug = (typeof CONNECT_AGENTS)[number]["slug"];
 
 /** The surface an agent runs on. Icon names come from `@/components/ui/Icon`. */
 export const CONNECT_APPARATUS = {
@@ -100,4 +106,16 @@ export function agentsWithVisibleCells(
   cells: readonly ConnectCell[] = CONNECT_CELLS,
 ): ConnectAgent[] {
   return CONNECT_AGENTS.filter((a) => apparatusFor(a.slug, cells).length > 0);
+}
+
+/**
+ * The picker's tile list: agents with a visible cell, plus agents that
+ * carry a notice (a verified refusal is worth a tile — a user who tries
+ * the vendor anyway would fail and blame us). Everything else stays
+ * invisible: never measured means nothing to say.
+ */
+export function pickerAgents(cells: readonly ConnectCell[] = CONNECT_CELLS): ConnectAgent[] {
+  return CONNECT_AGENTS.filter(
+    (a) => apparatusFor(a.slug, cells).length > 0 || "notice" in a,
+  );
 }
