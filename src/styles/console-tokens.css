@@ -1449,24 +1449,24 @@ button { font-family: inherit; }
 
 /* ============ Connect area (agent picker · cells · instruction · usage) ============ */
 .connect-wz { margin-bottom: 30px; display: flex; flex-direction: column; gap: 18px; }
-.wz-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
-.wz-intro h2 { font-size: 27.6px; font-weight: 600; letter-spacing: -0.02em; margin: 10px 0 7px; color: var(--c-text); }
-.wz-lead { font-size: 15.5px; line-height: 1.5; color: var(--c-text-2); margin: 0; max-width: 60ch; }
+.cw-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+.cw-intro h2 { font-size: 27.6px; font-weight: 600; letter-spacing: -0.02em; margin: 10px 0 7px; color: var(--c-text); }
+.cw-lead { font-size: 15.5px; line-height: 1.5; color: var(--c-text-2); margin: 0; max-width: 60ch; }
 
 /* the numbered line-boxes */
-.wz-box { border: 1px solid var(--c-border); background: var(--c-panel); }
-.wz-box-head {
+.cw-box { border: 1px solid var(--c-border); background: var(--c-panel); }
+.cw-box-head {
   width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px;
   padding: 16px 22px; border: 0; background: transparent; cursor: pointer;
   transition: background 120ms ease;
 }
-.wz-box-head:hover { background: var(--c-hover); }
-.wz-box-title { display: inline-flex; align-items: center; gap: 12px; font-family: var(--font-display); font-weight: 600; font-size: 20.7px; letter-spacing: -0.015em; color: var(--c-text); }
-.wz-box-step { width: 26px; height: 26px; flex: none; display: grid; place-items: center; font-family: var(--font-mono); font-size: 13px; color: var(--c-accent); border: 1px solid var(--c-accent); }
-.wz-box-toggle { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--c-muted); }
-.wz-box-toggle .ico { width: 15px; height: 15px; }
-.wz-box-head:hover .wz-box-toggle { color: var(--c-text); }
-.wz-box-body { padding: 0 22px 24px; display: flex; flex-direction: column; gap: 18px; border-top: 1px solid var(--c-border-soft); padding-top: 22px; }
+.cw-box-head:hover { background: var(--c-hover); }
+.cw-box-title { display: inline-flex; align-items: center; gap: 12px; font-family: var(--font-display); font-weight: 600; font-size: 20.7px; letter-spacing: -0.015em; color: var(--c-text); }
+.cw-box-step { width: 26px; height: 26px; flex: none; display: grid; place-items: center; font-family: var(--font-mono); font-size: 13px; color: var(--c-accent); border: 1px solid var(--c-accent); }
+.cw-box-toggle { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--c-muted); }
+.cw-box-toggle .ico { width: 15px; height: 15px; }
+.cw-box-head:hover .cw-box-toggle { color: var(--c-text); }
+.cw-box-body { padding: 0 22px 24px; display: flex; flex-direction: column; gap: 18px; border-top: 1px solid var(--c-border-soft); padding-top: 22px; }
 
 /* agent picker — auto-fill fixed-width tiles: tidy at 3, wraps at 7 */
 .agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(186px, 1fr)); gap: 12px; }
@@ -1540,7 +1540,7 @@ button { font-family: inherit; }
 
 /* instruction + usage blocks */
 .iblock { border: 1px solid var(--c-border); background: var(--c-panel); padding: 24px 26px; display: flex; flex-direction: column; gap: 16px; }
-.iblock-intro h3.wz-box-title { margin: 0 0 8px; }
+.iblock-intro h3.cw-box-title { margin: 0 0 8px; }
 .iblock-intro p { font-size: 14.95px; line-height: 1.52; color: var(--c-text-2); margin: 0; max-width: 68ch; }
 .iblock-scope { display: flex; align-items: center; gap: 13px; }
 .iblock-scope label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--c-muted); }
@@ -1616,6 +1616,6 @@ button { font-family: inherit; }
 .cr-note b { color: var(--c-text-2); font-weight: 600; }
 
 @media (max-width: 860px) {
-  .wz-head { flex-direction: column; }
+  .cw-head { flex-direction: column; }
   .access-panel { grid-template-columns: 1fr; }
 }

@@ -31,8 +31,8 @@ export function UsageBlock() {
   return (
     <div className="iblock usage-block">
       <div className="iblock-intro">
-        <h3 className="wz-box-title">
-          <span className="wz-box-step">3</span>
+        <h3 className="cw-box-title">
+          <span className="cw-box-step">3</span>
           {t("title")}
         </h3>
         <p>{t("intro")}</p>

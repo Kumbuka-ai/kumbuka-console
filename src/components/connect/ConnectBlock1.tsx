@@ -58,25 +58,25 @@ export function ConnectBlock1({
   const [agentId, setAgentId] = useState<string>(agents[0]?.slug ?? "");
   const agent = agents.find((a) => a.slug === agentId) ?? agents[0];
   const tabs = agent ? (tabsByAgent[agent.slug] ?? []) : [];
-  const [apparatusChoice, setApparatus] = useState<ConnectApparatus | null>(null);
+  const [apparatusChoice, setApparatusChoice] = useState<ConnectApparatus | null>(null);
   const apparatus = apparatusChoice && tabs.includes(apparatusChoice) ? apparatusChoice : tabs[0];
   const cell = agent && apparatus ? cells[`${agent.slug}/${apparatus}`] : undefined;
   const hasPicker = agents.length > 0;
 
   return (
-    <div className={`wz-box${collapsed ? " is-collapsed" : ""}`}>
-      <button className="wz-box-head" onClick={() => setCollapsed((c) => !c)} aria-expanded={!collapsed} type="button">
-        <span className="wz-box-title">
-          <span className="wz-box-step">1</span>
+    <div className={`cw-box${collapsed ? " is-collapsed" : ""}`}>
+      <button className="cw-box-head" onClick={() => setCollapsed((c) => !c)} aria-expanded={!collapsed} type="button">
+        <span className="cw-box-title">
+          <span className="cw-box-step">1</span>
           {t("title")}
         </span>
-        <span className="wz-box-toggle">
+        <span className="cw-box-toggle">
           <span className="txt">{collapsed ? t("expand") : t("collapse")}</span>
           <Icon name={collapsed ? "chevDown" : "chevUp"} />
         </span>
       </button>
       {!collapsed && (
-        <div className="wz-box-body">
+        <div className="cw-box-body">
           {hasPicker ? (
             <>
               <div className="agent-grid" role="radiogroup" aria-label={t("agentGroup")}>
@@ -117,7 +117,7 @@ export function ConnectBlock1({
                         role="tab"
                         aria-selected={apparatus === ap}
                         className={`app-tab${apparatus === ap ? " on" : ""}`}
-                        onClick={() => setApparatus(ap)}
+                        onClick={() => setApparatusChoice(ap)}
                         type="button"
                       >
                         <Icon name={CONNECT_APPARATUS[ap].icon} />

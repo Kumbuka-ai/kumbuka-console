@@ -30,15 +30,17 @@ function ValueBox({ token, values }: Readonly<{ token: GuideToken; values: Token
 }
 
 function Segments({ segments, values }: Readonly<{ segments: GuideSegment[]; values: TokenValues }>) {
-  return (
-    <>
-      {segments.map((seg, i) => {
-        if (seg.kind === "code") return <code key={i}>{seg.text}</code>;
-        if (seg.kind === "token") return <code key={i}>{values[seg.token]}</code>;
-        return <span key={i}>{seg.text}</span>;
-      })}
-    </>
-  );
+  // Keys are the segment's character offset in the source line — stable
+  // and content-bound, unlike an array index.
+  let offset = 0;
+  const nodes = segments.map((seg) => {
+    const key = `${seg.kind}-${offset}`;
+    offset += seg.kind === "token" ? seg.token.length + 4 : seg.text.length;
+    if (seg.kind === "code") return <code key={key}>{seg.text}</code>;
+    if (seg.kind === "token") return <code key={key}>{values[seg.token]}</code>;
+    return <span key={key}>{seg.text}</span>;
+  });
+  return <>{nodes}</>;
 }
 
 /** Screenshot slot — the real image when the operator dropped one, else

@@ -45,8 +45,8 @@ export function InstructionBlock({ scopes }: Readonly<{ scopes: ScopeView[] }>) 
   return (
     <div className="iblock" id="connect-instruction">
       <div className="iblock-intro">
-        <h3 className="wz-box-title">
-          <span className="wz-box-step">2</span>
+        <h3 className="cw-box-title">
+          <span className="cw-box-step">2</span>
           {t("title")}
         </h3>
         <p>{t("intro")}</p>

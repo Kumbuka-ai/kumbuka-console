@@ -83,11 +83,11 @@ export async function ConnectSection({
 
   return (
     <section className="connect-wz" aria-label="Connect">
-      <div className="wz-head">
-        <div className="wz-intro">
+      <div className="cw-head">
+        <div className="cw-intro">
           <span className="eyebrow">{"// "}{t("eyebrow")}</span>
           <h2>{t("title")}</h2>
-          <p className="wz-lead">{t("lead")}</p>
+          <p className="cw-lead">{t("lead")}</p>
         </div>
       </div>
 
