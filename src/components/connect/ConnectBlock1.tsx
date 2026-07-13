@@ -38,6 +38,76 @@ import type { RenderableCell, TokenValues } from "./types";
  * this console); the state resets per visit until the server field
  * exists.
  */
+/** Apparatus switcher — a quiet label for one surface, tabs for more. */
+function ApparatusBar({
+  tabs,
+  apparatus,
+  onSelect,
+}: Readonly<{
+  tabs: ConnectApparatus[];
+  apparatus: ConnectApparatus | undefined;
+  onSelect: (ap: ConnectApparatus) => void;
+}>) {
+  const t = useTranslations("connect.block1");
+  const ta = useTranslations("connect.apparatus");
+  if (tabs.length <= 1 && apparatus) {
+    return (
+      <div className="appbar solo">
+        <span className="app-solo">
+          <Icon name={CONNECT_APPARATUS[apparatus].icon} />
+          {ta(`${apparatus}.label`)}
+          <span className="app-solo-note">· {ta(`${apparatus}.note`)}</span>
+        </span>
+      </div>
+    );
+  }
+  return (
+    <div className="appbar" role="tablist" aria-label={t("apparatusGroup")}>
+      {tabs.map((ap) => (
+        <button
+          key={ap}
+          role="tab"
+          aria-selected={apparatus === ap}
+          className={`app-tab${apparatus === ap ? " on" : ""}`}
+          onClick={() => onSelect(ap)}
+          type="button"
+        >
+          <Icon name={CONNECT_APPARATUS[ap].icon} />
+          {ta(`${ap}.label`)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** The cell shell's content: a notice agent shows its verified refusal,
+ *  everyone else the apparatus bar plus the selected cell's guide. */
+function CellShell({
+  agent,
+  tabs,
+  apparatus,
+  onSelect,
+  cell,
+  values,
+}: Readonly<{
+  agent: ConnectAgent;
+  tabs: ConnectApparatus[];
+  apparatus: ConnectApparatus | undefined;
+  onSelect: (ap: ConnectApparatus) => void;
+  cell: RenderableCell | undefined;
+  values: TokenValues;
+}>) {
+  if (agent.notice) {
+    return <AgentNotice notice={agent.notice} />;
+  }
+  return (
+    <>
+      <ApparatusBar tabs={tabs} apparatus={apparatus} onSelect={onSelect} />
+      {cell ? <CellView cell={cell} values={values} /> : null}
+    </>
+  );
+}
+
 export function ConnectBlock1({
   agents,
   tabsByAgent,
@@ -54,7 +124,6 @@ export function ConnectBlock1({
   scopes: ScopeView[];
 }>) {
   const t = useTranslations("connect.block1");
-  const ta = useTranslations("connect.apparatus");
   const [collapsed, setCollapsed] = useState(false);
   const [agentId, setAgentId] = useState<string>(agents[0]?.slug ?? "");
   const agent = agents.find((a) => a.slug === agentId) ?? agents[0];
@@ -101,36 +170,18 @@ export function ConnectBlock1({
                 ))}
               </div>
 
-              <div className="cell-shell">
-                {agent?.notice ? (
-                  <AgentNotice notice={agent.notice} />
-                ) : tabs.length <= 1 && apparatus ? (
-                  <div className="appbar solo">
-                    <span className="app-solo">
-                      <Icon name={CONNECT_APPARATUS[apparatus].icon} />
-                      {ta(`${apparatus}.label`)}
-                      <span className="app-solo-note">· {ta(`${apparatus}.note`)}</span>
-                    </span>
-                  </div>
-                ) : (
-                  <div className="appbar" role="tablist" aria-label={t("apparatusGroup")}>
-                    {tabs.map((ap) => (
-                      <button
-                        key={ap}
-                        role="tab"
-                        aria-selected={apparatus === ap}
-                        className={`app-tab${apparatus === ap ? " on" : ""}`}
-                        onClick={() => setApparatusChoice(ap)}
-                        type="button"
-                      >
-                        <Icon name={CONNECT_APPARATUS[ap].icon} />
-                        {ta(`${ap}.label`)}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {cell ? <CellView cell={cell} values={values} /> : null}
-              </div>
+              {agent ? (
+                <div className="cell-shell">
+                  <CellShell
+                    agent={agent}
+                    tabs={tabs}
+                    apparatus={apparatus}
+                    onSelect={setApparatusChoice}
+                    cell={cell}
+                    values={values}
+                  />
+                </div>
+              ) : null}
             </>
           ) : (
             <ConnectorCard connector={connector} />
