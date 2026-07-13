@@ -1657,20 +1657,23 @@ button { font-family: inherit; }
 .hd-list { margin: 0 0 12px; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
 .hd-callout { border-left: 3px solid var(--c-accent); background: var(--c-panel); padding: 12px 16px; margin: 0 0 12px; }
 
-/* help type catalogue — one collapsible row per memory type */
-.hd-cat { border: 1px solid var(--c-border); margin: 4px 0 16px; }
+/* help type catalogue — one collapsible row per memory type. The chip
+   column is fixed so the meaning texts of all rows align, regardless of
+   how wide the type label runs. */
+.hd-cat { border: 1px solid var(--c-border); margin: 4px 0 16px; --hd-chip-col: 132px; }
 .hd-cat-row + .hd-cat-row { border-top: 1px solid var(--c-border-soft); }
 .hd-cat-row { scroll-margin-top: 16px; }
 .hd-cat-row:target { outline: 2px solid var(--c-accent); outline-offset: -2px; }
-.hd-cat-head { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; background: none; border: 0; cursor: pointer; text-align: left; font: inherit; color: inherit; }
+.hd-cat-head { display: grid; grid-template-columns: var(--hd-chip-col) minmax(0, 1fr) 15px; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; background: none; border: 0; cursor: pointer; text-align: left; font: inherit; color: inherit; }
 .hd-cat-head:hover { background: var(--c-panel); }
-.hd-cat-head .tchip { flex: none; }
+.hd-cat-head .tchip { justify-self: start; }
 .hd-cat-meaning { font-family: var(--font-body); font-size: 13.4px; line-height: 1.45; color: var(--c-text-2); }
-.hd-cat-chev { width: 15px; height: 15px; margin-left: auto; flex: none; color: var(--c-muted); }
+.hd-cat-chev { width: 15px; height: 15px; color: var(--c-muted); }
 .hd-cat-body { padding: 2px 14px 16px; display: flex; flex-direction: column; gap: 12px; }
 .hd-cat-say { margin: 0; padding: 12px 15px; background: var(--c-ink-panel); border: 1px solid var(--c-ink-panel-line); color: var(--c-ink-panel-text); font-family: var(--font-display); font-size: 14.5px; line-height: 1.45; overflow-wrap: anywhere; }
 .hd-cat-entry { border: 1px solid var(--c-border-soft); background: var(--c-panel); padding: 11px 14px; display: flex; flex-direction: column; gap: 8px; }
 .hd-cat-entry-label { font-family: var(--font-mono); font-size: 10.35px; letter-spacing: .1em; text-transform: uppercase; color: var(--c-faint); }
-.hd-cat-entry-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.hd-cat-entry-head { display: grid; grid-template-columns: var(--hd-chip-col) minmax(0, 1fr); gap: 12px; align-items: center; }
+.hd-cat-entry-head .tchip { justify-self: start; }
 .hd-cat-key { font-family: var(--font-mono); font-size: 13px; color: var(--c-text-2); }
 .hd-cat-content { margin: 0; font-family: var(--font-body); font-size: 13.4px; line-height: 1.55; color: var(--c-text-2); }
