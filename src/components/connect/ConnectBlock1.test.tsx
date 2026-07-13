@@ -48,7 +48,6 @@ const SCOPES: ScopeView[] = [
 
 const VALUES: TokenValues = {
   ENDPOINT: "https://acme.kumbuka.ai/mcp",
-  CLIENT_ID: "kumbuka-acme",
   SCOPE_SLUG: "global",
   INSTRUCTION_BLOCK: "block-text",
 };
@@ -90,12 +89,18 @@ function renderBlock(props: Partial<Parameters<typeof ConnectBlock1>[0]> = {}) {
 }
 
 describe("ConnectBlock1 — fallback (the ship state of this change)", () => {
-  it("renders the agent-agnostic connector card, no picker, no reference", () => {
+  it("renders the URL-only connector card: intro + endpoint, nothing else", () => {
     renderBlock();
-    // today's card, verbatim surface
+    // the endpoint copy box — the one value there is
     expect(screen.getByText("https://acme.kumbuka.ai/mcp")).toBeTruthy();
-    expect(screen.getByText("kumbuka-acme")).toBeTruthy();
-    expect(screen.getByText(/public client \(PKCE\)\. Leave the secret field empty/i)).toBeTruthy();
+    // URL-only: no client id, no secret wording anywhere — the connector
+    // onboards by endpoint URL alone.
+    expect(screen.queryByText("kumbuka-acme")).toBeNull();
+    expect(screen.queryByText(/client.?id/i)).toBeNull();
+    expect(screen.queryByText(/secret/i)).toBeNull();
+    // the old right-hand column (generic steps) is gone — the access
+    // panel below is the single statement of reach.
+    expect(screen.getAllByText(/what it can reach/i)).toHaveLength(1);
     // no picker, no tabs, no reference details
     expect(screen.queryByRole("radiogroup")).toBeNull();
     expect(screen.queryByRole("tablist")).toBeNull();

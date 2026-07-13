@@ -76,7 +76,6 @@ export async function ConnectSection({
     pinnable.find((s) => s.kind === "global")?.slug ?? pinnable[0]?.slug ?? "global";
   const values: TokenValues = {
     ENDPOINT: connector.mcpUrl,
-    CLIENT_ID: connector.clientId,
     SCOPE_SLUG: defaultScope,
     INSTRUCTION_BLOCK: ti("block", { slug: defaultScope }),
   };

@@ -710,24 +710,14 @@
     },
     "values": {
       "ENDPOINT": "Endpoint-URL",
-      "CLIENT_ID": "Client-ID",
       "SCOPE_SLUG": "Scope",
       "INSTRUCTION_BLOCK": "Anweisungsblock"
     },
     "fallback": {
       "eyebrow": "konnektor",
       "title": "Verbinde deinen KI-Client",
-      "lead": "Trage diese Werte in die MCP-Konfiguration des Assistenten ein. Der Client liest und schreibt geteiltes Gedächtnis über diesen Endpoint, authentifiziert als das Team.",
-      "endpoint": "Endpoint-URL",
-      "clientId": "Client-ID",
-      "clientSecret": "Client-Secret",
-      "noSecret": "Keins — öffentlicher Client (PKCE). Secret-Feld leer lassen.",
-      "reachTitle": "Worauf er zugreifen kann",
-      "reachBody": "Nur die <b>geteilten</b> Scopes, die du hier siehst — <code>global</code> und die Projekt-Scopes. Das <b>private</b> Gedächtnis jedes Mitglieds wird über diesen Konnektor nie zugänglich.",
-      "step1": "Füge den Endpoint zu den MCP-Servern deines Clients hinzu.",
-      "step2Secret": "Authentifiziere dich mit Client-ID und Secret.",
-      "step2Public": "Gib die Client-ID ein; lass das Secret leer (öffentlicher Client, PKCE).",
-      "step3": "Der Assistent liest zuerst <code>global</code>, dann den aktiven Projekt-Scope."
+      "lead": "Trage diese URL als MCP-Endpoint in deinem Assistenten ein — mehr braucht es nicht. Der Client meldet sich beim ersten Verbinden selbst an; der Assistent liest und schreibt geteiltes Gedächtnis über diesen Endpoint, authentifiziert als das Team.",
+      "endpoint": "Endpoint-URL"
     },
     "access": {
       "title": "Worauf er zugreifen kann",
@@ -737,10 +727,8 @@
     },
     "reference": {
       "summary": "Connector-Referenz",
-      "hint": "Endpoint und Client-ID · dieselben Werte wie in der Anleitung",
-      "endpoint": "Endpoint",
-      "clientId": "Client-ID",
-      "note": "Öffentlicher Client (PKCE) — es gibt kein Secret. Identität liegt bei <idp>{idpName}</idp>; Konten und Passwörter werden unter <b>Team</b> verwaltet."
+      "hint": "Endpoint-URL · derselbe Wert wie in der Anleitung",
+      "endpoint": "Endpoint"
     },
     "instruction": {
       "title": "Anweisung für den Assistenten",

@@ -1,6 +1,11 @@
 /**
  * Cell-guide format — parser and loader.
  *
+ * The connector onboards by endpoint URL alone — there is no client id
+ * and no client secret to enter anywhere. The token set below reflects
+ * that; a `{{CLIENT_ID}}` in a guide is an unknown token and fails the
+ * build, deliberately.
+ *
  * A cell guide is a small, deliberately constrained Markdown dialect (no
  * general Markdown engine, no dependency): the author writes numbered
  * steps; a step can carry a value box (a placeholder token on its own
@@ -28,7 +33,6 @@
 
 export const GUIDE_TOKENS = [
   "ENDPOINT",
-  "CLIENT_ID",
   "SCOPE_SLUG",
   "INSTRUCTION_BLOCK",
 ] as const;

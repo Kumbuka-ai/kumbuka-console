@@ -17,10 +17,10 @@ Format (strict, the parser enforces it):
      {{ENDPOINT}}
      [shot 1: Caption]
 
-- A token line ({{ENDPOINT}}, {{CLIENT_ID}}, {{SCOPE_SLUG}},
-  {{INSTRUCTION_BLOCK}}) alone on a line becomes a copy box with a
-  copy button. No other tokens exist; an unknown token is an error, not
-  an empty string.
+- A token line ({{ENDPOINT}}, {{SCOPE_SLUG}}, {{INSTRUCTION_BLOCK}})
+  alone on a line becomes a copy box with a copy button. No other tokens
+  exist — the connector onboards by endpoint URL alone, there is no
+  client id. An unknown token is an error, not an empty string.
 - [shot N: ...] is a numbered screenshot slot; the number corresponds to
   the step. The image lives at public/connect/grok-web/step-N.png
   (PNG 2x, tight crop, accent #FF5B1F marker, one image set, no secrets

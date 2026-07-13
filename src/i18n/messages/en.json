@@ -710,24 +710,14 @@
     },
     "values": {
       "ENDPOINT": "Endpoint URL",
-      "CLIENT_ID": "Client ID",
       "SCOPE_SLUG": "Scope",
       "INSTRUCTION_BLOCK": "Instruction block"
     },
     "fallback": {
       "eyebrow": "connector",
       "title": "Connect your AI client",
-      "lead": "Enter these values in the assistant's MCP configuration. The client reads and writes shared memory through this endpoint, authenticated as the team.",
-      "endpoint": "Endpoint URL",
-      "clientId": "Client ID",
-      "clientSecret": "Client secret",
-      "noSecret": "None — public client (PKCE). Leave the secret field empty.",
-      "reachTitle": "What it can reach",
-      "reachBody": "Only the <b>shared</b> scopes you see here — <code>global</code> and the project scopes. Every member's <b>private</b> memory is never accessible through this connector.",
-      "step1": "Add the endpoint to your client's MCP servers.",
-      "step2Secret": "Authenticate with client ID and secret.",
-      "step2Public": "Enter the client ID; leave the secret empty (public client, PKCE).",
-      "step3": "The assistant reads <code>global</code> first, then the active project scope."
+      "lead": "Enter this URL as the MCP endpoint in your assistant — that is all it takes. The client registers itself on first connect; the assistant reads and writes shared memory through this endpoint, authenticated as the team.",
+      "endpoint": "Endpoint URL"
     },
     "access": {
       "title": "What it can reach",
@@ -737,10 +727,8 @@
     },
     "reference": {
       "summary": "Connector reference",
-      "hint": "Endpoint and client ID · the same values as in the guide",
-      "endpoint": "Endpoint",
-      "clientId": "Client ID",
-      "note": "Public client (PKCE) — there is no secret. Identity is delegated to <idp>{idpName}</idp>; accounts and passwords are managed under <b>Team</b>."
+      "hint": "Endpoint URL · the same value as in the guide",
+      "endpoint": "Endpoint"
     },
     "instruction": {
       "title": "Instruction for the assistant",

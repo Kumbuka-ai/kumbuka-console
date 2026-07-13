@@ -17,10 +17,11 @@ Format (strikt, der Parser prueft es):
      {{ENDPOINT}}
      [shot 1: Bildunterschrift]
 
-- Eine Token-Zeile ({{ENDPOINT}}, {{CLIENT_ID}}, {{SCOPE_SLUG}},
-  {{INSTRUCTION_BLOCK}}) allein auf einer Zeile wird zur Copy-Box mit
-  Copy-Button. Andere Token gibt es nicht; ein unbekannter Token ist ein
-  Fehler, kein Leerstring.
+- Eine Token-Zeile ({{ENDPOINT}}, {{SCOPE_SLUG}}, {{INSTRUCTION_BLOCK}})
+  allein auf einer Zeile wird zur Copy-Box mit Copy-Button. Andere Token
+  gibt es nicht — der Konnektor wird allein ueber die Endpoint-URL
+  eingerichtet, eine Client-ID existiert nicht. Ein unbekannter Token ist
+  ein Fehler, kein Leerstring.
 - [shot N: ...] ist ein nummerierter Screenshot-Slot; die Nummer
   korrespondiert mit dem Schritt. Das Bild liegt unter
   public/connect/grok-web/step-N.png (PNG 2x, enger Crop, Markierung

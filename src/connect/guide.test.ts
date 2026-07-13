@@ -9,7 +9,7 @@
  *    declared state.
  */
 import { describe, expect, it } from "vitest";
-import { GuideFormatError, parseGuide, parseInline } from "./guide";
+import { GUIDE_TOKENS, GuideFormatError, parseGuide, parseInline } from "./guide";
 
 const VERIFIED_FIXTURE = `---
 agent: claude
@@ -22,7 +22,6 @@ apparatus: web
 2. Enter the \`Endpoint URL\` — the value {{ENDPOINT}} is already yours.
    {{ENDPOINT}}
 3. Confirm with your kumbuka account and grant access.
-   {{CLIENT_ID}}
    [shot 3: Grant screen]
 `;
 
@@ -36,7 +35,24 @@ describe("guide parser", () => {
     expect(g.steps[1].boxes).toEqual(["ENDPOINT"]);
     expect(g.steps[1].text).toContainEqual({ kind: "token", token: "ENDPOINT" });
     expect(g.steps[1].text).toContainEqual({ kind: "code", text: "Endpoint URL" });
-    expect(g.steps[2].boxes).toEqual(["CLIENT_ID"]);
+    expect(g.steps[2].shots).toEqual([{ n: 3, caption: "Grant screen" }]);
+  });
+
+  it("the token allowlist is exactly ENDPOINT, SCOPE_SLUG, INSTRUCTION_BLOCK — the connector onboards by URL alone", () => {
+    expect([...GUIDE_TOKENS]).toEqual(["ENDPOINT", "SCOPE_SLUG", "INSTRUCTION_BLOCK"]);
+    // A client id has no place in a guide: there is nothing to enter it
+    // into. It must FAIL, not silently blank.
+    expect(() => parseInline("enter {{CLIENT_ID}} here")).toThrow(/unknown placeholder/);
+    expect(() =>
+      parseGuide(`---
+a: b
+---
+# T
+
+1. Step
+   {{CLIENT_ID}}
+`),
+    ).toThrow(GuideFormatError);
   });
 
   it("parses a skeleton: authoring pending, zero steps, comments ignored", () => {
