@@ -119,6 +119,25 @@ describe("Footer", () => {
     expect(chip?.outerHTML).toBe("<span>backend <code>v0.6.13</code></span>");
   });
 
+  // Display form: `-SNAPSHOT` collapses to a trailing `S` in the chip; the
+  // title keeps the full pair for copy-paste.
+  it("abbreviates -SNAPSHOT to a trailing S, keeping the full value in the title", () => {
+    const { container } = renderFooter({
+      name: "kumbuka-saas",
+      version: "0.1.0-SNAPSHOT",
+      core: "0.7.6",
+    });
+    const chip = findBackendChip(container);
+    expect(chip?.textContent).toBe("backend 0.1.0S (core 0.7.6)");
+    expect(chip?.getAttribute("title")).toBe("backend 0.1.0-SNAPSHOT (core 0.7.6)");
+  });
+
+  it("abbreviates -SNAPSHOT on the plain backend chip too", () => {
+    const { container } = renderFooter({ name: "kumbuka-saas", version: "0.1.0-SNAPSHOT" });
+    const chip = findBackendChip(container);
+    expect(chip?.outerHTML).toBe("<span>backend <code>0.1.0S</code></span>");
+  });
+
   // The slot's contract: a downstream build that binds its own
   // footer.support component gets it rendered in place of the empty default.
   it("renders a bound override in place of the empty default", async () => {

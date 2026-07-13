@@ -1,9 +1,9 @@
 {
   "name": "@kumbuka-ai/console",
-  "version": "0.1.0",
+  "version": "0.5.1",
   "private": false,
   "license": "AGPL-3.0-only",
-  "description": "kumbuka.ai admin console — Next.js BFF that consumes the kumbuka-backend admin API.",
+  "description": "kumbuka.ai admin console \u2014 Next.js BFF that consumes the kumbuka-backend admin API.",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },

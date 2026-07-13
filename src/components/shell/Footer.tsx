@@ -26,6 +26,16 @@ import { Slot } from "@/slots/Slot";
  * chips and nothing else; a downstream composition build may mount its own
  * support entry here.
  */
+/**
+ * Chip display form: `-SNAPSHOT` is abbreviated to a trailing `S`
+ * (`0.1.0-SNAPSHOT` → `0.1.0S`) to keep the chips compact. The `title`
+ * attributes keep the full, unabbreviated pair — a copy-paste into a bug
+ * report carries everything.
+ */
+function short(v: string): string {
+  return v.replace(/-SNAPSHOT$/, "S");
+}
+
 export function Footer({ backend }: Readonly<{ backend: BackendVersion }>) {
   const build = getBuildVersion();
   const backendVer = backend?.version ?? "—";
@@ -33,21 +43,21 @@ export function Footer({ backend }: Readonly<{ backend: BackendVersion }>) {
     <footer className="app-footer" aria-label="Version info">
       {build && build !== CONSOLE_VERSION ? (
         <span title={`console ${build} (core ${CONSOLE_VERSION})`}>
-          console <code>{build}</code> <span>(core {CONSOLE_VERSION})</span>
+          console <code>{short(build)}</code> <span>(core {short(CONSOLE_VERSION)})</span>
         </span>
       ) : (
         <span>
-          console <code>{CONSOLE_VERSION}</code>
+          console <code>{short(CONSOLE_VERSION)}</code>
         </span>
       )}
       <span aria-hidden="true">·</span>
       {backend?.core && backend.core !== backend.version ? (
         <span title={`backend ${backend.version} (core ${backend.core})`}>
-          backend <code>{backend.version}</code> <span>(core {backend.core})</span>
+          backend <code>{short(backend.version)}</code> <span>(core {short(backend.core)})</span>
         </span>
       ) : (
         <span>
-          backend <code>{backendVer}</code>
+          backend <code>{short(backendVer)}</code>
         </span>
       )}
       <Slot id="footer.support" fallback={null} />
