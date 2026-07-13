@@ -7,10 +7,26 @@ import { TypeCatalog } from "./TypeCatalog";
  * Renders a parsed help document (see src/help/doc.ts for the format).
  * A server component: the document is loaded and parsed on the server;
  * the only client island is the collapsible type catalogue.
+ *
+ * React keys are character offsets into the source content — stable and
+ * content-bound, the same scheme the connect area's step renderer uses.
  */
+function segmentsLength(segments: HelpSegment[]): number {
+  return segments.reduce((n, s) => n + s.text.length, 0);
+}
+
+function blockLength(block: HelpBlock): number {
+  switch (block.kind) {
+    case "list":
+      return block.items.reduce((n, item) => n + segmentsLength(item), 0);
+    case "type-catalog":
+      return "[type-catalog]".length;
+    default:
+      return segmentsLength(block.segments);
+  }
+}
+
 function Segments({ segments }: Readonly<{ segments: HelpSegment[] }>) {
-  // Keys are the segment's character offset in the source text — stable
-  // and content-bound, unlike an array index.
   let offset = 0;
   const nodes = segments.map((seg) => {
     const key = `${seg.kind}-${offset}`;
@@ -33,6 +49,20 @@ function Segments({ segments }: Readonly<{ segments: HelpSegment[] }>) {
   return <>{nodes}</>;
 }
 
+function List({ items }: Readonly<{ items: HelpSegment[][] }>) {
+  let offset = 0;
+  const nodes = items.map((item) => {
+    const key = `item-${offset}`;
+    offset += segmentsLength(item);
+    return (
+      <li key={key}>
+        <Segments segments={item} />
+      </li>
+    );
+  });
+  return <ul className="hd-list">{nodes}</ul>;
+}
+
 function Block({ block, locale }: Readonly<{ block: HelpBlock; locale: Locale }>) {
   switch (block.kind) {
     case "heading":
@@ -42,16 +72,7 @@ function Block({ block, locale }: Readonly<{ block: HelpBlock; locale: Locale }>
         </h3>
       );
     case "list":
-      return (
-        <ul className="hd-list">
-          {block.items.map((item, i) => (
-            // Static document content — the index is stable.
-            <li key={i}>
-              <Segments segments={item} />
-            </li>
-          ))}
-        </ul>
-      );
+      return <List items={block.items} />;
     case "callout":
       return (
         <aside className="hd-callout">
@@ -70,13 +91,16 @@ function Block({ block, locale }: Readonly<{ block: HelpBlock; locale: Locale }>
 }
 
 export function HelpDocView({ doc, locale }: Readonly<{ doc: HelpDoc; locale: Locale }>) {
+  let offset = 0;
+  const rendered = doc.blocks.map((block) => {
+    const key = `${block.kind}-${offset}`;
+    offset += blockLength(block);
+    return <Block key={key} block={block} locale={locale} />;
+  });
   return (
     <article className="help-section hd-doc">
       <h2>{doc.title}</h2>
-      {doc.blocks.map((block, i) => (
-        // Static document content — the index is stable.
-        <Block key={i} block={block} locale={locale} />
-      ))}
+      {rendered}
     </article>
   );
 }

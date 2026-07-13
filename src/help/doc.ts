@@ -69,39 +69,80 @@ export class HelpDocFormatError extends Error {
   }
 }
 
+/** Plain text between markers; a stray `]` or `{#` is a malformed marker. */
+function textSegment(text: string, lineNo?: number): HelpSegment {
+  if (text.includes("]") || text.includes("{#")) {
+    throw new HelpDocFormatError("malformed inline marker", lineNo);
+  }
+  return { kind: "text", text };
+}
+
+/** `**bold**` starting at `idx`; returns the segment and the next position. */
+function consumeBold(line: string, idx: number, lineNo?: number): [HelpSegment, number] {
+  const end = line.indexOf("**", idx + 2);
+  if (end < 0 || end === idx + 2) {
+    throw new HelpDocFormatError("half-open or empty **bold** run", lineNo);
+  }
+  return [{ kind: "bold", text: line.slice(idx + 2, end) }, end + 2];
+}
+
+/** `` `code` `` starting at `idx`; returns the segment and the next position. */
+function consumeCode(line: string, idx: number, lineNo?: number): [HelpSegment, number] {
+  const end = line.indexOf("`", idx + 1);
+  if (end < 0) throw new HelpDocFormatError("half-open `code` span", lineNo);
+  return [{ kind: "code", text: line.slice(idx + 1, end) }, end + 1];
+}
+
+/** `[text](target)` starting at `idx`; returns the segment and the next position. */
+function consumeLink(line: string, idx: number, lineNo?: number): [HelpSegment, number] {
+  const close = line.indexOf("]", idx + 1);
+  const malformed = () => new HelpDocFormatError("malformed [text](target) link", lineNo);
+  if (close < 0 || close === idx + 1 || line[close + 1] !== "(") throw malformed();
+  const paren = line.indexOf(")", close + 2);
+  if (paren < 0) throw malformed();
+  const href = line.slice(close + 2, paren);
+  if (href === "" || /\s/.test(href)) throw malformed();
+  if (!href.startsWith("/") && !/^https?:\/\//.test(href)) {
+    throw new HelpDocFormatError(
+      `link target must be an in-app path or an http(s) URL: ${href}`,
+      lineNo,
+    );
+  }
+  return [{ kind: "link", text: line.slice(idx + 1, close), href }, paren + 1];
+}
+
+const MARKER_CONSUMERS = {
+  "**": consumeBold,
+  "`": consumeCode,
+  "[": consumeLink,
+} as const;
+
+type Marker = keyof typeof MARKER_CONSUMERS;
+
+/** The nearest inline marker at or after `from`, or null. */
+function nextMarker(line: string, from: number): { idx: number; marker: Marker } | null {
+  let best: { idx: number; marker: Marker } | null = null;
+  for (const marker of Object.keys(MARKER_CONSUMERS) as Marker[]) {
+    const idx = line.indexOf(marker, from);
+    if (idx >= 0 && (best === null || idx < best.idx)) best = { idx, marker };
+  }
+  return best;
+}
+
 /** Split one line into text/bold/code/link segments; violations throw. */
 export function parseInline(line: string, lineNo?: number): HelpSegment[] {
   const out: HelpSegment[] = [];
-  const re = /\*\*([^*]+)\*\*|`([^`]*)`|\[([^\]]+)\]\(([^()\s]+)\)/g;
-  let last = 0;
-  for (let m = re.exec(line); m !== null; m = re.exec(line)) {
-    if (m.index > last) out.push({ kind: "text", text: line.slice(last, m.index) });
-    if (m[1] !== undefined) {
-      out.push({ kind: "bold", text: m[1] });
-    } else if (m[2] !== undefined) {
-      out.push({ kind: "code", text: m[2] });
-    } else {
-      const href = m[4];
-      if (!href.startsWith("/") && !/^https?:\/\//.test(href)) {
-        throw new HelpDocFormatError(
-          `link target must be an in-app path or an http(s) URL: ${href}`,
-          lineNo,
-        );
-      }
-      out.push({ kind: "link", text: m[3], href });
+  let pos = 0;
+  while (pos < line.length) {
+    const found = nextMarker(line, pos);
+    if (!found) {
+      out.push(textSegment(line.slice(pos), lineNo));
+      break;
     }
-    last = re.lastIndex;
-  }
-  if (last < line.length) out.push({ kind: "text", text: line.slice(last) });
-  // A half-open construct (`**bold`, `` `code ``, `[text](...`, `{#anchor`)
-  // must not slip through as literal text.
-  for (const seg of out) {
-    if (seg.kind !== "text") continue;
-    for (const marker of ["**", "`", "[", "]", "{#"]) {
-      if (seg.text.includes(marker)) {
-        throw new HelpDocFormatError(`malformed inline marker near "${marker}"`, lineNo);
-      }
-    }
+    if (found.idx > pos) out.push(textSegment(line.slice(pos, found.idx), lineNo));
+    const [segment, next] = MARKER_CONSUMERS[found.marker](line, found.idx, lineNo);
+    out.push(segment);
+    pos = next;
   }
   return out;
 }
@@ -254,6 +295,19 @@ function parseParagraph(group: NumberedLine[]): HelpBlock {
   return { kind: "paragraph", segments: parseInline(text, group[0].no) };
 }
 
+/** One body block (anything but the # title) from its line group. */
+function parseBodyBlock(group: NumberedLine[]): HelpBlock {
+  const first = group[0];
+  if (first.line.startsWith("## ")) return parseHeading(group);
+  if (first.line.startsWith("#")) {
+    throw new HelpDocFormatError(`unsupported heading level: ${first.line}`, first.no);
+  }
+  if (first.line.startsWith("- ")) return parseList(group);
+  if (first.line.startsWith(">")) return parseCallout(group);
+  if (BLOCK_TOKEN_RE.test(first.line)) return parseBlockToken(group);
+  return parseParagraph(group);
+}
+
 /** Parse a full help document. Throws HelpDocFormatError on any violation. */
 export function parseHelpDoc(source: string): HelpDoc {
   const lines = source.split(/\r?\n/);
@@ -271,25 +325,12 @@ export function parseHelpDoc(source: string): HelpDoc {
       title = parseTitle(group);
       continue;
     }
-    let block: HelpBlock;
-    if (first.line.startsWith("## ")) {
-      block = parseHeading(group);
-      if (block.kind === "heading") {
-        if (anchors.has(block.anchor)) {
-          throw new HelpDocFormatError(`duplicate anchor {#${block.anchor}}`, first.no);
-        }
-        anchors.add(block.anchor);
+    const block = parseBodyBlock(group);
+    if (block.kind === "heading") {
+      if (anchors.has(block.anchor)) {
+        throw new HelpDocFormatError(`duplicate anchor {#${block.anchor}}`, first.no);
       }
-    } else if (first.line.startsWith("#")) {
-      throw new HelpDocFormatError(`unsupported heading level: ${first.line}`, first.no);
-    } else if (first.line.startsWith("- ")) {
-      block = parseList(group);
-    } else if (first.line.startsWith(">")) {
-      block = parseCallout(group);
-    } else if (BLOCK_TOKEN_RE.test(first.line)) {
-      block = parseBlockToken(group);
-    } else {
-      block = parseParagraph(group);
+      anchors.add(block.anchor);
     }
     blocks.push(block);
   }

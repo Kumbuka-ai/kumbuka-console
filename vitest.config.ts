@@ -90,6 +90,16 @@ export default defineConfig({
         // running console + backend build to the operator UI.
         "src/lib/version.ts",
         "src/components/shell/Footer.tsx",
+        // Help area: the document format (parser + loader), the section
+        // manifest + navigation, the type catalogue and both renderers —
+        // unit-tested in src/help/*.test.ts and components/help/*.test.tsx.
+        "src/help/doc.ts",
+        "src/help/load.ts",
+        "src/help/manifest.ts",
+        "src/help/nav.ts",
+        "src/help/types-manifest.ts",
+        "src/components/help/HelpDocView.tsx",
+        "src/components/help/TypeCatalog.tsx",
         // Onboarding wizard (D-CORE-10.1) — unit-tested in
         // components/onboarding/OnboardingWizard.test.tsx (lifecycle, invite
         // parse/send, scope slug + dup-guard, re-open, scope-guard negative).
