@@ -10,17 +10,20 @@ import type { ScopeView } from "@/lib/api/types";
 const richB = (chunks: ReactNode) => <b>{chunks}</b>;
 
 /**
- * A thin, per-scope copy-paste prompt block (D-GTM-6 B). The user picks which
- * scope the block targets; its slug is pinned LITERALLY into the copied text
- * (Sprint-19 hard rule: a literal slug resolves reliably even on small models,
- * a derived "equals the project name" reference does not). The block carries
- * only the load_context trigger + a one-line Torwächter guard — the full rule
- * set lives server-side in the convention.how-to-kumbuka seeds and arrives via
- * load_context. Stays client-agnostic; the MCP tool name stays English.
+ * A thin, per-scope copy-paste prompt block. The user picks which scope
+ * the block targets; its slug is pinned LITERALLY into the copied text
+ * (a literal slug resolves reliably even on small models, a derived
+ * "equals the project name" reference does not).
+ *
+ * The block TEXT is the one canonical instruction-block template
+ * (`connect.instruction.block` — the same string the connect area's
+ * generator emits), so the setup wizard and the connect area can never
+ * drift apart. Stays client-agnostic; the MCP tool names stay English.
  */
 export function AssistantPrompt({ scopes }: Readonly<{ scopes: ScopeView[] }>) {
   const toast = useToast();
   const t = useTranslations("overview.assistant");
+  const ti = useTranslations("connect.instruction");
   const tc = useTranslations("common");
 
   // Pin targets: the live (non-archived) shared scopes the admin API returns —
@@ -32,7 +35,7 @@ export function AssistantPrompt({ scopes }: Readonly<{ scopes: ScopeView[] }>) {
 
   // The literal slug is interpolated into the SAME string that is displayed and
   // copied, so the two can never drift.
-  const prompt = t("prompt", { slug });
+  const prompt = ti("block", { slug });
   const copy = async () => {
     await navigator.clipboard?.writeText(prompt);
     toast.push({ message: t("copied") });

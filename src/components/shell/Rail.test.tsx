@@ -56,6 +56,6 @@ describe("nav extensions (default registry)", () => {
     const hrefs = screen
       .getAllByRole("link")
       .map((a) => a.getAttribute("href"));
-    expect(hrefs).toEqual(["/overview", "/scopes", "/team", "/settings", "/account"]);
+    expect(hrefs).toEqual(["/overview", "/scopes", "/team", "/settings", "/help", "/account"]);
   });
 });

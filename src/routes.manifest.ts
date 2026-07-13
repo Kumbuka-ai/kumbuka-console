@@ -23,8 +23,9 @@ export type RouteManifestEntry = {
 export const routesManifest: RouteManifestEntry[] = [
   { route: "/", file: "src/app/page.tsx" },
   { route: "/account", file: "src/app/(app)/account/page.tsx" },
-  { route: "/api/feedback", file: "src/app/api/feedback/route.ts" },
   { route: "/api/health", file: "src/app/api/health/route.ts" },
+  { route: "/help", file: "src/app/(app)/help/page.tsx" },
+  { route: "/help/[section]", file: "src/app/(app)/help/[section]/page.tsx" },
   { route: "/overview", file: "src/app/(app)/overview/page.tsx" },
   { route: "/scopes", file: "src/app/(app)/scopes/page.tsx" },
   { route: "/scopes/[slug]", file: "src/app/(app)/scopes/[slug]/page.tsx" },

@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Icon, type IconName } from "@/components/ui/Icon";
+import { DEFAULT_LOCALE, isLocale } from "@/i18n/config";
 import { Avatar, initialsOf } from "@/components/ui/Avatar";
 import { SetupGuide } from "@/components/onboarding/SetupGuide";
 // Overridable specifier (see docs/extension-points.md): a downstream build
@@ -13,12 +14,17 @@ import { getNavExtensions } from "@kumbuka-ai/console/slots";
 import type { ReactNode } from "react";
 import type { ScopeView, SessionView } from "@/lib/api/types";
 
-// `id` doubles as the nav.* message key (overview/scopes/team/settings).
-const NAV: { id: "overview" | "scopes" | "team" | "settings"; icon: IconName; href: string }[] = [
+// `id` doubles as the nav.* message key (overview/scopes/team/settings/help).
+const NAV: {
+  id: "overview" | "scopes" | "team" | "settings" | "help";
+  icon: IconName;
+  href: string;
+}[] = [
   { id: "overview", icon: "grid", href: "/overview" },
   { id: "scopes", icon: "layers", href: "/scopes" },
   { id: "team", icon: "users", href: "/team" },
   { id: "settings", icon: "settings", href: "/settings" },
+  { id: "help", icon: "help", href: "/help" },
 ];
 
 const ACTIVE_ROUTES: { prefix: string; id: string }[] = [
@@ -26,6 +32,7 @@ const ACTIVE_ROUTES: { prefix: string; id: string }[] = [
   { prefix: "/scopes", id: "scopes" },
   { prefix: "/team", id: "team" },
   { prefix: "/settings", id: "settings" },
+  { prefix: "/help", id: "help" },
   { prefix: "/account", id: "account" },
 ];
 
@@ -45,6 +52,8 @@ export function Rail({
   // x-url headers are no longer set, so the highlight was stuck on Overview.)
   const t = useTranslations("nav");
   const tRoles = useTranslations("roles");
+  const rawLocale = useLocale();
+  const locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
   const pathname = usePathname() ?? "";
   const activeId = ACTIVE_ROUTES.find((r) => pathname.startsWith(r.prefix))?.id ?? "overview";
   const totalEntries = scopes.reduce((n, s) => n + s.entryCount, 0);
@@ -105,7 +114,7 @@ export function Rail({
               aria-current={active ? "page" : undefined}
             >
               <Icon name={x.icon} />
-              <span className="txt">{x.label}</span>
+              <span className="txt">{x.label[locale]}</span>
             </Link>
           );
         })}

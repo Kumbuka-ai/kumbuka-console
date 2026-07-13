@@ -26,10 +26,10 @@ in `kumbuka-server/docker-compose.yml` ready to be uncommented.
 ## What's here
 
 - **Five screens**, 1:1 with the design prototype in `design/prototype/`:
-  - `/overview` — stat strip, connector card, recent shared activity, scopes-at-a-glance, member summary, private guarantee band.
+  - `/overview` — stat strip, the connect area (agent setup guides behind a verified-cells manifest, the canonical assistant-instruction block, usage examples), recent shared activity, scopes-at-a-glance, member summary, private guarantee band.
   - `/scopes/[slug]` — the scope browser: left pane (global · projects · the persistent private-guarantee panel · archived), right pane (entries table / cards, type filters, search, sortable columns, side-panel editor, confirm modal).
   - `/team` — IdP banner, member table, role badges, status badges, invite dialog, role / enable / disable actions.
-  - `/settings` — write-scope policy (`ask | project | global`), who-may-create-scopes (`admins | members`), connector details + rotate, private-memory locked block.
+  - `/settings` — write-scope policy (`ask | project | global`), who-may-create-scopes (`admins | members`), private-memory locked block. (The connector is set up by its endpoint URL alone — the client registers itself at first authorization; the URL lives in the connect area on `/overview`, and there is no client id and no secret.)
   - `/account` — D2 hybrid: display-name edit + link-outs to the Keycloak account console for password / MFA / passkey / sessions, plus the private-guarantee panel and sign-out.
 - **The private invariant is preserved in all five surfaces** from the prototype: scope browser panel, dashboard band, settings locked block, account panel, team/invite copy. There is no code path that fetches `private` rows; the TypeScript `ScopeKind` excludes `"private"` entirely.
 - **No `localStorage`.** Theme lives in a cookie and is rendered SSR. UI state (search, type filters, layout, density, role filter) lives in URL search params so server-render + tab refresh stay consistent.
@@ -134,7 +134,6 @@ The compose service is `kumbuka-console`. It binds only to the internal Docker n
 | `KUMBUKA_BACKEND_URL` | `http://kumbuka-backend:8080` | Server-side base URL for the backend BFF. |
 | `KUMBUKA_API_MOCK` | `0` | Set to `1` to use the in-process mock instead of HTTP. |
 | `KUMBUKA_BUILD_VERSION` | *(unset)* | Version of the deployable actually running. Unset in a standalone install — the footer shows this package's own version alone. A downstream composition build sets it to its own release version; the footer then names that build, with this package's version shown as its core. |
-| `KUMBUKA_FEEDBACK_WEBHOOK_URL` | *(unset)* | Sink for the in-product feedback form (any webhook, e.g. n8n). Unset → the footer carries no feedback entry and `/api/feedback` answers `503`. |
 | `NEXT_PUBLIC_APP_NAME` | `kumbuka.ai` | Page title prefix. |
 | `NODE_ENV` | `production` (in Docker) | Standard Next.js mode flag. |
 

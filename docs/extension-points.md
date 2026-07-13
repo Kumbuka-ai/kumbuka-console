@@ -154,7 +154,7 @@ feature ships one. Today there is one:
 
 | Slot id | Where | Default |
 |---|---|---|
-| `footer.support` | Layout footer, beside the version chips | The in-product feedback form — rendered only when `KUMBUKA_FEEDBACK_WEBHOOK_URL` is set |
+| `footer.support` | Layout footer, beside the version chips | Nothing — the footer shows the version chips alone. A downstream build may mount its own support entry here. |
 
 ---
 
@@ -162,17 +162,27 @@ feature ships one. Today there is one:
 
 If your build adds routes, they need to be reachable. `getNavExtensions(area)`
 returns items appended to a navigation area — the same module you already
-rebound for slots exports it:
+rebound for slots exports it. Two areas exist: `rail` (the primary
+navigation) and `help` (the help area's sub-navigation under
+`/help/[section]`). Labels carry one text per supported locale — the record
+type makes a missing translation a compile error instead of a silent
+fallback:
 
 ```ts
 import type { NavArea, NavExtension } from "@kumbuka-ai/console/slots/types";
 
 export function getNavExtensions(area: NavArea): NavExtension[] {
   return area === "rail"
-    ? [{ id: "reports", href: "/reports", label: "Reports", icon: "grid" }]
+    ? [{ id: "reports", href: "/reports", label: { de: "Berichte", en: "Reports" }, icon: "grid" }]
     : [];
 }
 ```
+
+A help contribution is the same shape with `area === "help"`; its `href`
+points at a route your build serves itself (a static route wins over the
+package's dynamic `/help/[section]` segment). The help area also renders
+sections from its own data-driven manifest (`src/help/manifest.ts`);
+contributed items are appended after those.
 
 Contribute nothing and nothing is rendered — no gap, no placeholder. Icons come
 from the console's own icon vocabulary; an unknown name falls back rather than

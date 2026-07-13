@@ -21,7 +21,6 @@ import {
   inviteUser,
   renameScope,
   resendInvite,
-  rotateConnectorSecret,
   updateEntry,
   terminateSession,
   logoutOtherSessions,
@@ -307,14 +306,6 @@ export async function cancelInviteAction(id: string) {
 export async function updateSettingsAction(req: UpdateSettingsRequest) {
   const out = await updateSettings(req);
   revalidatePath("/settings");
-  return out;
-}
-
-// Connector ------------------------------------------------------------
-export async function rotateSecretAction() {
-  const out = await rotateConnectorSecret();
-  revalidatePath("/settings");
-  revalidatePath("/overview");
   return out;
 }
 

@@ -340,11 +340,6 @@ export async function updateSettings(req: UpdateSettingsRequest): Promise<Settin
 export async function getConnector(): Promise<ConnectorView> {
   return { ...state.connector };
 }
-export async function rotateConnectorSecret(): Promise<ConnectorView> {
-  const rnd = Math.random().toString(36).slice(2, 8);
-  state.connector.clientSecretMasked = `sk_live_${rnd}••••••••••••••••${rnd.slice(0, 4)}`;
-  return { ...state.connector };
-}
 
 // ---------- Overview ---------------------------------------------------
 export async function getOverview(): Promise<OverviewView> {

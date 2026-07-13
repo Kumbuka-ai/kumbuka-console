@@ -1,0 +1,116 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+import { Icon } from "@/components/ui/Icon";
+import { useToast } from "@/components/ui/Toast";
+import type { GuideSegment, GuideToken } from "@/connect/guide";
+import type { RenderableCell, TokenValues } from "./types";
+
+/** Small copy box — one canonical, FILLED value with its copy button. */
+function ValueBox({ token, values }: Readonly<{ token: GuideToken; values: TokenValues }>) {
+  const t = useTranslations("connect.values");
+  const tc = useTranslations("common");
+  const toast = useToast();
+  const value = values[token];
+  const copy = async () => {
+    await navigator.clipboard?.writeText(value);
+    toast.push({ message: tc("copied") });
+  };
+  return (
+    <div className="copybox">
+      <span className="cb-label">{t(token)}</span>
+      <div className="cb-row">
+        <code className="cb-val">{value}</code>
+        <button className="cb-btn" onClick={copy} type="button" aria-label={`${tc("copy")}: ${t(token)}`}>
+          <Icon name="copy" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Segments({ segments, values }: Readonly<{ segments: GuideSegment[]; values: TokenValues }>) {
+  // Keys are the segment's character offset in the source line — stable
+  // and content-bound, unlike an array index.
+  let offset = 0;
+  const nodes = segments.map((seg) => {
+    const key = `${seg.kind}-${offset}`;
+    offset += seg.kind === "token" ? seg.token.length + 4 : seg.text.length;
+    if (seg.kind === "code") return <code key={key}>{seg.text}</code>;
+    if (seg.kind === "bold") return <b key={key}>{seg.text}</b>;
+    if (seg.kind === "token") return <code key={key}>{values[seg.token]}</code>;
+    return <span key={key}>{seg.text}</span>;
+  });
+  return <>{nodes}</>;
+}
+
+/** Screenshot slot — the real image when the operator dropped one, else
+ *  an honest placeholder. Images arrive without a code change. */
+function ShotSlot({
+  id,
+  caption,
+  src,
+  labelled,
+}: Readonly<{ id: string; caption: string; src: string | null; labelled?: boolean }>) {
+  const t = useTranslations("connect.cell");
+  return (
+    <figure className={`shot-slot${src ? " has-shot" : ""}`} aria-label={`Screenshot ${id}: ${caption}`}>
+      <div className="shot-frame">
+        {src ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img className="shot-img" src={src} alt={caption} loading="lazy" />
+        ) : (
+          <div className="shot-body">
+            <Icon name="maximize" />
+            <span className="shot-note">{t("shotPending")}</span>
+            <span className="shot-hint">{t("shotHint")}</span>
+          </div>
+        )}
+      </div>
+      <figcaption className="shot-cap">
+        {/* The numbered chip lives on the STEP; captions carry it only
+            when two images share one step and need telling apart. */}
+        {labelled ? <span className="sc-n">{id}</span> : null}
+        {caption}
+      </figcaption>
+    </figure>
+  );
+}
+
+/**
+ * One verified cell: the numbered steps with their filled value boxes and
+ * screenshot slots. Every value that lands in a copy box is the FILLED
+ * tenant value — placeholders never reach the user.
+ */
+export function CellView({ cell, values }: Readonly<{ cell: RenderableCell; values: TokenValues }>) {
+  return (
+    <div className={`cell ${cell.apparatus}`}>
+      <ol className="csteps">
+        {cell.steps.map((step) => (
+          <li className="cstep" key={step.n}>
+            <span className="cstep-n">{step.n}</span>
+            <div className="cstep-body">
+              <div className="cstep-text">
+                <Segments segments={step.text} values={values} />
+              </div>
+              {step.boxes.map((token) => (
+                <ValueBox key={token} token={token} values={values} />
+              ))}
+              {step.shots.length > 1 ? (
+                <div className="shot-duo">
+                  {step.shots.map((shot) => (
+                    <ShotSlot key={shot.id} id={shot.id} caption={shot.caption} src={shot.src} labelled />
+                  ))}
+                </div>
+              ) : (
+                step.shots.map((shot) => (
+                  <ShotSlot key={shot.id} id={shot.id} caption={shot.caption} src={shot.src} />
+                ))
+              )}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}

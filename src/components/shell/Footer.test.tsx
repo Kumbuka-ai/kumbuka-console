@@ -8,32 +8,22 @@
  * value, byte for byte today's markup (the outerHTML pin). Same shape for
  * a backend payload that carries a `core`.
  *
- * The feedback entry point is env-gated on its own sink — but inside the
- * slot DEFAULT (SupportEntry), not around the slot: unset/blank renders
- * version chips and nothing else; set renders the entry; and a bound
- * `footer.support` override renders regardless of the variable, because
- * the slot itself is unconditional.
+ * The `footer.support` slot is unconditional, and this app binds nothing
+ * to it: the footer shows the version chips and nothing else, while a
+ * downstream build's bound override renders in its place.
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { NextIntlClientProvider } from "next-intl";
-import en from "@/i18n/messages/en.json";
-import { ToastHost } from "@/components/ui/Toast";
 import { Footer } from "./Footer";
 import { CONSOLE_VERSION } from "@/lib/version";
 import type { BackendVersion } from "@/lib/version";
 import type { ComponentType } from "react";
 
-// The footer carries the feedback entry point (a client component that uses
-// next-intl + the toast host), so the footer renders inside both.
-function renderFooter(backend: BackendVersion, FooterCmp: ComponentType<{ backend: BackendVersion }> = Footer) {
-  return render(
-    <NextIntlClientProvider locale="en" messages={en}>
-      <ToastHost>
-        <FooterCmp backend={backend} />
-      </ToastHost>
-    </NextIntlClientProvider>,
-  );
+function renderFooter(
+  backend: BackendVersion,
+  FooterCmp: ComponentType<{ backend: BackendVersion }> = Footer,
+) {
+  return render(<FooterCmp backend={backend} />);
 }
 
 afterEach(() => {
@@ -43,7 +33,7 @@ afterEach(() => {
 });
 
 // The backend chip is the span that starts with its label — position-free,
-// so the selector survives the support entry appearing or not.
+// so the selector survives a support entry appearing or not.
 function findBackendChip(container: HTMLElement): Element | undefined {
   return Array.from(container.querySelectorAll(".app-footer > span")).find((s) =>
     s.textContent?.startsWith("backend"),
@@ -67,25 +57,12 @@ describe("Footer", () => {
     expect(screen.getByText("—")).not.toBeNull();
   });
 
-  // The default's contract, both directions: an entry point whose sink is an
-  // env var renders only when that var is set — a dead button is worse than
-  // a clean absence.
-  it("carries the feedback entry point when the webhook sink is configured", () => {
-    vi.stubEnv("KUMBUKA_FEEDBACK_WEBHOOK_URL", "https://hooks.example.test/feedback");
-    renderFooter(null);
-    expect(screen.getByRole("button", { name: /feedback/i })).not.toBeNull();
-  });
-
-  it("renders no feedback entry point when the webhook sink is unset", () => {
-    vi.stubEnv("KUMBUKA_FEEDBACK_WEBHOOK_URL", "");
-    renderFooter(null);
-    expect(screen.queryByRole("button", { name: /feedback/i })).toBeNull();
-  });
-
-  it("treats a blank webhook sink as unconfigured", () => {
-    vi.stubEnv("KUMBUKA_FEEDBACK_WEBHOOK_URL", "   ");
-    renderFooter(null);
-    expect(screen.queryByRole("button", { name: /feedback/i })).toBeNull();
+  // With nothing bound to `footer.support` the footer is version chips and
+  // nothing else — a clean absence, not a dead control.
+  it("renders no interactive support entry when nothing is bound to the slot", () => {
+    const { container } = renderFooter(null);
+    expect(container.querySelectorAll(".app-footer button").length).toBe(0);
+    expect(container.querySelectorAll(".app-footer a").length).toBe(0);
   });
 
   // Version provenance — the console chip. The unset case pins the exact
@@ -142,11 +119,28 @@ describe("Footer", () => {
     expect(chip?.outerHTML).toBe("<span>backend <code>v0.6.13</code></span>");
   });
 
-  // The slot's contract: the env condition lives INSIDE the default, so a
-  // build that binds its own footer.support component is never hostage to a
-  // configuration variable its component does not read.
-  it("renders a bound override even when the webhook sink is unset", async () => {
-    vi.stubEnv("KUMBUKA_FEEDBACK_WEBHOOK_URL", "");
+  // Display form: `-SNAPSHOT` collapses to a trailing `S` in the chip; the
+  // title keeps the full pair for copy-paste.
+  it("abbreviates -SNAPSHOT to a trailing S, keeping the full value in the title", () => {
+    const { container } = renderFooter({
+      name: "kumbuka-saas",
+      version: "0.1.0-SNAPSHOT",
+      core: "0.7.6",
+    });
+    const chip = findBackendChip(container);
+    expect(chip?.textContent).toBe("backend 0.1.0S (core 0.7.6)");
+    expect(chip?.getAttribute("title")).toBe("backend 0.1.0-SNAPSHOT (core 0.7.6)");
+  });
+
+  it("abbreviates -SNAPSHOT on the plain backend chip too", () => {
+    const { container } = renderFooter({ name: "kumbuka-saas", version: "0.1.0-SNAPSHOT" });
+    const chip = findBackendChip(container);
+    expect(chip?.outerHTML).toBe("<span>backend <code>0.1.0S</code></span>");
+  });
+
+  // The slot's contract: a downstream build that binds its own
+  // footer.support component gets it rendered in place of the empty default.
+  it("renders a bound override in place of the empty default", async () => {
     vi.doMock("@kumbuka-ai/console/slots", () => ({
       slots: {
         "footer.support": () => <span data-testid="support-override">custom support</span>,
@@ -157,6 +151,5 @@ describe("Footer", () => {
     const { Footer: FooterWithOverride } = await import("./Footer");
     renderFooter(null, FooterWithOverride);
     expect(screen.getByTestId("support-override")).not.toBeNull();
-    expect(screen.queryByRole("button", { name: /feedback/i })).toBeNull();
   });
 });

@@ -5,20 +5,16 @@ import { Topbar } from "@/components/shell/Topbar";
 import { Icon } from "@/components/ui/Icon";
 import { TypeChip } from "@/components/ui/Chip";
 import { Avatar, initialsOf } from "@/components/ui/Avatar";
-import { CopyValue } from "@/components/overview/CopyValue";
-import { AssistantPrompt } from "@/components/overview/AssistantPrompt";
+import { ConnectSection } from "@/components/connect/ConnectSection";
 import { GuaranteeBand } from "@/components/overview/GuaranteeBand";
 import { getConnector, getOverview, listScopes, listUsers, listDirectory } from "@/lib/api";
 import { ENTRY_TYPE_ORDER, type ScopeView } from "@/lib/api/types";
 import { absTime, relTime } from "@/lib/time";
 import { getTheme } from "@/lib/theme";
 
-// Rich-text tag renderers for next-intl's t.rich. Defined at module scope (not
-// inside the page component) so they aren't treated as components-defined-in-render.
+// Rich-text tag renderer for next-intl's t.rich. Defined at module scope (not
+// inside the page component) so it isn't treated as a component-defined-in-render.
 const richB = (chunks: ReactNode) => <b>{chunks}</b>;
-const richMono = (chunks: ReactNode) => (
-  <span className="mono" style={{ color: "var(--c-ink-panel-text)" }}>{chunks}</span>
-);
 
 function MiniBar({ scope, byType }: Readonly<{ scope: ScopeView; byType: Record<string, number> }>) {
   if (scope.entryCount === 0) return <div className="mini-bar"><i className="empty" /></div>;
@@ -98,45 +94,7 @@ export default async function OverviewPage() {
             </div>
           </div>
 
-          <div className="connector">
-            <div className="conn-main">
-              <span className="eyebrow">{"// "}{to("connector.eyebrow")}</span>
-              <h3>{to("connector.title")}</h3>
-              <p className="conn-lead">{to("connector.lead")}</p>
-              <div className="conn-field">
-                <label>{to("connector.endpoint")}</label>
-                <CopyValue value={connector.mcpUrl} />
-              </div>
-              <div className="conn-field">
-                <label>{to("connector.clientId")}</label>
-                <CopyValue value={connector.clientId} />
-              </div>
-              <div className="conn-field">
-                <label>{to("connector.clientSecret")}</label>
-                {connector.clientSecretMasked ? (
-                  <CopyValue value={connector.clientSecretMasked} masked />
-                ) : (
-                  <span className="conn-nosecret">{to("connector.noSecret")}</span>
-                )}
-              </div>
-            </div>
-            <div className="vr" />
-            <div className="conn-side">
-              <div className="cs-title"><Icon name="ok" />{to("connector.reachTitle")}</div>
-              <p>{to.rich("connector.reachBody", { b: richB, code: richMono })}</p>
-              <ol className="cs-steps">
-                <li>{to("connector.step1")}</li>
-                <li>
-                  {connector.clientSecretMasked
-                    ? to("connector.step2Secret")
-                    : to("connector.step2Public")}
-                </li>
-                <li>{to.rich("connector.step3", { code: richMono })}</li>
-              </ol>
-            </div>
-          </div>
-
-          <AssistantPrompt scopes={scopes} />
+          <ConnectSection connector={connector} scopes={scopes} />
 
           <div className="ov-split">
             <div>

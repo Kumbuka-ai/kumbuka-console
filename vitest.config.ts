@@ -100,19 +100,27 @@ export default defineConfig({
         "src/components/onboarding/WizardScopes.tsx",
         "src/components/onboarding/SetupGuide.tsx",
         "src/components/onboarding/steps.ts",
-        // FEAT-11 beta feedback channel: the BFF forward route (env-webhook,
-        // fail-loud 503/502) + the in-product form and its footer entry point.
-        "src/app/api/feedback/route.ts",
-        "src/components/feedback/FeedbackDialog.tsx",
-        "src/components/feedback/FeedbackLink.tsx",
         // Extension seam (docs/extension-points.md): slot primitive + default
-        // registry, the env-gated support default, the route-manifest drift
-        // guard, and the rail (nav-extension point).
+        // registry, the route-manifest drift guard, and the rail
+        // (nav-extension point).
         "src/slots/Slot.tsx",
         "src/slots/registry.ts",
-        "src/components/feedback/SupportEntry.tsx",
         "src/routes.manifest.ts",
         "src/components/shell/Rail.tsx",
+        // Connect area: the cell manifest + guide parser (the status machine
+        // and the token guards) and the three blocks — unit-tested in
+        // src/connect/*.test.ts and components/connect/*.test.tsx.
+        "src/connect/manifest.ts",
+        "src/connect/guide.ts",
+        "src/components/connect/ConnectBlock1.tsx",
+        "src/components/connect/CellView.tsx",
+        "src/components/connect/InstructionBlock.tsx",
+        "src/components/connect/UsageBlock.tsx",
+        "src/components/connect/AccessPanel.tsx",
+        "src/components/connect/ConnectorCard.tsx",
+        "src/components/connect/ConnectorReference.tsx",
+        "src/components/connect/AgentMark.tsx",
+        "src/components/connect/CopyValue.tsx",
       ],
       exclude: [
         "**/*.test.*",

@@ -8,7 +8,8 @@
     "brandSub": "Gedächtnis-Konsole",
     "accountTitle": "Kontoeinstellungen",
     "accountSuffix": "(Konto)",
-    "signedIn": "angemeldet"
+    "signedIn": "angemeldet",
+    "help": "Hilfe"
   },
   "roles": {
     "admin": "Admin",
@@ -25,7 +26,9 @@
     "account_meta": "deine Einstellungen",
     "scopes_title": "Geteiltes Gedächtnis",
     "scopes_meta": "Scope-Browser",
-    "scopes_active": "{count} aktive Scopes"
+    "scopes_active": "{count} aktive Scopes",
+    "help_title": "Hilfe",
+    "help_meta": "Benutzerdokumentation"
   },
   "signin": {
     "brandSub": "Gedächtnis-Konsole",
@@ -48,30 +51,6 @@
     "close": "Schließen",
     "ok": "OK"
   },
-  "feedback": {
-    "entry": "Feedback",
-    "ariaLabel": "Beta-Feedback senden",
-    "eyebrow": "Beta-Feedback",
-    "title": "Sag uns deine Meinung",
-    "betaNotice": "Kumbuka ist in der <b>Beta</b> — dein Feedback prägt, was wir als Nächstes bauen. Danke für deine Hilfe.",
-    "categoryLabel": "Art",
-    "category": {
-      "bug": "Fehlerbericht",
-      "feature": "Feature-Wunsch",
-      "general": "Allgemeines Feedback"
-    },
-    "messageLabel": "Deine Nachricht",
-    "messageHint": "Was passiert ist, was du dir wünschst oder was dir sonst auf dem Herzen liegt.",
-    "messagePlaceholder": "Beschreib es in deinen eigenen Worten…",
-    "contactLabel": "Kontakt (optional)",
-    "contactHint": "Hinterlass eine E-Mail, wenn wir nachfragen dürfen — sonst bleibt es anonym.",
-    "contactPlaceholder": "du@beispiel.de",
-    "cancel": "Abbrechen",
-    "send": "Feedback senden",
-    "sending": "Wird gesendet…",
-    "sent": "Danke — dein Feedback wurde gesendet.",
-    "failed": "Feedback konnte nicht gesendet werden. Bitte später erneut versuchen."
-  },
   "overview": {
     "stat": {
       "shared": "Geteilte Erinnerungen",
@@ -83,21 +62,6 @@
       "membersAllEnrolled": "alle aufgenommen",
       "lastWrite": "Letzte Änderung",
       "noActivity": "keine Aktivität"
-    },
-    "connector": {
-      "eyebrow": "konnektor",
-      "title": "Verbinde deinen KI-Client",
-      "lead": "Trage diese Werte in die MCP-Konfiguration des Assistenten ein. Der Client liest und schreibt geteiltes Gedächtnis über diesen Endpoint, authentifiziert als das Team.",
-      "endpoint": "Endpoint-URL",
-      "clientId": "Client-ID",
-      "clientSecret": "Client-Secret",
-      "noSecret": "Keins — öffentlicher Client (PKCE). Secret-Feld leer lassen.",
-      "reachTitle": "Worauf er zugreifen kann",
-      "reachBody": "Nur die <b>geteilten</b> Scopes, die du hier siehst — <code>global</code> und die Projekt-Scopes. Das <b>private</b> Gedächtnis jedes Mitglieds wird über diesen Konnektor nie zugänglich.",
-      "step1": "Füge den Endpoint zu den MCP-Servern deines Clients hinzu.",
-      "step2Secret": "Authentifiziere dich mit Client-ID und Secret.",
-      "step2Public": "Gib die Client-ID ein; lass das Secret leer (öffentlicher Client, PKCE).",
-      "step3": "Der Assistent liest zuerst <code>global</code>, dann den aktiven Projekt-Scope."
     },
     "recent": {
       "eyebrow": "letzte Aktivität · geteilte Scopes",
@@ -124,8 +88,7 @@
       "title": "Bereite deinen Assistenten vor",
       "lead": "Wähle den Scope, in dem du arbeitest, und füge dies in die <b>Projekt-Anweisungen</b> deines Claude- oder ChatGPT-Projekts ein — der Assistent lädt die Konventionen dieses Scopes ab dem ersten Zug. Später das Projekt wechseln? Erneut kopieren und nur die Slug-Zeile ändern.",
       "copied": "Anweisungen in die Zwischenablage kopiert",
-      "scopeLabel": "Scope",
-      "prompt": "Du hast über den MCP-Konnektor Zugriff auf kumbuka — das geteilte Gedächtnis unseres Teams.\n\nRufe zu Beginn jeder Sitzung memory_load_context mit dem Scope \"{slug}\" auf und folge den Konventionen, die es zurückgibt — sie legen fest, wie dieses Team kumbuka nutzt.\n\nDu bist nicht der Torwächter über Inhalte: Der Nutzer allein entscheidet, WAS festgehalten wird — du entscheidest höchstens WOHIN, und das nur durch Fragen, nie durch Ablehnen. Leite aus Scope-Namen niemals einen Zweck ab."
+      "scopeLabel": "Scope"
     }
   },
   "account": {
@@ -354,20 +317,6 @@
       "members_title": "Admins & Mitglieder",
       "members_desc": "Jedes Mitglied kann einen Projekt-Scope anlegen. Schneller für autonome Teams; erwarte mehr zu kuratierende Scopes."
     },
-    "connector": {
-      "eyebrow": "Konnektor",
-      "title": "Konnektor-Details",
-      "desc": "Der Endpoint und die Client-ID, mit denen dein KI-Client das geteilte Gedächtnis erreicht.",
-      "descRotate": " Rotiere das Secret, falls es geleakt sein könnte.",
-      "endpoint": "Endpoint",
-      "copyEndpoint": "Endpoint kopieren",
-      "clientId": "Client-ID",
-      "copyClientId": "Client-ID kopieren",
-      "clientSecret": "Client-Secret",
-      "rotate": "Rotieren",
-      "noSecret": "Keins — öffentlicher Client (PKCE). Lass das Secret-Feld in deinem KI-Client leer.",
-      "idpBanner": "Die Identität wird an den <idp>Identitätsanbieter</idp> delegiert. Mitglieder-Konten und Passwörter werden unter <b>Team</b> verwaltet, nicht hier."
-    },
     "private": {
       "eyebrow": "Garantie",
       "title": "Privates Gedächtnis",
@@ -382,19 +331,9 @@
       "discard": "Verwerfen",
       "save": "Speichern"
     },
-    "rotate": {
-      "eyebrow": "Secret rotieren",
-      "title": "Client-Secret rotieren?",
-      "body": "Das aktuelle Secret funktioniert sofort nicht mehr. Jeder KI-Client, der es nutzt, muss vor dem nächsten Lesen oder Schreiben mit dem neuen Wert neu konfiguriert werden.",
-      "target": "Client-Secret · {clientId}",
-      "working": "Rotiere…",
-      "confirm": "Secret rotieren"
-    },
     "toast": {
       "saved": "Einstellungen gespeichert",
-      "saveFailed": "Speichern fehlgeschlagen",
-      "rotated": "Secret rotiert — kopiere den neuen Wert",
-      "rotateFailed": "Rotation fehlgeschlagen"
+      "saveFailed": "Speichern fehlgeschlagen"
     }
   },
   "entryTypes": {
@@ -733,6 +672,93 @@
       "globalNote": "Der <m>global</m>-Scope existiert bereits und gilt für jedes Projekt — du legst ihn hier nicht an.",
       "createdToast": "{count, plural, one {# Scope} other {# Scopes}} angelegt",
       "createFailed": "{count, plural, one {# Scope} other {# Scopes}} konnte nicht angelegt werden"
+    }
+  },
+  "help": {
+    "emptyTitle": "Die Hilfe ist im Aufbau",
+    "emptyBody": "Die einzelnen Themen erscheinen hier, sobald sie geschrieben sind.",
+    "sectionPending": "Diese Seite ist noch nicht geschrieben."
+  },
+  "connect": {
+    "eyebrow": "connect",
+    "title": "Richte deinen KI-Client ein",
+    "lead": "Wähle deinen Assistenten und die Oberfläche, über die er läuft. Die Anleitung zeigt, wo genau du welchen Wert einträgst.",
+    "block1": {
+      "title": "Verbindung herstellen",
+      "collapse": "Einklappen",
+      "expand": "Aufklappen",
+      "agentGroup": "KI-System",
+      "apparatusGroup": "Oberfläche"
+    },
+    "apparatus": {
+      "web": {
+        "label": "Web",
+        "note": "im Browser"
+      },
+      "desktop": {
+        "label": "Desktop",
+        "note": "Desktop-App"
+      },
+      "code": {
+        "label": "Code",
+        "note": "Terminal / Editor"
+      }
+    },
+    "cell": {
+      "shotPending": "Screenshot folgt",
+      "shotHint": "enger Crop · Eintragestelle in Akzent markiert"
+    },
+    "values": {
+      "ENDPOINT": "Endpoint-URL",
+      "SCOPE_SLUG": "Scope",
+      "INSTRUCTION_BLOCK": "Anweisungsblock"
+    },
+    "fallback": {
+      "eyebrow": "konnektor",
+      "title": "Verbinde deinen KI-Client",
+      "lead": "Trage diese URL als MCP-Endpoint in deinem Assistenten ein — mehr braucht es nicht. Der Client meldet sich beim ersten Verbinden selbst an; der Assistent liest und schreibt geteiltes Gedächtnis über diesen Endpoint, authentifiziert als das Team.",
+      "endpoint": "Endpoint-URL"
+    },
+    "access": {
+      "title": "Worauf er zugreifen kann",
+      "body": "Über diesen Konnektor erreicht der Assistent ausschließlich die <b>geteilten</b> Scopes, die du hier verwaltest: den organisationsweiten Scope und die {count} Projekt-Scopes.",
+      "guarantee": "Das <b>private</b> Gedächtnis jedes Mitglieds ist über Konsole, Admin-API und diesen Konnektor <b>strukturell nicht erreichbar</b> — die Codepfade dafür existieren nicht.",
+      "foot": "garantiert per Architektur"
+    },
+    "reference": {
+      "summary": "Connector-Referenz",
+      "hint": "Endpoint-URL · derselbe Wert wie in der Anleitung",
+      "endpoint": "Endpoint"
+    },
+    "instruction": {
+      "title": "Anweisung für den Assistenten",
+      "intro": "Den Connector zu verbinden genügt nicht: der Assistent erfährt dadurch noch nicht, dass es kumbuka gibt. Wähle den Scope, in dem du arbeitest — er gilt für beide Schritte.",
+      "scopeLabel": "Scope",
+      "scopeOrgSuffix": " — organisationsweit",
+      "pathATag": "Schritt 1",
+      "pathATitle": "Projekt-Anweisungen",
+      "pathALead": "Kopiere diesen Block in die Projekt-Anweisungen deines Assistenten. Dein Assistent lädt die Konventionen dieses Scopes ab dem ersten Zug jeder Sitzung — ohne dass du ihn darum bitten musst.",
+      "pathBTag": "Schritt 2 · optional",
+      "pathBTitle": "Einmalige Nutzung ohne Projekt-Anweisungen",
+      "pathBLead": "Für den Ad-hoc-Fall — ein Wegwerf-Chat, eine einzelne Frage, ein gerade nur ausprobierter Client. Wirf diesen Satz zu Sitzungsbeginn selbst in den Chat:",
+      "block": "Du hast über den MCP-Konnektor Zugriff auf kumbuka — das geteilte Gedächtnis unseres Teams.\n\nRufe zu Beginn jeder Sitzung `memory_load_context` mit dem Scope `{slug}` auf und folge den Konventionen, die es zurückgibt — sie legen fest, wie dieses Team kumbuka nutzt.\n\nWenn im Gespräch eine Entscheidung, Konvention oder ein Constraint entsteht, biete an, sie mit `memory_remember` festzuhalten — schlage Typ und Key vor und warte auf Bestätigung.\n\nDu bist nicht der Torwächter über Inhalte: Der Nutzer allein entscheidet, WAS festgehalten wird — du entscheidest höchstens WOHIN, und das nur durch Fragen, nie durch Ablehnen. Leite aus Scope-Namen niemals einen Zweck ab.",
+      "oneOff": "Lade den Kontext für `{slug}`.",
+      "copyBlock": "Block kopieren",
+      "copySentence": "Satz kopieren",
+      "blockCopied": "Anweisungsblock kopiert",
+      "sentenceCopied": "Satz kopiert"
+    },
+    "usage": {
+      "title": "So benutzt du kumbuka",
+      "intro": "Du sprichst normal mit deinem Assistenten. Er schlägt vor, was er festhalten will, und fragt nach — du entscheidest.",
+      "rememberLabel": "Merken",
+      "recallLabel": "Erinnern",
+      "resultLabel": "Ergebnis",
+      "say1": "Merk dir: Wir bleiben bei Postgres als System of Record — MongoDB ist raus, weil Billing dokumentübergreifende Transaktionen braucht.",
+      "say2": "Was haben wir zur Datenbank entschieden — und warum?",
+      "more": "Alle Speicherarten und mehr Beispiele",
+      "copySentence": "Satz kopieren",
+      "sentenceCopied": "Satz kopiert"
     }
   }
 }

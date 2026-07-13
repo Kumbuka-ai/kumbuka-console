@@ -48,7 +48,6 @@ const { revalidatePathMock, apiMocks, persistThemeMock, persistLocaleMock, ApiEr
         resendInvite: vi.fn(),
         cancelInvite: vi.fn(),
         updateSettings: vi.fn(),
-        rotateConnectorSecret: vi.fn(),
         updateMe: vi.fn(),
         terminateSession: vi.fn(),
       },
@@ -80,7 +79,6 @@ import {
   inviteUserAction,
   renameScopeAction,
   resendInviteAction,
-  rotateSecretAction,
   setLocaleAction,
   setOnboardingAction,
   setThemeAction,
@@ -380,14 +378,6 @@ describe("Server Actions — delegation + cache invalidation", () => {
   });
 
   // ---------- connector --------------------------------------------------
-
-  it("rotateSecretAction revalidates settings + overview (secret card is on both)", async () => {
-    apiMocks.rotateConnectorSecret.mockResolvedValue({ clientSecretMasked: "•w123" });
-    const out = await rotateSecretAction();
-    expect(out.clientSecretMasked).toBe("•w123");
-    expect(revalidatePathMock).toHaveBeenCalledWith("/settings");
-    expect(revalidatePathMock).toHaveBeenCalledWith("/overview");
-  });
 
   // ---------- account ----------------------------------------------------
 
