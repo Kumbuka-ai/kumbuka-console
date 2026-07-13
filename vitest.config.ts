@@ -107,6 +107,20 @@ export default defineConfig({
         "src/slots/registry.ts",
         "src/routes.manifest.ts",
         "src/components/shell/Rail.tsx",
+        // Connect area: the cell manifest + guide parser (the status machine
+        // and the token guards) and the three blocks — unit-tested in
+        // src/connect/*.test.ts and components/connect/*.test.tsx.
+        "src/connect/manifest.ts",
+        "src/connect/guide.ts",
+        "src/components/connect/ConnectBlock1.tsx",
+        "src/components/connect/CellView.tsx",
+        "src/components/connect/InstructionBlock.tsx",
+        "src/components/connect/UsageBlock.tsx",
+        "src/components/connect/AccessPanel.tsx",
+        "src/components/connect/ConnectorCard.tsx",
+        "src/components/connect/ConnectorReference.tsx",
+        "src/components/connect/AgentMark.tsx",
+        "src/components/connect/CopyValue.tsx",
       ],
       exclude: [
         "**/*.test.*",

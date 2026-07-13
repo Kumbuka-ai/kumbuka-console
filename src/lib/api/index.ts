@@ -44,7 +44,6 @@ export const {
   getSettings,
   updateSettings,
   getConnector,
-  rotateConnectorSecret,
   getOverview,
   listSessions,
   terminateSession,

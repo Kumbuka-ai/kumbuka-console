@@ -301,13 +301,10 @@ describe("impl-live thin REST wrappers", () => {
     });
   });
 
-  it("getConnector GETs /api/connector; rotateConnectorSecret POSTs the rotate subresource", async () => {
+  it("getConnector GETs /api/connector", async () => {
     serverFetchMock.mockResolvedValue({});
     await live.getConnector();
     expect(serverFetchMock).toHaveBeenLastCalledWith("/api/connector", undefined);
-
-    await live.rotateConnectorSecret();
-    expect(serverFetchMock).toHaveBeenLastCalledWith("/api/connector/secret/rotate", { method: "POST" });
   });
 
   it("getOverview GETs /api/overview", async () => {

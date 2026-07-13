@@ -3,12 +3,10 @@
 import { useState, useTransition, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
-import { Button, IconButton } from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
-import { ConfirmModal } from "@/components/editors/ConfirmModal";
-import { rotateSecretAction, updateSettingsAction } from "@/app/(app)/actions";
+import { updateSettingsAction } from "@/app/(app)/actions";
 import type {
-  ConnectorView,
   CreateScopes,
   ScopeView,
   SettingsView,
@@ -16,9 +14,7 @@ import type {
 } from "@/lib/api/types";
 
 // Module-scope rich-text renderers (not defined during render).
-const richB = (c: ReactNode) => <b>{c}</b>;
 const richMono = (c: ReactNode) => <span className="mono">{c}</span>;
-const richIdp = (c: ReactNode) => <span className="idp-name">{c}</span>;
 
 function RadioOpt({
   on,
@@ -67,19 +63,16 @@ function RadioOpt({
 
 export function SettingsForm({
   initial,
-  connector,
   projectScopes,
   isAdmin,
 }: Readonly<{
   initial: SettingsView;
-  connector: ConnectorView;
   projectScopes: ScopeView[];
   /** Settings are admin-write; a member sees the values read-only. */
   isAdmin: boolean;
 }>) {
   const toast = useToast();
   const t = useTranslations("settings");
-  const tCommon = useTranslations("common");
   const [writePolicy, setWritePolicy] = useState<WritePolicy>(initial.writePolicy);
   const [defaultScopeSlug, setDefaultScopeSlug] = useState<string | null>(initial.defaultScopeSlug);
   const [createScopes, setCreateScopes] = useState<CreateScopes>(initial.createScopes);
@@ -88,9 +81,7 @@ export function SettingsForm({
     defaultScopeSlug: initial.defaultScopeSlug,
     createScopes: initial.createScopes,
   });
-  const [confirmRotate, setConfirmRotate] = useState(false);
   const [pending, start] = useTransition();
-  const [secretMasked, setSecretMasked] = useState(connector.clientSecretMasked);
 
   const dirty =
     writePolicy !== saved.writePolicy ||
@@ -119,23 +110,6 @@ export function SettingsForm({
     setCreateScopes(saved.createScopes);
   };
 
-  const copy = async (v: string) => {
-    await navigator.clipboard?.writeText(v);
-    toast.push({ message: tCommon("copied") });
-  };
-
-  const doRotate = () => {
-    start(async () => {
-      try {
-        const next = await rotateSecretAction();
-        setSecretMasked(next.clientSecretMasked);
-        setConfirmRotate(false);
-        toast.push({ message: t("toast.rotated") });
-      } catch (err) {
-        toast.push({ message: err instanceof Error ? err.message : t("toast.rotateFailed") });
-      }
-    });
-  };
 
   return (
     <div className="page-scroll">
@@ -238,60 +212,6 @@ export function SettingsForm({
           </div>
         </div>
 
-        {/* Connector --------------------------------------------------- */}
-        <div className="set-block">
-          <div className="set-intro">
-            <span className="eyebrow">{"// "}{t("connector.eyebrow")}</span>
-            <h3>{t("connector.title")}</h3>
-            <p>
-              {t("connector.desc")}
-              {secretMasked ? t("connector.descRotate") : ""}
-            </p>
-          </div>
-          <div className="set-body">
-            <div className="conn-light">
-              <div className="cl-row">
-                <span className="cl-label">{t("connector.endpoint")}</span>
-                <span className="cl-val">{connector.mcpUrl}</span>
-                <IconButton onClick={() => copy(connector.mcpUrl)} aria-label={t("connector.copyEndpoint")}>
-                  <Icon name="copy" />
-                </IconButton>
-              </div>
-              <div className="cl-row">
-                <span className="cl-label">{t("connector.clientId")}</span>
-                <span className="cl-val">{connector.clientId}</span>
-                <IconButton onClick={() => copy(connector.clientId)} aria-label={t("connector.copyClientId")}>
-                  <Icon name="copy" />
-                </IconButton>
-              </div>
-              {secretMasked ? (
-                <div className="cl-row">
-                  <span className="cl-label">{t("connector.clientSecret")}</span>
-                  <span className="cl-val mask">{secretMasked}</span>
-                  {isAdmin ? (
-                    <Button variant="danger" size="sm" onClick={() => setConfirmRotate(true)}>
-                      <Icon name="rotate" />
-                      <span className="txt">{t("connector.rotate")}</span>
-                    </Button>
-                  ) : null}
-                </div>
-              ) : (
-                <div className="cl-row">
-                  <span className="cl-label">{t("connector.clientSecret")}</span>
-                  <span className="cl-val">{t("connector.noSecret")}</span>
-                </div>
-              )}
-            </div>
-            <div
-              className="idp-banner"
-              style={{ border: "1px solid var(--c-border)", padding: "13px 15px", marginTop: 14 }}
-            >
-              <Icon name="shield" />
-              <span>{t.rich("connector.idpBanner", { idp: richIdp, b: richB })}</span>
-            </div>
-          </div>
-        </div>
-
         {/* Private locked — surface 3 of 5 */}
         <div className="set-block">
           <div className="set-intro">
@@ -329,20 +249,6 @@ export function SettingsForm({
           </div>
         ) : null}
       </div>
-
-      {confirmRotate ? (
-        <ConfirmModal
-          eyebrow={t("rotate.eyebrow")}
-          title={t("rotate.title")}
-          body={t("rotate.body")}
-          target={t("rotate.target", { clientId: connector.clientId })}
-          confirmLabel={pending ? t("rotate.working") : t("rotate.confirm")}
-          confirmIcon="rotate"
-          danger
-          onCancel={() => setConfirmRotate(false)}
-          onConfirm={doRotate}
-        />
-      ) : null}
     </div>
   );
 }

@@ -63,21 +63,6 @@
       "lastWrite": "Last write",
       "noActivity": "no activity"
     },
-    "connector": {
-      "eyebrow": "connector",
-      "title": "Connect your AI client",
-      "lead": "Paste these into the assistant's MCP configuration. The client reads and writes shared memory through this endpoint, authenticated as the team.",
-      "endpoint": "Endpoint URL",
-      "clientId": "Client ID",
-      "clientSecret": "Client secret",
-      "noSecret": "None — public client (PKCE). Leave the secret field empty.",
-      "reachTitle": "What it can reach",
-      "reachBody": "Only the <b>shared</b> scopes you see here — <code>global</code> and the project scopes. Each member's <b>private</b> memory is never exposed through this connector.",
-      "step1": "Add the endpoint to your client's MCP servers.",
-      "step2Secret": "Authenticate with the client ID and secret.",
-      "step2Public": "Enter the client ID; leave the secret empty (public client, PKCE).",
-      "step3": "The assistant reads <code>global</code> first, then the active project scope."
-    },
     "recent": {
       "eyebrow": "recent activity · shared scopes",
       "open": "Open browser →",
@@ -103,8 +88,7 @@
       "title": "Prime your assistant",
       "lead": "Pick the scope you're working in and paste this into your Claude or ChatGPT <b>project instructions</b> — the assistant loads that scope's conventions from the first turn. Switch projects later? Re-copy and change only the slug line.",
       "copied": "Instructions copied to clipboard",
-      "scopeLabel": "Scope",
-      "prompt": "You have access to kumbuka — our team's shared memory — through its MCP connector.\n\nAt the start of each session, call memory_load_context with scope \"{slug}\" and follow the conventions it returns — they define how this team uses kumbuka.\n\nYou are not a gatekeeper over content: the user alone decides WHAT is stored — you decide at most WHERE, and only by asking, never by refusing. Never infer a purpose from scope names."
+      "scopeLabel": "Scope"
     }
   },
   "account": {
@@ -333,20 +317,6 @@
       "members_title": "Admins & members",
       "members_desc": "Any member can spin up a project scope. Faster for autonomous teams; expect more scopes to curate."
     },
-    "connector": {
-      "eyebrow": "connector",
-      "title": "Connector details",
-      "desc": "The endpoint and client ID your AI client uses to reach shared memory.",
-      "descRotate": " Rotate the secret if it may have leaked.",
-      "endpoint": "Endpoint",
-      "copyEndpoint": "Copy endpoint",
-      "clientId": "Client ID",
-      "copyClientId": "Copy client id",
-      "clientSecret": "Client secret",
-      "rotate": "Rotate",
-      "noSecret": "None — public client (PKCE). Leave the secret field empty in your AI client.",
-      "idpBanner": "Identity is delegated to <idp>your identity provider</idp>. Member accounts and passwords are managed under <b>Team</b>, not here."
-    },
     "private": {
       "eyebrow": "guarantee",
       "title": "Private memory",
@@ -361,19 +331,9 @@
       "discard": "Discard",
       "save": "Save"
     },
-    "rotate": {
-      "eyebrow": "rotate secret",
-      "title": "Rotate the client secret?",
-      "body": "The current secret stops working immediately. Any AI client using it must be reconfigured with the new value before it can read or write memory.",
-      "target": "client secret · {clientId}",
-      "working": "Rotating…",
-      "confirm": "Rotate secret"
-    },
     "toast": {
       "saved": "Settings saved",
-      "saveFailed": "Save failed",
-      "rotated": "Secret rotated — copy the new value",
-      "rotateFailed": "Rotate failed"
+      "saveFailed": "Save failed"
     }
   },
   "entryTypes": {
@@ -718,5 +678,99 @@
     "emptyTitle": "The help area is under construction",
     "emptyBody": "Topics will appear here as they are written.",
     "sectionPending": "This page has not been written yet."
+  },
+  "connect": {
+    "eyebrow": "connect",
+    "title": "Set up your AI client",
+    "lead": "Pick your assistant and the surface it runs on. The guide shows exactly where to enter which value.",
+    "block1": {
+      "title": "Connect",
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "agentGroup": "AI system",
+      "apparatusGroup": "Surface"
+    },
+    "apparatus": {
+      "web": {
+        "label": "Web",
+        "note": "in the browser"
+      },
+      "desktop": {
+        "label": "Desktop",
+        "note": "desktop app"
+      },
+      "code": {
+        "label": "Code",
+        "note": "terminal / editor"
+      }
+    },
+    "cell": {
+      "shotPending": "Screenshot to follow",
+      "shotHint": "tight crop · entry point marked in accent"
+    },
+    "values": {
+      "ENDPOINT": "Endpoint URL",
+      "CLIENT_ID": "Client ID",
+      "SCOPE_SLUG": "Scope",
+      "INSTRUCTION_BLOCK": "Instruction block"
+    },
+    "fallback": {
+      "eyebrow": "connector",
+      "title": "Connect your AI client",
+      "lead": "Enter these values in the assistant's MCP configuration. The client reads and writes shared memory through this endpoint, authenticated as the team.",
+      "endpoint": "Endpoint URL",
+      "clientId": "Client ID",
+      "clientSecret": "Client secret",
+      "noSecret": "None — public client (PKCE). Leave the secret field empty.",
+      "reachTitle": "What it can reach",
+      "reachBody": "Only the <b>shared</b> scopes you see here — <code>global</code> and the project scopes. Every member's <b>private</b> memory is never accessible through this connector.",
+      "step1": "Add the endpoint to your client's MCP servers.",
+      "step2Secret": "Authenticate with client ID and secret.",
+      "step2Public": "Enter the client ID; leave the secret empty (public client, PKCE).",
+      "step3": "The assistant reads <code>global</code> first, then the active project scope."
+    },
+    "access": {
+      "title": "What it can reach",
+      "body": "Through this connector the assistant reaches only the <b>shared</b> scopes you manage here: the organisation-wide scope and the {count} project scopes.",
+      "guarantee": "Every member's <b>private</b> memory is <b>structurally unreachable</b> through the console, the admin API, and this connector — the code paths for it do not exist.",
+      "foot": "guaranteed by architecture"
+    },
+    "reference": {
+      "summary": "Connector reference",
+      "hint": "Endpoint and client ID · the same values as in the guide",
+      "endpoint": "Endpoint",
+      "clientId": "Client ID",
+      "note": "Public client (PKCE) — there is no secret. Identity is delegated to <idp>{idpName}</idp>; accounts and passwords are managed under <b>Team</b>."
+    },
+    "instruction": {
+      "title": "Instruction for the assistant",
+      "intro": "Connecting the connector is not enough: the assistant does not yet know that kumbuka exists. Choose the scope you work in — it applies to both steps.",
+      "scopeLabel": "Scope",
+      "scopeOrgSuffix": " — organisation-wide",
+      "pathATag": "Step 1",
+      "pathATitle": "Project instructions",
+      "pathALead": "Copy this block into your assistant’s project instructions. Your assistant loads this scope’s conventions from the first turn of every session — without you having to ask.",
+      "pathBTag": "Step 2 · optional",
+      "pathBTitle": "One-off use without project instructions",
+      "pathBLead": "For the ad-hoc case — a throwaway chat, a single question, a client you are just trying out. Drop this sentence into the chat yourself at the start of a session:",
+      "block": "You have access to kumbuka through the MCP connector — our team’s shared memory.\n\nAt the start of every session, call `memory_load_context` with the scope `{slug}` and follow the conventions it returns — they define how this team uses kumbuka.\n\nWhen a decision, convention, or constraint comes up in the conversation, offer to capture it with `memory_remember` — propose a type and key and wait for confirmation.\n\nYou are not the gatekeeper over content: the user alone decides WHAT gets captured — you decide at most WHERE, and only by asking, never by refusing. Never infer a purpose from scope names.",
+      "oneOff": "Load the context for `{slug}`.",
+      "copyBlock": "Copy block",
+      "copySentence": "Copy sentence",
+      "blockCopied": "Instruction block copied",
+      "sentenceCopied": "Sentence copied"
+    },
+    "usage": {
+      "title": "How you use kumbuka",
+      "intro": "You talk to your assistant normally. It proposes what it wants to capture and asks — you decide.",
+      "rememberLabel": "Remember",
+      "recallLabel": "Recall",
+      "resultLabel": "Result",
+      "say1": "Remember: we’re staying with Postgres as the system of record — MongoDB is out, because Billing needs cross-document transactions.",
+      "say2": "What did we decide about the database — and why?",
+      "more": "All memory types and more examples",
+      "copySentence": "Copy sentence",
+      "sentenceCopied": "Sentence copied"
+    }
   }
 }

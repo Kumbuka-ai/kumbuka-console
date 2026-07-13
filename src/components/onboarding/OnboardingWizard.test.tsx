@@ -199,7 +199,7 @@ describe("wzSlug + scope dup-guard", () => {
     fireEvent.click(screen.getByRole("button", { name: /add scope/i }));
     // the reused AssistantPrompt block pins the staged slug literally
     const code = screen.getByText(/memory_load_context/);
-    expect(code.textContent).toContain('scope "garden-work"');
+    expect(code.textContent).toContain("scope `garden-work`");
   });
 });
 

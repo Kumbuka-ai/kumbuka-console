@@ -345,11 +345,10 @@ describe("impl-mock — settings + connector + overview", () => {
     expect(s.defaultScopeStatus).toBe("archived");
   });
 
-  it("getConnector + rotateConnectorSecret produces a new masked value", async () => {
+  it("getConnector returns the seeded connector", async () => {
     const before = await mock.getConnector();
-    const after = await mock.rotateConnectorSecret();
-    expect(after.clientSecretMasked).not.toBe(before.clientSecretMasked);
-    expect(after.clientSecretMasked).toMatch(/^sk_live_/);
+    expect(before.mcpUrl.length).toBeGreaterThan(0);
+    expect(before.clientId.length).toBeGreaterThan(0);
   });
 
   it("getOverview aggregates active/archived scopes, entries-by-type, recent entries sorted desc", async () => {

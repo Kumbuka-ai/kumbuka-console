@@ -53,19 +53,20 @@ describe("AssistantPrompt — thin per-scope block (D-GTM-6 B)", () => {
   it("defaults the pin to the first PROJECT scope and pins its slug LITERALLY", () => {
     renderPrompt();
     const code = screen.getByText(/memory_load_context/);
-    // literal slug of the default (first project) scope, inside the tool call
-    expect(code.textContent).toContain('memory_load_context with scope "gartenarbeit"');
+    // literal slug of the default (first project) scope, inside the call
+    expect(code.textContent).toContain("`memory_load_context` with the scope `gartenarbeit`");
   });
 
-  it("is thin: carries the one-line Torwächter guard but NOT the full rule set", () => {
+  it("carries the canonical block: gatekeeper guard + the remember offer, no recall", () => {
     renderPrompt();
     const code = screen.getByText(/memory_load_context/);
-    // one-line guard marker
+    // the gatekeeper paragraph stays verbatim (it comes from a real incident)
     expect(code.textContent).toMatch(/gatekeeper/i);
-    expect(code.textContent).toMatch(/decides WHAT is stored/i);
-    // the full rule list moved to the C seeds — must NOT be repeated here
+    expect(code.textContent).toMatch(/decides WHAT gets captured/i);
+    // read AND propose: without the remember offer the memory stays empty
+    expect(code.textContent).toContain("memory_remember");
+    // recall is redundant (the digest already sits in the context window)
     expect(code.textContent).not.toContain("memory_recall");
-    expect(code.textContent).not.toContain("memory_remember");
   });
 
   it("NEGATIVE (Sprint-19 hard rule): never a derived 'project name' reference", () => {
@@ -81,7 +82,7 @@ describe("AssistantPrompt — thin per-scope block (D-GTM-6 B)", () => {
     await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
     const copied = writeText.mock.calls[0][0] as string;
     expect(copied).toContain("memory_load_context");
-    expect(copied).toContain('"gartenarbeit"');
+    expect(copied).toContain("`gartenarbeit`");
     expect(copied).not.toMatch(/project name/i);
     // display and clipboard match
     expect(screen.getByText(/memory_load_context/).textContent).toBe(copied);
@@ -92,13 +93,13 @@ describe("AssistantPrompt — thin per-scope block (D-GTM-6 B)", () => {
     renderPrompt();
     fireEvent.change(screen.getByRole("combobox"), { target: { value: "billing-platform" } });
     const code = screen.getByText(/memory_load_context/);
-    expect(code.textContent).toContain('memory_load_context with scope "billing-platform"');
-    expect(code.textContent).not.toContain('"gartenarbeit"');
+    expect(code.textContent).toContain("`memory_load_context` with the scope `billing-platform`");
+    expect(code.textContent).not.toContain("`gartenarbeit`");
   });
 
   it("with no project scopes, falls back to the global scope and shows no picker", () => {
     renderPrompt([scope("global", "global")]);
     expect(screen.queryByRole("combobox")).toBeNull();
-    expect(screen.getByText(/memory_load_context/).textContent).toContain('scope "global"');
+    expect(screen.getByText(/memory_load_context/).textContent).toContain("scope `global`");
   });
 });

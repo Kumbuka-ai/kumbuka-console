@@ -192,8 +192,6 @@ export const updateSettings = (req: UpdateSettingsRequest) =>
 
 // ---------- Connector --------------------------------------------------
 export const getConnector = () => serverFetch<ConnectorView>("/api/connector");
-export const rotateConnectorSecret = () =>
-  serverFetch<ConnectorView>("/api/connector/secret/rotate", { method: "POST" });
 
 // ---------- Overview ---------------------------------------------------
 export const getOverview = () => serverFetch<OverviewView>("/api/overview");

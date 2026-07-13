@@ -27,7 +27,18 @@ export type HelpSection = {
   order: number;
 };
 
-export const helpManifest: HelpSection[] = [];
+export const helpManifest: HelpSection[] = [
+  // The memory-types reference. Its content is written section by
+  // section; until then the section renders the pending note. The connect
+  // area's usage examples deep-link here with the type slug as anchor
+  // (/help/types#decision) — the content page carries one anchor per type.
+  {
+    slug: "types",
+    label: { de: "Speicherarten", en: "Memory types" },
+    icon: "layers",
+    order: 10,
+  },
+];
 
 /** Manifest entries in navigation order. */
 export function helpSections(): HelpSection[] {
