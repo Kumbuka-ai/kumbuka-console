@@ -263,7 +263,10 @@ button { font-family: inherit; }
   align-items: center;
   font-size: 11px;
   color: var(--c-text-muted, #8a8c8e);
-  border-top: 1px solid var(--c-rail-line);
+  /* --c-border, not --c-rail-line: the rail line is pale paper at low
+     alpha — fine on the dark rail, invisible on the light page. The
+     separator must read in BOTH themes. */
+  border-top: 1px solid var(--c-border);
   background: var(--c-page);
 }
 .app-footer code {
@@ -399,7 +402,7 @@ button { font-family: inherit; }
      the footer row, and the version footer joins at the pane's edge — the
      pane's bottom strip and the footer's top border form ONE line. Other
      pages keep the full-width footer untouched. */
-  .main:has(.scope-screen) .app-footer { margin-left: 300px; border-top-color: var(--c-border); }
+  .main:has(.scope-screen) .app-footer { margin-left: 300px; }
   .main:has(.scope-screen.pane-collapsed) .app-footer { margin-left: 48px; }
   .scope-screen .scopes-pane { margin-bottom: calc(-1 * var(--footer-h)); }
 }
