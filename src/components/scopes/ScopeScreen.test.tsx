@@ -16,30 +16,34 @@ vi.mock("@/app/(app)/actions", () => ({
 // Isolate ScopeScreen's own job — wiring the mobile toggle to the pane's
 // `mobileOpen`/backdrop and the wide-viewport collapse — from the children,
 // which pull in next/navigation. The stubs surface just the contract
-// ScopeScreen drives: ScopesPane.mobileOpen, onClose, and onCollapse.
+// ScopeScreen drives: ScopesPane.mobileOpen, onClose, collapsed and
+// onToggleCollapse.
 vi.mock("./ScopesPane", () => ({
   ScopesPane: ({
     mobileOpen,
     onClose,
-    onCollapse,
+    collapsed,
+    onToggleCollapse,
     canCreateScopes,
   }: {
     mobileOpen: boolean;
     onClose: () => void;
-    onCollapse?: () => void;
+    collapsed?: boolean;
+    onToggleCollapse?: () => void;
     canCreateScopes?: boolean;
   }) => (
     <aside
       data-testid="scopes-pane"
       data-mobile-open={mobileOpen}
+      data-collapsed={collapsed}
       data-can-create={canCreateScopes}
     >
       <button type="button" onClick={onClose}>
         pane-close
       </button>
-      {onCollapse ? (
-        <button type="button" onClick={onCollapse}>
-          pane-collapse
+      {onToggleCollapse ? (
+        <button type="button" onClick={onToggleCollapse}>
+          pane-toggle
         </button>
       ) : null}
     </aside>
@@ -135,29 +139,31 @@ describe("ScopeScreen — mobile pane toggle", () => {
 });
 
 describe("ScopeScreen — list collapse persistence (wide viewports)", () => {
-  it("renders expanded by default; the slim expand rail exists but the state is open", () => {
+  it("renders expanded by default", () => {
     renderScreen();
     expect(screenRoot().className).not.toContain("pane-collapsed");
+    expect(pane().getAttribute("data-collapsed")).toBe("false");
     expect(setUiSettingsActionMock).not.toHaveBeenCalled();
   });
 
   it("renders collapsed on FIRST paint when the session carries scopesCollapsed (no flicker)", () => {
     renderScreen({ initialCollapsed: true });
     expect(screenRoot().className).toContain("pane-collapsed");
+    expect(pane().getAttribute("data-collapsed")).toBe("true");
     // Rendering the persisted state is not a save.
     expect(setUiSettingsActionMock).not.toHaveBeenCalled();
   });
 
-  it("the pane's collapse tool collapses optimistically and persists ONLY the scopes field", () => {
+  it("the pane's bottom strip collapses optimistically and persists ONLY the scopes field", () => {
     renderScreen();
-    fireEvent.click(screen.getByRole("button", { name: "pane-collapse" }));
+    fireEvent.click(screen.getByRole("button", { name: "pane-toggle" }));
     expect(screenRoot().className).toContain("pane-collapsed");
     expect(setUiSettingsActionMock).toHaveBeenCalledWith({ scopesCollapsed: true });
   });
 
-  it("the slim rail's expand chevron brings the list back (false is a write too)", () => {
+  it("the same strip expands the collapsed list again (false is a write too)", () => {
     renderScreen({ initialCollapsed: true });
-    fireEvent.click(screen.getByRole("button", { name: en.scopes.expandPane }));
+    fireEvent.click(screen.getByRole("button", { name: "pane-toggle" }));
     expect(screenRoot().className).not.toContain("pane-collapsed");
     expect(setUiSettingsActionMock).toHaveBeenCalledWith({ scopesCollapsed: false });
   });
@@ -165,7 +171,7 @@ describe("ScopeScreen — list collapse persistence (wide viewports)", () => {
   it("keeps the clicked state and shows a non-blocking notice when the save fails", async () => {
     setUiSettingsActionMock.mockResolvedValue({ ok: false });
     renderScreen();
-    fireEvent.click(screen.getByRole("button", { name: "pane-collapse" }));
+    fireEvent.click(screen.getByRole("button", { name: "pane-toggle" }));
     expect(await screen.findByText(en.common.viewSaveFailed)).toBeTruthy();
     expect(screenRoot().className).toContain("pane-collapsed");
   });

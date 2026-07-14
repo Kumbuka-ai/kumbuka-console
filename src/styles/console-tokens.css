@@ -31,6 +31,9 @@
   --s24:24px; --s32:32px; --s40:40px; --s48:48px; --s64:64px;
 
   --rail-w: 248px;
+  /* One fixed footer-row height so page-level bottom strips (the scope
+     pane's collapse strip) can sit flush with the version footer's line. */
+  --footer-h: 34px;
 }
 
 /* ---- LIGHT (default) ---- */
@@ -252,7 +255,8 @@ button { font-family: inherit; }
    diagnostic affordance — never competes with content for attention. */
 .app-footer {
   flex: 0 0 auto;
-  padding: 8px 22px;
+  height: var(--footer-h);
+  padding: 0 22px;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -358,12 +362,14 @@ button { font-family: inherit; }
 .pane-head .addscope:hover { background: var(--c-hover); }
 .pane-head .addscope .ico { width: 15px; height: 15px; }
 
-/* Collapse tool at the pane's bottom edge — same line as the rail's
-   chevron. Sticky so a long, scrolling scope list never hides it. */
+/* Collapse tool at the pane's bottom edge — a footer-row-height strip whose
+   top border lines up with the version footer's. Sticky so a long,
+   scrolling scope list never hides it. */
 .scopes-pane .pane-collapse {
   margin-top: auto; position: sticky; bottom: 0; align-self: stretch;
+  height: var(--footer-h); flex: 0 0 auto;
   display: flex; justify-content: flex-end; align-items: center;
-  padding: 8px 12px; border: 0; border-top: 1px solid var(--c-border);
+  padding: 0 12px; border: 0; border-top: 1px solid var(--c-border);
   background: var(--c-panel); cursor: pointer; color: var(--c-muted);
   transition: background 130ms ease, color 130ms ease;
 }
@@ -374,22 +380,29 @@ button { font-family: inherit; }
    user_account.settings.scopesCollapsed). Media-scoped to wide viewports so
    the narrow-viewport overlay behaviour stays untouched; collapsed, a slim
    rail keeps the way back visible. */
-.scopes-pane-rail { display: none; }
 @media (min-width: 901px) {
-  .scope-screen.pane-collapsed { grid-template-columns: 40px 1fr; }
-  .scope-screen.pane-collapsed .scopes-pane { display: none; }
-  .scope-screen.pane-collapsed .scopes-pane-rail {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: flex-end; padding-bottom: 9px;
-    border-right: 1px solid var(--c-border); background: var(--c-panel);
+  /* Collapsed, the pane narrows to an icon rail (the scope icons stay,
+     like the navigation's collapsed state); texts, counts, group labels
+     and the private panel step aside. */
+  .scope-screen.pane-collapsed { grid-template-columns: 48px 1fr; }
+  .scope-screen.pane-collapsed .pane-head { justify-content: center; padding: 14px 0 8px; }
+  .scope-screen.pane-collapsed .pane-head .eyebrow,
+  .scope-screen.pane-collapsed .scope-group-label,
+  .scope-screen.pane-collapsed .private-panel,
+  .scope-screen.pane-collapsed .scope-item > span { display: none; }
+  .scope-screen.pane-collapsed .scope-list { padding: 4px 0 12px; }
+  .scope-screen.pane-collapsed .scope-item {
+    grid-template-columns: 16px; justify-content: center; padding: 11px 0;
   }
+  .scope-screen.pane-collapsed .pane-collapse { justify-content: center; padding: 0; }
+  /* The pane column runs to the very bottom of the window: it reaches over
+     the footer row, and the version footer joins at the pane's edge — the
+     pane's bottom strip and the footer's top border form ONE line. Other
+     pages keep the full-width footer untouched. */
+  .main:has(.scope-screen) .app-footer { margin-left: 300px; border-top-color: var(--c-border); }
+  .main:has(.scope-screen.pane-collapsed) .app-footer { margin-left: 48px; }
+  .scope-screen .scopes-pane { margin-bottom: calc(-1 * var(--footer-h)); }
 }
-.scopes-pane-rail .pane-expand {
-  border: 1px solid var(--c-border); background: transparent; color: var(--c-text);
-  width: 26px; height: 26px; display: grid; place-items: center; cursor: pointer;
-}
-.scopes-pane-rail .pane-expand:hover { background: var(--c-hover); }
-.scopes-pane-rail .pane-expand .ico { width: 15px; height: 15px; }
 
 .scope-list { padding: 4px 12px 12px; display: flex; flex-direction: column; gap: 2px; }
 .scope-item {
@@ -402,6 +415,8 @@ button { font-family: inherit; }
 .scope-item:hover { background: var(--c-hover); }
 .scope-item.active { background: var(--c-hover); border-left-color: var(--accent); }
 .scope-item .ico { width: 16px; height: 16px; color: var(--c-muted); }
+.scope-item .scope-text { min-width: 0; }
+.scope-item .scope-meta { display: flex; align-items: center; gap: 8px; }
 .scope-item.active .ico { color: var(--c-text); }
 .scope-id {
   font-family: var(--font-mono); font-size: 13px; letter-spacing: .01em; color: var(--c-text);

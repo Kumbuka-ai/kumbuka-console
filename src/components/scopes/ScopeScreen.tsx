@@ -18,10 +18,11 @@ import type { EntryView, ScopeView } from "@/lib/api/types";
  * On wide viewports the list is also collapsible, persisted per user
  * (`user_account.settings.scopesCollapsed`, arriving via the session — same
  * contract as the rail: optimistic toggle, quiet non-blocking notice on a
- * failed save, never localStorage). Collapsed, a slim rail with the expand
- * chevron remains — the affordance back never disappears. The narrow-viewport
- * overlay behaviour is untouched (the collapse styles are media-scoped to
- * wide viewports).
+ * failed save, never localStorage). Collapsed, the pane narrows to an icon
+ * rail (like the navigation) with the expand chevron in its bottom strip —
+ * the affordance back never disappears. The narrow-viewport overlay
+ * behaviour is untouched (the collapse styles are media-scoped to wide
+ * viewports).
  */
 export function ScopeScreen({
   scopes,
@@ -82,26 +83,13 @@ export function ScopeScreen({
           onClick={() => setPaneOpen(false)}
         />
       ) : null}
-      {/* Slim rail with the way back — desktop-only via CSS, shown while
-          the list is collapsed. */}
-      <div className="scopes-pane-rail">
-        <button
-          className="pane-expand"
-          type="button"
-          onClick={toggleCollapsed}
-          aria-expanded={false}
-          aria-label={t("expandPane")}
-          title={t("expandPane")}
-        >
-          <Icon name="chevsRight" />
-        </button>
-      </div>
       <ScopesPane
         scopes={scopes}
         activeSlug={activeSlug}
         mobileOpen={paneOpen}
         onClose={() => setPaneOpen(false)}
-        onCollapse={toggleCollapsed}
+        collapsed={collapsed}
+        onToggleCollapse={toggleCollapsed}
         canCreateScopes={canCreateScopes}
         isAdmin={isAdmin}
       />
