@@ -218,28 +218,29 @@ button { font-family: inherit; }
 .user-chip:hover .u-name .acct-link { text-decoration: underline; text-underline-offset: 2px; }
 .user-chip .u-role { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: rgba(244,241,234,0.42); margin-top: 3px; }
 .rail-collapse {
-  display: flex; align-items: center; gap: 8px; padding: 8px 10px; width: 100%;
-  margin-top: 4px; border: 0; background: transparent; cursor: pointer; text-align: left;
+  display: flex; align-items: center; justify-content: center; padding: 8px 0; width: 100%;
+  margin-top: 4px; border: 0; background: transparent; cursor: pointer;
   color: rgba(244,241,234,0.42); transition: background 130ms ease, color 130ms ease;
 }
 .rail-collapse:hover { background: rgba(244,241,234,0.05); color: var(--c-rail-strong); }
-.rail-collapse .ico { width: 15px; height: 15px; flex: none; }
-.rail-collapse .txt { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; }
+.rail-collapse .ico { width: 16px; height: 16px; flex: none; }
 
 /* Manual rail collapse (persisted per user via user_account.settings.
    navCollapsed) — mirrors the ≤1180px narrow treatment in the Responsive
-   section, driven by the user's choice instead of the viewport. */
+   section, driven by the user's choice instead of the viewport. The setup
+   link collapses to its icon too, so the foot never overflows the 64px
+   rail and pushes the expand affordance out of view. */
 .app:has(.rail.is-collapsed) { --rail-w: 64px; }
 .rail.is-collapsed .brand-name, .rail.is-collapsed .brand-sub,
 .rail.is-collapsed .nav-item span.txt, .rail.is-collapsed .nav-item .nav-count,
 .rail.is-collapsed .nav-item .soon, .rail.is-collapsed .nav-label,
 .rail.is-collapsed .user-chip .u-meta, .rail.is-collapsed .user-chip .u-chev,
-.rail.is-collapsed .rail-collapse .txt { display: none; }
+.rail.is-collapsed .setup-link .txt { display: none; }
 .rail.is-collapsed .brand { justify-content: center; padding: 22px 0; }
 .rail.is-collapsed .nav-item { justify-content: center; padding: 12px 0; }
 .rail.is-collapsed .nav-item.active::before { top: 8px; bottom: 8px; }
 .rail.is-collapsed .user-chip { justify-content: center; padding: 8px 0; }
-.rail.is-collapsed .rail-collapse { justify-content: center; padding: 8px 0; }
+.rail.is-collapsed .setup-link { justify-content: center; padding: 10px 0; }
 
 /* ============================================================
    Main column
@@ -1153,12 +1154,12 @@ button { font-family: inherit; }
    ============================================================ */
 @media (max-width: 1180px) {
   :root { --rail-w: 64px; }
-  .rail .brand-name, .rail .brand-sub, .nav-item span.txt, .nav-item .nav-count, .nav-item .soon, .nav-label, .user-chip .u-meta, .user-chip .u-chev, .rail-collapse .txt { display: none; }
+  .rail .brand-name, .rail .brand-sub, .nav-item span.txt, .nav-item .nav-count, .nav-item .soon, .nav-label, .user-chip .u-meta, .user-chip .u-chev, .setup-link .txt { display: none; }
   .rail .brand { justify-content: center; padding: 22px 0; }
   .nav-item { justify-content: center; padding: 12px 0; }
   .nav-item.active::before { top: 8px; bottom: 8px; }
   .user-chip { justify-content: center; padding: 8px 0; }
-  .rail-collapse { justify-content: center; padding: 8px 0; }
+  .setup-link { justify-content: center; padding: 10px 0; }
 }
 @media (max-width: 900px) {
   .scope-screen { grid-template-columns: 1fr; }

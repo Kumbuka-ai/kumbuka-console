@@ -160,6 +160,8 @@ export function Rail({
             <Icon name="chevRight" />
           </span>
         </Link>
+        {/* Icon-only on purpose (the « / » affordance); the accessible name
+            and the tooltip carry the label. */}
         <button
           className="rail-collapse"
           type="button"
@@ -169,7 +171,6 @@ export function Rail({
           title={collapsed ? t("expandNav") : t("collapseNav")}
         >
           <Icon name={collapsed ? "chevsRight" : "chevsLeft"} />
-          <span className="txt">{t("collapseNav")}</span>
         </button>
       </div>
     </nav>
