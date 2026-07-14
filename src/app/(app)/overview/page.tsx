@@ -7,7 +7,7 @@ import { TypeChip } from "@/components/ui/Chip";
 import { Avatar, initialsOf } from "@/components/ui/Avatar";
 import { ConnectSection } from "@/components/connect/ConnectSection";
 import { GuaranteeBand } from "@/components/overview/GuaranteeBand";
-import { getConnector, getOverview, listScopes, listUsers, listDirectory } from "@/lib/api";
+import { getConnector, getOverview, getSession, listScopes, listUsers, listDirectory } from "@/lib/api";
 import { ENTRY_TYPE_ORDER, type ScopeView } from "@/lib/api/types";
 import { absTime, relTime } from "@/lib/time";
 import { getTheme } from "@/lib/theme";
@@ -36,13 +36,17 @@ function MiniBar({ scope, byType }: Readonly<{ scope: ScopeView; byType: Record<
 }
 
 export default async function OverviewPage() {
-  const [overview, scopes, directory, roster, connector, theme] = await Promise.all([
+  const [overview, scopes, directory, roster, connector, theme, session] = await Promise.all([
     getOverview(),
     listScopes(),
     listDirectory(),                 // member-safe: names + count + avatars
     listUsers().catch(() => null),   // roster (role/status) is admin-only → null for members (403)
     getConnector(),
     getTheme(),
+    // Persisted UI settings ride on the session (connect-block collapse).
+    // Defensive null: the layout already gates auth; a hiccup here only
+    // means the block starts expanded.
+    getSession().catch(() => null),
   ]);
 
   // Author/avatar resolution comes from the member-safe directory; the
@@ -94,7 +98,11 @@ export default async function OverviewPage() {
             </div>
           </div>
 
-          <ConnectSection connector={connector} scopes={scopes} />
+          <ConnectSection
+            connector={connector}
+            scopes={scopes}
+            initialCollapsed={session?.settings?.connectCollapsed ?? false}
+          />
 
           <div className="ov-split">
             <div>

@@ -33,13 +33,14 @@ function ScopeItem({
       key={scope.slug}
       href={`/scopes/${scope.slug}`}
       className={`scope-item${active ? " active" : ""}${scope.archived ? " archived" : ""}`}
+      title={`${scope.slug} · ${scope.name}`}
     >
       <ScopeIcon scope={scope} />
-      <span style={{ minWidth: 0 }}>
+      <span className="scope-text">
         <span className="scope-id">{scope.slug}</span>
         <span className="sub">{scope.name}</span>
       </span>
-      <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <span className="scope-meta">
         {scope.fixed ? <span className="scope-flag">{t("fixed")}</span> : null}
         {scope.syncError ? (
           <span
@@ -73,11 +74,34 @@ function ScopeItem({
   );
 }
 
+/** The pane's bottom strip: footer-row height, chevron toggles both ways. */
+function PaneCollapseStrip({
+  collapsed,
+  onToggle,
+}: Readonly<{ collapsed: boolean; onToggle: () => void }>) {
+  const t = useTranslations("scopes");
+  const label = collapsed ? t("expandPane") : t("collapsePane");
+  return (
+    <button
+      className="pane-collapse"
+      onClick={onToggle}
+      aria-expanded={!collapsed}
+      aria-label={label}
+      title={label}
+      type="button"
+    >
+      <Icon name={collapsed ? "chevsRight" : "chevsLeft"} />
+    </button>
+  );
+}
+
 export function ScopesPane({
   scopes,
   activeSlug,
   mobileOpen = false,
   onClose,
+  collapsed = false,
+  onToggleCollapse,
   canCreateScopes = true,
   isAdmin = false,
 }: Readonly<{
@@ -86,6 +110,10 @@ export function ScopesPane({
   /** On narrow viewports the pane is an overlay toggled open by the parent. */
   mobileOpen?: boolean;
   onClose?: () => void;
+  /** Wide-viewport collapse state (persisted by the parent): the pane
+   *  narrows to an icon rail; the bottom strip's chevron toggles it. */
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
   /** Scope lifecycle (rename / archive / un-archive) is a team-admin governance
    *  op (finding dogfood-16). Members don't see those menu items; the backend
    *  enforces it regardless (@RolesAllowed("admin")). */
@@ -219,6 +247,13 @@ export function ScopesPane({
               ))}
             </div>
           </>
+        ) : null}
+
+        {/* Bottom of the pane, sticky so a long list never hides it — sits on
+            the same line as the rail's collapse chevron. Icon-only, like the
+            rail's; toggles both ways. */}
+        {onToggleCollapse ? (
+          <PaneCollapseStrip collapsed={collapsed} onToggle={onToggleCollapse} />
         ) : null}
       </aside>
 

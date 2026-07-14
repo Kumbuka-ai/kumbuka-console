@@ -32,7 +32,13 @@ import type { ConnectorView, ScopeView } from "@/lib/api/types";
 export async function ConnectSection({
   connector,
   scopes,
-}: Readonly<{ connector: ConnectorView; scopes: ScopeView[] }>) {
+  initialCollapsed = false,
+}: Readonly<{
+  connector: ConnectorView;
+  scopes: ScopeView[];
+  /** Persisted block-1 collapse state from the caller's session. */
+  initialCollapsed?: boolean;
+}>) {
   const [locale, t, ti] = await Promise.all([
     getLocale(),
     getTranslations("connect"),
@@ -99,6 +105,7 @@ export async function ConnectSection({
         values={values}
         connector={connector}
         scopes={scopes}
+        initialCollapsed={initialCollapsed}
       />
 
       <InstructionBlock scopes={scopes} />

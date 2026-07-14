@@ -384,7 +384,7 @@ export function EntriesView({
                 <tr>
                   <Th id="type" label={t("th.type")} sort={sort} setSort={setSort} className="col-type" />
                   <Th id="key" label={t("th.key")} sort={sort} setSort={setSort} className="col-key" />
-                  <th>{t("th.content")}</th>
+                  <th className="col-content">{t("th.content")}</th>
                   <Th id="author" label={t("th.author")} sort={sort} setSort={setSort} className="col-author" />
                   <Th id="updated" label={t("th.updated")} sort={sort} setSort={setSort} className="col-updated" />
                   <th className="col-actions" aria-label={t("th.actionsAria")} />
@@ -403,7 +403,7 @@ export function EntriesView({
                         <span className="cell-key empty">—</span>
                       )}
                     </td>
-                    <td>
+                    <td className="col-content">
                       <div className="cell-content">{e.content}</div>
                     </td>
                     <td className="col-author">

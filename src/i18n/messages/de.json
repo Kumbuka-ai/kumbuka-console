@@ -9,7 +9,9 @@
     "accountTitle": "Kontoeinstellungen",
     "accountSuffix": "(Konto)",
     "signedIn": "angemeldet",
-    "help": "Hilfe"
+    "help": "Hilfe",
+    "collapseNav": "Einklappen",
+    "expandNav": "Ausklappen"
   },
   "roles": {
     "admin": "Admin",
@@ -49,7 +51,8 @@
     "copied": "In die Zwischenablage kopiert",
     "cancel": "Abbrechen",
     "close": "Schließen",
-    "ok": "OK"
+    "ok": "OK",
+    "viewSaveFailed": "Ansicht konnte nicht gespeichert werden – sie gilt nur für diese Sitzung."
   },
   "overview": {
     "stat": {
@@ -506,7 +509,9 @@
       "global": "Standard-Schreibziel für Erinnerungen, die der Assistent als <b>organisationsweit</b> markiert.",
       "archived": "Schreibgeschützt — archivierte Scopes können nicht beschrieben werden.",
       "project": "Beschreibbar von <b>Admins</b> und Mitgliedern, die diesem Projekt zugewiesen sind."
-    }
+    },
+    "collapsePane": "Scope-Liste einklappen",
+    "expandPane": "Scope-Liste aufklappen"
   },
   "editors": {
     "scope": {

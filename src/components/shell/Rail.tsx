@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { setUiSettingsAction } from "@/app/(app)/actions";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { DEFAULT_LOCALE, isLocale } from "@/i18n/config";
 import { Avatar, initialsOf } from "@/components/ui/Avatar";
 import { SetupGuide } from "@/components/onboarding/SetupGuide";
+import { useToast } from "@/components/ui/Toast";
 // Overridable specifier (see docs/extension-points.md): a downstream build
 // rebinds it to contribute nav items; by default it returns [] and the
 // rail is unchanged.
@@ -52,9 +55,26 @@ export function Rail({
   // x-url headers are no longer set, so the highlight was stuck on Overview.)
   const t = useTranslations("nav");
   const tRoles = useTranslations("roles");
+  const tCommon = useTranslations("common");
+  const toast = useToast();
   const rawLocale = useLocale();
   const locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
   const pathname = usePathname() ?? "";
+  // Collapse state: seeded from the session (SSR — no load flicker),
+  // persisted per user (user_account.settings.navCollapsed). Client
+  // navigation keeps this component mounted, so the choice survives page
+  // changes; a full reload reads the persisted value. Never localStorage.
+  const [collapsed, setCollapsed] = useState(session.settings?.navCollapsed ?? false);
+  const toggleCollapsed = () => {
+    const next = !collapsed;
+    // Optimistic: render the click immediately, save in the background.
+    setCollapsed(next);
+    void setUiSettingsAction({ navCollapsed: next }).then(({ ok }) => {
+      // Failed save: the clicked state stays for this session, but silent
+      // failure is forbidden — surface a quiet, non-blocking notice.
+      if (!ok) toast.push({ message: tCommon("viewSaveFailed") });
+    });
+  };
   const activeId = ACTIVE_ROUTES.find((r) => pathname.startsWith(r.prefix))?.id ?? "overview";
   const totalEntries = scopes.reduce((n, s) => n + s.entryCount, 0);
   // RBAC: the team tab is admin-only (the route + its endpoints enforce this
@@ -72,7 +92,7 @@ export function Rail({
   const initials = initialsOf(label);
   const firstName = label.split(/[\s@]/)[0] || label;
   return (
-    <nav className="rail" aria-label="Primary">
+    <nav className={`rail${collapsed ? " is-collapsed" : ""}`} aria-label="Primary">
       <div className="brand">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="brand-mark" src="/brand/kumbuka-mark-white.svg" alt="" />
@@ -140,6 +160,18 @@ export function Rail({
             <Icon name="chevRight" />
           </span>
         </Link>
+        {/* Icon-only on purpose (the « / » affordance); the accessible name
+            and the tooltip carry the label. */}
+        <button
+          className="rail-collapse"
+          type="button"
+          onClick={toggleCollapsed}
+          aria-expanded={!collapsed}
+          aria-label={collapsed ? t("expandNav") : t("collapseNav")}
+          title={collapsed ? t("expandNav") : t("collapseNav")}
+        >
+          <Icon name={collapsed ? "chevsRight" : "chevsLeft"} />
+        </button>
       </div>
     </nav>
   );

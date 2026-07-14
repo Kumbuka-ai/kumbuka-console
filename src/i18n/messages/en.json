@@ -9,7 +9,9 @@
     "accountTitle": "Account settings",
     "accountSuffix": "(account)",
     "signedIn": "signed in",
-    "help": "Help"
+    "help": "Help",
+    "collapseNav": "Collapse",
+    "expandNav": "Expand"
   },
   "roles": {
     "admin": "admin",
@@ -49,7 +51,8 @@
     "copied": "Copied to clipboard",
     "cancel": "Cancel",
     "close": "Close",
-    "ok": "OK"
+    "ok": "OK",
+    "viewSaveFailed": "Couldn't save the view — it applies to this session only."
   },
   "overview": {
     "stat": {
@@ -506,7 +509,9 @@
       "global": "Default write target for memories the assistant marks <b>org-wide</b>.",
       "archived": "Read-only — archived scopes can't be written to.",
       "project": "Writable by <b>admins</b> and members assigned to this project."
-    }
+    },
+    "collapsePane": "Collapse the scope list",
+    "expandPane": "Expand the scope list"
   },
   "editors": {
     "scope": {

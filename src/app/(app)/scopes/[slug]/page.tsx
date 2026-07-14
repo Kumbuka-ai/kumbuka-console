@@ -65,6 +65,7 @@ export default async function ScopeBrowserPage({
         callerMuted={session.muted}
         canCreateScopes={canCreateScopes}
         isAdmin={isAdmin}
+        initialCollapsed={session.settings?.scopesCollapsed ?? false}
       />
     </>
   );

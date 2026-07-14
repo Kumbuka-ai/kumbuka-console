@@ -174,3 +174,37 @@ describe("EntryEditor — scope-lock override (FEAT-19 §B3)", () => {
     expect(screen.getByRole("button", { name: /^ok$/i })).toBeTruthy();
   });
 });
+
+describe("content character budget (the 1500-char entry contract)", () => {
+  const counter = () => document.querySelector(".char-counter") as HTMLElement;
+
+  it("caps the textarea at the server contract and shows the budget", () => {
+    renderEditing();
+    // The hard stop is the contract the backend enforces (validator + DB CHECK).
+    expect(contentArea().maxLength).toBe(1500);
+    // "We ship daily." = 14 chars, en locale formats the limit with a comma.
+    expect(counter().textContent).toBe("14 / 1,500");
+    expect(counter().className).toBe("char-counter");
+  });
+
+  it("stays quiet while more than 100 characters remain", () => {
+    renderEditing();
+    fireEvent.change(contentArea(), { target: { value: "x".repeat(1399) } });
+    expect(counter().textContent).toBe("1,399 / 1,500");
+    expect(counter().className).toBe("char-counter");
+  });
+
+  it("turns amber once 100 or fewer characters remain", () => {
+    renderEditing();
+    fireEvent.change(contentArea(), { target: { value: "x".repeat(1400) } });
+    expect(counter().className).toContain("warn");
+    expect(counter().className).not.toContain("limit");
+  });
+
+  it("turns red at the limit", () => {
+    renderEditing();
+    fireEvent.change(contentArea(), { target: { value: "x".repeat(1500) } });
+    expect(counter().textContent).toBe("1,500 / 1,500");
+    expect(counter().className).toContain("limit");
+  });
+});
