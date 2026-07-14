@@ -74,6 +74,27 @@ function ScopeItem({
   );
 }
 
+/** The pane's bottom strip: footer-row height, chevron toggles both ways. */
+function PaneCollapseStrip({
+  collapsed,
+  onToggle,
+}: Readonly<{ collapsed: boolean; onToggle: () => void }>) {
+  const t = useTranslations("scopes");
+  const label = collapsed ? t("expandPane") : t("collapsePane");
+  return (
+    <button
+      className="pane-collapse"
+      onClick={onToggle}
+      aria-expanded={!collapsed}
+      aria-label={label}
+      title={label}
+      type="button"
+    >
+      <Icon name={collapsed ? "chevsRight" : "chevsLeft"} />
+    </button>
+  );
+}
+
 export function ScopesPane({
   scopes,
   activeSlug,
@@ -232,16 +253,7 @@ export function ScopesPane({
             the same line as the rail's collapse chevron. Icon-only, like the
             rail's; toggles both ways. */}
         {onToggleCollapse ? (
-          <button
-            className="pane-collapse"
-            onClick={onToggleCollapse}
-            aria-expanded={!collapsed}
-            aria-label={collapsed ? t("expandPane") : t("collapsePane")}
-            title={collapsed ? t("expandPane") : t("collapsePane")}
-            type="button"
-          >
-            <Icon name={collapsed ? "chevsRight" : "chevsLeft"} />
-          </button>
+          <PaneCollapseStrip collapsed={collapsed} onToggle={onToggleCollapse} />
         ) : null}
       </aside>
 
