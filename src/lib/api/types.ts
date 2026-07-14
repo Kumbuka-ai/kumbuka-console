@@ -268,6 +268,8 @@ export type UiSettings = {
   connectCollapsed?: boolean | null;
   /** The navigation sidebar is collapsed. */
   navCollapsed?: boolean | null;
+  /** The scope list on the scope browser is collapsed. */
+  scopesCollapsed?: boolean | null;
 };
 
 /**

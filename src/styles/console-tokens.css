@@ -254,6 +254,7 @@ button { font-family: inherit; }
   flex: 0 0 auto;
   padding: 8px 22px;
   display: flex;
+  justify-content: flex-end;
   gap: 10px;
   align-items: center;
   font-size: 11px;
@@ -356,6 +357,27 @@ button { font-family: inherit; }
 }
 .pane-head .addscope:hover { background: var(--c-hover); }
 .pane-head .addscope .ico { width: 15px; height: 15px; }
+.pane-head .pane-tools { display: flex; gap: 6px; }
+
+/* Wide-viewport collapse of the scope list (persisted per user via
+   user_account.settings.scopesCollapsed). Media-scoped to wide viewports so
+   the narrow-viewport overlay behaviour stays untouched; collapsed, a slim
+   rail keeps the way back visible. */
+.scopes-pane-rail { display: none; }
+@media (min-width: 901px) {
+  .scope-screen.pane-collapsed { grid-template-columns: 40px 1fr; }
+  .scope-screen.pane-collapsed .scopes-pane { display: none; }
+  .scope-screen.pane-collapsed .scopes-pane-rail {
+    display: flex; flex-direction: column; align-items: center; padding-top: 12px;
+    border-right: 1px solid var(--c-border); background: var(--c-panel);
+  }
+}
+.scopes-pane-rail .pane-expand {
+  border: 1px solid var(--c-border); background: transparent; color: var(--c-text);
+  width: 26px; height: 26px; display: grid; place-items: center; cursor: pointer;
+}
+.scopes-pane-rail .pane-expand:hover { background: var(--c-hover); }
+.scopes-pane-rail .pane-expand .ico { width: 15px; height: 15px; }
 
 .scope-list { padding: 4px 12px 12px; display: flex; flex-direction: column; gap: 2px; }
 .scope-item {
@@ -1166,6 +1188,9 @@ button { font-family: inherit; }
 @media (max-width: 900px) {
   .scope-screen { grid-template-columns: 1fr; }
   .scopes-pane { display: none; }
+  /* Narrow viewports keep the overlay pattern; the wide-viewport collapse
+     tool would only duplicate the X. */
+  .pane-collapse { display: none; }
   .scopes-pane.mobile-open {
     display: flex; position: absolute; top: 0; left: 0; z-index: 60;
     width: min(86vw, 320px); height: 100%; box-shadow: 0 0 0 100vmax rgba(0,0,0,0);

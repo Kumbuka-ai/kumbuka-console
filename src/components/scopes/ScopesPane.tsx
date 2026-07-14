@@ -78,6 +78,7 @@ export function ScopesPane({
   activeSlug,
   mobileOpen = false,
   onClose,
+  onCollapse,
   canCreateScopes = true,
   isAdmin = false,
 }: Readonly<{
@@ -86,6 +87,8 @@ export function ScopesPane({
   /** On narrow viewports the pane is an overlay toggled open by the parent. */
   mobileOpen?: boolean;
   onClose?: () => void;
+  /** Wide-viewport collapse (persisted by the parent); renders the « tool. */
+  onCollapse?: () => void;
   /** Scope lifecycle (rename / archive / un-archive) is a team-admin governance
    *  op (finding dogfood-16). Members don't see those menu items; the backend
    *  enforces it regardless (@RolesAllowed("admin")). */
@@ -172,17 +175,30 @@ export function ScopesPane({
               <Icon name="x" />
             </button>
           ) : null}
-          {canCreateScopes ? (
-            <button
-              className="addscope"
-              onClick={() => setCreating(true)}
-              aria-label={t("newScope")}
-              title={t("newScope")}
-              type="button"
-            >
-              <Icon name="plus" />
-            </button>
-          ) : null}
+          <span className="pane-tools">
+            {onCollapse ? (
+              <button
+                className="addscope pane-collapse"
+                onClick={onCollapse}
+                aria-label={t("collapsePane")}
+                title={t("collapsePane")}
+                type="button"
+              >
+                <Icon name="chevsLeft" />
+              </button>
+            ) : null}
+            {canCreateScopes ? (
+              <button
+                className="addscope"
+                onClick={() => setCreating(true)}
+                aria-label={t("newScope")}
+                title={t("newScope")}
+                type="button"
+              >
+                <Icon name="plus" />
+              </button>
+            ) : null}
+          </span>
         </div>
 
         <div className="scope-list">
