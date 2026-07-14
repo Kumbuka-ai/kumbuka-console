@@ -69,7 +69,7 @@ export default async function OverviewPage() {
     <>
       <Topbar title={t("overview_title")} meta={t("overview_meta")} theme={theme} />
       <div className="page-scroll">
-        <div className="page-pad">
+        <div className="page-pad wide">
           <div className="stat-strip">
             <div className="stat">
               <div className="s-label"><Icon name="ok" />{to("stat.shared")}</div>
