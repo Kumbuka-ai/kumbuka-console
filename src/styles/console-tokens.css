@@ -218,7 +218,7 @@ button { font-family: inherit; }
 .user-chip:hover .u-name .acct-link { text-decoration: underline; text-underline-offset: 2px; }
 .user-chip .u-role { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: rgba(244,241,234,0.42); margin-top: 3px; }
 .rail-collapse {
-  display: flex; align-items: center; justify-content: center; padding: 8px 0; width: 100%;
+  display: flex; align-items: center; justify-content: flex-end; padding: 8px 12px; width: 100%;
   margin-top: 4px; border: 0; background: transparent; cursor: pointer;
   color: rgba(244,241,234,0.42); transition: background 130ms ease, color 130ms ease;
 }
@@ -241,6 +241,7 @@ button { font-family: inherit; }
 .rail.is-collapsed .nav-item.active::before { top: 8px; bottom: 8px; }
 .rail.is-collapsed .user-chip { justify-content: center; padding: 8px 0; }
 .rail.is-collapsed .setup-link { justify-content: center; padding: 10px 0; }
+.rail.is-collapsed .rail-collapse { justify-content: center; padding: 8px 0; }
 
 /* ============================================================
    Main column
@@ -1160,6 +1161,7 @@ button { font-family: inherit; }
   .nav-item.active::before { top: 8px; bottom: 8px; }
   .user-chip { justify-content: center; padding: 8px 0; }
   .setup-link { justify-content: center; padding: 10px 0; }
+  .rail-collapse { justify-content: center; padding: 8px 0; }
 }
 @media (max-width: 900px) {
   .scope-screen { grid-template-columns: 1fr; }
