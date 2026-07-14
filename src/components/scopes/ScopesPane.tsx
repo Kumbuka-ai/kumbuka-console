@@ -175,30 +175,17 @@ export function ScopesPane({
               <Icon name="x" />
             </button>
           ) : null}
-          <span className="pane-tools">
-            {onCollapse ? (
-              <button
-                className="addscope pane-collapse"
-                onClick={onCollapse}
-                aria-label={t("collapsePane")}
-                title={t("collapsePane")}
-                type="button"
-              >
-                <Icon name="chevsLeft" />
-              </button>
-            ) : null}
-            {canCreateScopes ? (
-              <button
-                className="addscope"
-                onClick={() => setCreating(true)}
-                aria-label={t("newScope")}
-                title={t("newScope")}
-                type="button"
-              >
-                <Icon name="plus" />
-              </button>
-            ) : null}
-          </span>
+          {canCreateScopes ? (
+            <button
+              className="addscope"
+              onClick={() => setCreating(true)}
+              aria-label={t("newScope")}
+              title={t("newScope")}
+              type="button"
+            >
+              <Icon name="plus" />
+            </button>
+          ) : null}
         </div>
 
         <div className="scope-list">
@@ -235,6 +222,21 @@ export function ScopesPane({
               ))}
             </div>
           </>
+        ) : null}
+
+        {/* Bottom of the pane, sticky so a long list never hides it — sits on
+            the same line as the rail's collapse chevron. Icon-only, like the
+            rail's. */}
+        {onCollapse ? (
+          <button
+            className="pane-collapse"
+            onClick={onCollapse}
+            aria-label={t("collapsePane")}
+            title={t("collapsePane")}
+            type="button"
+          >
+            <Icon name="chevsLeft" />
+          </button>
         ) : null}
       </aside>
 

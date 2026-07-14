@@ -357,7 +357,18 @@ button { font-family: inherit; }
 }
 .pane-head .addscope:hover { background: var(--c-hover); }
 .pane-head .addscope .ico { width: 15px; height: 15px; }
-.pane-head .pane-tools { display: flex; gap: 6px; }
+
+/* Collapse tool at the pane's bottom edge — same line as the rail's
+   chevron. Sticky so a long, scrolling scope list never hides it. */
+.scopes-pane .pane-collapse {
+  margin-top: auto; position: sticky; bottom: 0; align-self: stretch;
+  display: flex; justify-content: flex-end; align-items: center;
+  padding: 8px 12px; border: 0; border-top: 1px solid var(--c-border);
+  background: var(--c-panel); cursor: pointer; color: var(--c-muted);
+  transition: background 130ms ease, color 130ms ease;
+}
+.scopes-pane .pane-collapse:hover { background: var(--c-hover); color: var(--c-ink); }
+.scopes-pane .pane-collapse .ico { width: 16px; height: 16px; }
 
 /* Wide-viewport collapse of the scope list (persisted per user via
    user_account.settings.scopesCollapsed). Media-scoped to wide viewports so
@@ -368,7 +379,8 @@ button { font-family: inherit; }
   .scope-screen.pane-collapsed { grid-template-columns: 40px 1fr; }
   .scope-screen.pane-collapsed .scopes-pane { display: none; }
   .scope-screen.pane-collapsed .scopes-pane-rail {
-    display: flex; flex-direction: column; align-items: center; padding-top: 12px;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: flex-end; padding-bottom: 9px;
     border-right: 1px solid var(--c-border); background: var(--c-panel);
   }
 }
