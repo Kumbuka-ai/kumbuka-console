@@ -19,9 +19,17 @@ import { MISTRAL_NOTICE } from "@/connect/notices";
 import type { RenderableCell, TokenValues } from "./types";
 import type { ConnectorView, ScopeView } from "@/lib/api/types";
 
+// The collapse toggle persists via the server action; the component under
+// test only needs its resolved { ok } shape.
+const { setUiSettingsActionMock } = vi.hoisted(() => ({ setUiSettingsActionMock: vi.fn() }));
+vi.mock("@/app/(app)/actions", () => ({
+  setUiSettingsAction: setUiSettingsActionMock,
+}));
+
 const writeText = vi.fn().mockResolvedValue(undefined);
 beforeEach(() => {
   writeText.mockClear();
+  setUiSettingsActionMock.mockReset().mockResolvedValue({ ok: true });
   Object.assign(navigator, { clipboard: { writeText } });
 });
 
@@ -114,13 +122,35 @@ describe("ConnectBlock1 — fallback (the ship state of this change)", () => {
     expect(screen.getByText(/guaranteed by architecture/i)).toBeTruthy();
   });
 
-  it("collapses and expands (state is session-local until a server field exists)", () => {
+  it("collapses and expands optimistically, persisting each click field-wise", () => {
     renderBlock();
     expect(screen.getByText("https://acme.kumbuka.ai/mcp")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /collapse/i }));
+    // Optimistic: the body is gone before the save resolves.
     expect(screen.queryByText("https://acme.kumbuka.ai/mcp")).toBeNull();
+    expect(setUiSettingsActionMock).toHaveBeenCalledWith({ connectCollapsed: true });
     fireEvent.click(screen.getByRole("button", { name: /expand/i }));
     expect(screen.getByText("https://acme.kumbuka.ai/mcp")).toBeTruthy();
+    // Expanding is a write too (false is a value, not an omission).
+    expect(setUiSettingsActionMock).toHaveBeenCalledWith({ connectCollapsed: false });
+  });
+
+  it("starts collapsed when the session says so (SSR value, no flicker)", () => {
+    renderBlock({ initialCollapsed: true });
+    expect(screen.queryByText("https://acme.kumbuka.ai/mcp")).toBeNull();
+    expect(screen.getByRole("button", { name: /expand/i })).toBeTruthy();
+    // Rendering the persisted state is not a save.
+    expect(setUiSettingsActionMock).not.toHaveBeenCalled();
+  });
+
+  it("keeps the clicked state and shows a non-blocking notice when the save fails", async () => {
+    setUiSettingsActionMock.mockResolvedValue({ ok: false });
+    renderBlock();
+    fireEvent.click(screen.getByRole("button", { name: /collapse/i }));
+    // Silent failure is forbidden: the quiet notice appears…
+    expect(await screen.findByText(en.common.viewSaveFailed)).toBeTruthy();
+    // …and the user's click is respected for this session (still collapsed).
+    expect(screen.queryByText("https://acme.kumbuka.ai/mcp")).toBeNull();
   });
 });
 

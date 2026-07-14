@@ -36,6 +36,7 @@ import type {
   InviteUserRequest,
   OnboardingState,
   ScopeActionResult,
+  UiSettings,
   UpdateEntryRequest,
   UpdateMeRequest,
   UpdateSettingsRequest,
@@ -334,6 +335,28 @@ export async function setOnboardingAction(state: OnboardingState) {
   } catch {
     // Local wizard state already updated; the backend will catch up once the
     // account field exists. Never surface this to the user.
+  }
+}
+
+/**
+ * Persist one UI presentation setting (user_account.settings — collapse
+ * state of the connect block / the navigation sidebar). Field-wise on
+ * purpose: callers send ONLY the field they changed and the server merges,
+ * so two open tabs saving different surfaces cannot erase each other.
+ *
+ * Unlike setLocaleAction/setOnboardingAction this is NOT silently
+ * best-effort: the caller gets the failure back and shows a quiet,
+ * non-blocking notice — a toggle that pretends to save and doesn't is a
+ * lie. The optimistic local state stays either way (the user's click is
+ * respected for this session); no revalidate — the next SSR read returns
+ * the persisted value.
+ */
+export async function setUiSettingsAction(patch: UiSettings): Promise<{ ok: boolean }> {
+  try {
+    await updateMe({ settings: patch });
+    return { ok: true };
+  } catch {
+    return { ok: false };
   }
 }
 

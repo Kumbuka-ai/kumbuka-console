@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { setUiSettingsAction } from "@/app/(app)/actions";
 import { Icon } from "@/components/ui/Icon";
+import { useToast } from "@/components/ui/Toast";
 import { AgentMark } from "./AgentMark";
 import { AgentNotice } from "./AgentNotice";
 import { CellView } from "./CellView";
@@ -30,13 +32,12 @@ import type { RenderableCell, TokenValues } from "./types";
  * with it, it never leaves the code) — one of the five private-guarantee
  * surfaces.
  *
- * The collapsed state is currently session-local only. The server-side
- * per-user persistence this is specified to use does not exist yet: the
- * setup guide's path (`user_account.onboarding_*`) is column-bound to
- * the wizard and carries no reusable flag — extending it is a backend
- * change outside this repo. Deliberately NOT localStorage (rejected in
- * this console); the state resets per visit until the server field
- * exists.
+ * The collapsed state is per-user and server-persisted
+ * (`user_account.settings.connectCollapsed`, arriving via the session):
+ * the toggle renders optimistically and saves in the background — never
+ * localStorage (rejected in this console). A failed save keeps the
+ * clicked state for this session and surfaces a quiet, non-blocking
+ * notice; it never blocks or reverts the click.
  */
 /** Apparatus switcher — a quiet label for one surface, tabs for more. */
 function ApparatusBar({
@@ -115,6 +116,7 @@ export function ConnectBlock1({
   values,
   connector,
   scopes,
+  initialCollapsed = false,
 }: Readonly<{
   agents: ConnectAgent[];
   tabsByAgent: Record<string, ConnectApparatus[]>;
@@ -122,9 +124,24 @@ export function ConnectBlock1({
   values: TokenValues;
   connector: ConnectorView;
   scopes: ScopeView[];
+  /** Persisted collapse state from the session (SSR — no load flicker). */
+  initialCollapsed?: boolean;
 }>) {
   const t = useTranslations("connect.block1");
-  const [collapsed, setCollapsed] = useState(false);
+  const tCommon = useTranslations("common");
+  const toast = useToast();
+  const [collapsed, setCollapsed] = useState(initialCollapsed);
+
+  const toggle = () => {
+    const next = !collapsed;
+    // Optimistic: render the click immediately, save in the background.
+    setCollapsed(next);
+    void setUiSettingsAction({ connectCollapsed: next }).then(({ ok }) => {
+      // Failed save: the clicked state stays for this session, but silent
+      // failure is forbidden — surface a quiet, non-blocking notice.
+      if (!ok) toast.push({ message: tCommon("viewSaveFailed") });
+    });
+  };
   const [agentId, setAgentId] = useState<string>(agents[0]?.slug ?? "");
   const agent = agents.find((a) => a.slug === agentId) ?? agents[0];
   const tabs = agent ? (tabsByAgent[agent.slug] ?? []) : [];
@@ -135,7 +152,7 @@ export function ConnectBlock1({
 
   return (
     <div className={`cw-box${collapsed ? " is-collapsed" : ""}`}>
-      <button className="cw-box-head" onClick={() => setCollapsed((c) => !c)} aria-expanded={!collapsed} type="button">
+      <button className="cw-box-head" onClick={toggle} aria-expanded={!collapsed} type="button">
         <span className="cw-box-title">
           <span className="cw-box-step">1</span>
           {t("title")}

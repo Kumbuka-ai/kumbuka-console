@@ -240,6 +240,14 @@ export type SessionView = {
    * this is absent and the console treats the wizard as not-yet-dismissed.
    */
   onboarding?: OnboardingState;
+  /**
+   * Per-user UI presentation settings (user_account.settings — one typed
+   * jsonb field, server-validated). Presentation state ONLY, never anything
+   * that reveals how a user works. Optional for forward-compat with
+   * mock/older payloads; unset fields mean "user never chose" and the
+   * surface defaults to expanded.
+   */
+  settings?: UiSettings;
 };
 
 /**
@@ -248,6 +256,19 @@ export type SessionView = {
  * point (0-based) while still pending.
  */
 export type OnboardingState = { dismissed: boolean; lastStep: number };
+
+/**
+ * Per-user UI presentation settings, mirrored from the server's typed shape.
+ * Each field is tri-state: `true`/`false` = the user chose, `null`/absent =
+ * unset (surface renders expanded). When PATCHing, send only the field being
+ * changed — the server merges field-wise (see UpdateMeRequest.settings).
+ */
+export type UiSettings = {
+  /** The connect block on the overview page is collapsed. */
+  connectCollapsed?: boolean | null;
+  /** The navigation sidebar is collapsed. */
+  navCollapsed?: boolean | null;
+};
 
 /**
  * D-CORE-8: one of the member's own active Keycloak sessions. Scoped to
@@ -334,7 +355,18 @@ export type UpdateSettingsRequest = {
   defaultScopeSlug?: string | null;
   createScopes?: CreateScopes;
 };
-export type UpdateMeRequest = { displayName?: string; locale?: Locale; onboarding?: OnboardingState };
+/**
+ * `settings` is a field-wise patch: send ONLY the field being changed — the
+ * server merges it into the stored object, so two surfaces saving in
+ * parallel (two tabs) cannot erase each other's writes. Unknown or
+ * wrong-typed settings fields are rejected server-side with 400, never stored.
+ */
+export type UpdateMeRequest = {
+  displayName?: string;
+  locale?: Locale;
+  onboarding?: OnboardingState;
+  settings?: UiSettings;
+};
 export type InviteUserRequest = { email: string; displayName?: string; role: UserRole };
 export type UpdateUserRequest = { role?: UserRole; status?: UserStatus; muted?: boolean };
 

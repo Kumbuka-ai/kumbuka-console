@@ -33,7 +33,7 @@ in `kumbuka-server/docker-compose.yml` ready to be uncommented.
   - `/account` — D2 hybrid: display-name edit + link-outs to the Keycloak account console for password / MFA / passkey / sessions, plus the private-guarantee panel and sign-out.
 - **A help area** (`/help/[section]`) — product documentation rendered from markdown documents that ship inside the package (`src/help/sections/`), in a small strict dialect with language-independent heading anchors and a collapsible memory-type catalogue. Adding or editing a section is documented in [docs/help-content.md](docs/help-content.md).
 - **The private invariant is preserved in all five surfaces** from the prototype: scope browser panel, dashboard band, settings locked block, account panel, team/invite copy. There is no code path that fetches `private` rows; the TypeScript `ScopeKind` excludes `"private"` entirely.
-- **No `localStorage`.** Theme lives in a cookie and is rendered SSR. UI state (search, type filters, layout, density, role filter) lives in URL search params so server-render + tab refresh stay consistent.
+- **No `localStorage`.** Theme lives in a cookie and is rendered SSR. UI state (search, type filters, layout, density, role filter) lives in URL search params so server-render + tab refresh stay consistent. Per-user presentation preferences (the connect-block and navigation-sidebar collapse) persist server-side on the account (`PATCH /api/auth/me`, field-wise merge) and arrive with the session — presentation state only, never anything that records how a user works.
 
 ---
 

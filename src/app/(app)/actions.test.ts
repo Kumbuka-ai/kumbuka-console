@@ -82,6 +82,7 @@ import {
   setLocaleAction,
   setOnboardingAction,
   setThemeAction,
+  setUiSettingsAction,
   terminateSessionAction,
   updateEntryAction,
   updateMeAction,
@@ -119,6 +120,25 @@ describe("Server Actions — delegation + cache invalidation", () => {
     await expect(setLocaleAction("de")).resolves.toBeUndefined();
     expect(persistLocaleMock).toHaveBeenCalledWith("de");
     expect(apiMocks.updateMe).toHaveBeenCalledWith({ locale: "de" });
+  });
+
+  // ---------- UI settings (collapse persistence) --------------------------
+
+  it("setUiSettingsAction sends ONLY the changed field (server merges) and reports ok", async () => {
+    apiMocks.updateMe.mockResolvedValue({});
+    const out = await setUiSettingsAction({ navCollapsed: true });
+    expect(out).toEqual({ ok: true });
+    // Field-wise patch: exactly the one field, nothing else — the merge
+    // lives server-side so parallel tabs can't erase each other.
+    expect(apiMocks.updateMe).toHaveBeenCalledWith({ settings: { navCollapsed: true } });
+    // No revalidate: the toggle is optimistic; the next SSR read returns
+    // the persisted value.
+    expect(revalidatePathMock).not.toHaveBeenCalled();
+  });
+
+  it("setUiSettingsAction reports the failure to the caller (never throws, never silent)", async () => {
+    apiMocks.updateMe.mockRejectedValue(new Error("BFF down"));
+    await expect(setUiSettingsAction({ connectCollapsed: true })).resolves.toEqual({ ok: false });
   });
 
   // ---------- scopes -----------------------------------------------------
