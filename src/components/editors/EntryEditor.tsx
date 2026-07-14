@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { SidePanel, Field } from "./SidePanel";
@@ -10,6 +10,29 @@ import { createEntryAction, updateEntryAction } from "@/app/(app)/actions";
 import { entryWriteErrorMessage } from "@/lib/entryWriteError";
 import { relTime } from "@/lib/time";
 import { useToast } from "@/components/ui/Toast";
+
+// The entry-content contract: <= 1500 characters. Mirrors the server's
+// validator and the database CHECK constraint — the counter tells the
+// truth the backend enforces, it does not invent a client-side rule.
+const CONTENT_MAX = 1500;
+// The counter turns amber once this few characters remain, red at zero.
+const CONTENT_WARN_AT = 100;
+
+/** Right-aligned character budget under the content textarea: quiet by
+ *  default, amber when close (<= CONTENT_WARN_AT left), red at the limit
+ *  (the textarea's maxLength stops further input there). */
+function ContentCounter({ length }: Readonly<{ length: number }>) {
+  const locale = useLocale();
+  const remaining = CONTENT_MAX - length;
+  let tone = "";
+  if (remaining <= 0) tone = " limit";
+  else if (remaining <= CONTENT_WARN_AT) tone = " warn";
+  return (
+    <span className={`char-counter${tone}`} aria-live="polite">
+      {length.toLocaleString(locale)} / {CONTENT_MAX.toLocaleString(locale)}
+    </span>
+  );
+}
 
 // Mirror the server key rule EXACTLY (E2E-06 / server MemoryKeyValidator):
 // lowercase a-z + 0-9 with single dot/hyphen separators; no underscores,
@@ -204,10 +227,12 @@ export function EntryEditor({
           className="textarea"
           value={content}
           rows={6}
+          maxLength={CONTENT_MAX}
           readOnly={m.readOnlyFields}
           placeholder={t("contentPlaceholder")}
           onChange={(e) => setContent(e.target.value)}
         />
+        <ContentCounter length={content.length} />
       </Field>
 
       <Field label={t("refLabel")} hint={t("refHint")}>

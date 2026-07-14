@@ -730,6 +730,15 @@ button { font-family: inherit; }
   border-color: var(--c-accent); outline: 2px solid var(--c-accent); outline-offset: -1px;
 }
 .textarea { resize: vertical; min-height: 120px; line-height: 1.55; }
+/* Character budget under the content textarea (right-aligned inside the
+   field column): amber when close to the limit, red at the limit. */
+.char-counter {
+  align-self: flex-end; margin-top: -2px;
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .04em;
+  color: var(--c-muted);
+}
+.char-counter.warn { color: var(--type-open_question); }
+.char-counter.limit { color: var(--type-constraint); }
 .select-wrap { position: relative; }
 .select { appearance: none; cursor: pointer; padding-right: 36px; }
 .select-wrap .ico { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--c-muted); pointer-events: none; }
