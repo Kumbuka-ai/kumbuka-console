@@ -30,7 +30,7 @@ in `kumbuka-server/docker-compose.yml` ready to be uncommented.
   - `/scopes/[slug]` — the scope browser: left pane (global · projects · the persistent private-guarantee panel · archived), right pane (entries table / cards, type filters, search, sortable columns, side-panel editor, confirm modal).
   - `/team` — IdP banner, member table, role badges, status badges, invite dialog, role / enable / disable actions.
   - `/settings` — write-scope policy (`ask | project | global`), who-may-create-scopes (`admins | members`), private-memory locked block. (The connector is set up by its endpoint URL alone — the client registers itself at first authorization; the URL lives in the connect area on `/overview`, and there is no client id and no secret.)
-  - `/account` — D2 hybrid: display-name edit + link-outs to the Keycloak account console for password / MFA / passkey / sessions, plus the private-guarantee panel and sign-out.
+  - `/account` — a hybrid account screen: display-name edit + link-outs to the Keycloak account console for password / MFA / passkey / sessions, plus the private-guarantee panel and sign-out.
 - **A help area** (`/help/[section]`) — product documentation rendered from markdown documents that ship inside the package (`src/help/sections/`), in a small strict dialect with language-independent heading anchors and a collapsible memory-type catalogue. Adding or editing a section is documented in [docs/help-content.md](docs/help-content.md).
 - **The private invariant is preserved in all five surfaces** from the prototype: scope browser panel, dashboard band, settings locked block, account panel, team/invite copy. There is no code path that fetches `private` rows; the TypeScript `ScopeKind` excludes `"private"` entirely.
 - **No `localStorage`.** Theme lives in a cookie and is rendered SSR. UI state (search, type filters, layout, density, role filter) lives in URL search params so server-render + tab refresh stay consistent. Per-user presentation preferences (the connect-block and navigation-sidebar collapse) persist server-side on the account (`PATCH /api/auth/me`, field-wise merge) and arrive with the session — presentation state only, never anything that records how a user works.
@@ -82,7 +82,7 @@ src/
 
 ---
 
-## Auth flow (see [ADR-0009](../docs/adr/0009-bff-auth-flow.md))
+## Auth flow (see [ADR-0009](docs/adr/0009-bff-auth-flow.md))
 
 1. Browser hits a Server Component (e.g. `/overview`).
 2. The component calls `requireSession()`, which fetches `GET /api/auth/me` on the server, forwarding the browser's cookies.
