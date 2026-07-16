@@ -16,8 +16,13 @@
 /** Kebab slug: scope slugs. */
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-/** Namespaced key: memory keys (dot or hyphen separators). */
-export const KEY_PATTERN = /^[a-z0-9]+(?:[.\-][a-z0-9]+)*$/;
+/**
+ * Namespaced key: memory keys (dot or hyphen separators). The escaped
+ * hyphen is deliberate: the pattern string is pinned verbatim against the
+ * server's Java form (which needs the escape), so the two sides stay
+ * byte-comparable modulo quantifier flavour.
+ */
+export const KEY_PATTERN = /^[a-z0-9]+(?:[.\-][a-z0-9]+)*$/; // NOSONAR typescript:S6535 — escape kept for cross-layer pin parity
 
 export const isValidSlug = (slug: string): boolean => SLUG_PATTERN.test(slug);
 
