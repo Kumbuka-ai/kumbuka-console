@@ -528,6 +528,7 @@
       "idLabel": "Scope-ID",
       "idHint": "Stabil, kebab-case. Der Assistent adressiert den Scope darüber. Nach dem Anlegen unveränderlich.",
       "idPlaceholder": "billing-platform",
+      "idError": "Nur Kleinbuchstaben, Ziffern und einzelne Bindestriche — kein Punkt, kein Unterstrich, kein Bindestrich am Anfang/Ende.",
       "banner": "Neue Scopes starten leer und sind von Admins beschreibbar. Wer schreiben darf, stellst du unter <b>Einstellungen → Schreib-Scope-Richtlinie</b> ein.",
       "renamed": "Scope umbenannt",
       "created": "Scope {slug} erstellt",

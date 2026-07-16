@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { SidePanel, Field } from "./SidePanel";
 import { createScopeAction, renameScopeAction } from "@/app/(app)/actions";
 import { useToast } from "@/components/ui/Toast";
-import { slugify } from "@/lib/slug";
+import { isValidSlug, slugify } from "@/lib/slug";
 import type { ScopeActionResult, ScopeView } from "@/lib/api/types";
 
 const richB = (c: ReactNode) => <b>{c}</b>;
@@ -32,9 +32,12 @@ export function ScopeEditor({
   const t = useTranslations("editors.scope");
   const tCommon = useTranslations("common");
 
+  // Live shape check against the canonical kebab grammar — inline error
+  // before submit; the server 400 stays the authoritative gate.
+  const malformed = !editing && slug.length > 0 && !isValidSlug(slug);
   // Client dup-guard: only on create, only against the visible slugs we know.
   const dup = !editing && slug.trim().length > 0 && existingSlugs.includes(slug);
-  const valid = name.trim().length > 0 && slug.trim().length > 0 && !dup;
+  const valid = name.trim().length > 0 && slug.trim().length > 0 && !malformed && !dup;
 
   const failMessage = (res: Extract<ScopeActionResult, { ok: false }>): string => {
     switch (res.reason) {
@@ -94,18 +97,25 @@ export function ScopeEditor({
       </Field>
       <Field label={t("idLabel")} required hint={t("idHint")}>
         <input
-          className={`input mono${dup ? " invalid" : ""}`}
+          className={`input mono${malformed || dup ? " invalid" : ""}`}
           value={slug}
           spellCheck={false}
           disabled={editing}
-          aria-invalid={dup || undefined}
+          aria-invalid={malformed || dup || undefined}
           placeholder={t("idPlaceholder")}
           onChange={(e) => {
             setTouchedSlug(true);
-            setSlug(slugify(e.target.value));
+            // Gentle normalisation only (spaces → hyphen, lowercase) — same
+            // treatment as the entry editor's key field. Everything else is
+            // validated live instead of silently rewritten, so the field can
+            // actually show what is wrong.
+            setSlug(e.target.value.replace(/\s+/g, "-").toLowerCase());
           }}
         />
-        {dup ? <span className="field-error" role="alert">{t("errExists")}</span> : null}
+        {malformed ? <span className="field-error" role="alert">{t("idError")}</span> : null}
+        {!malformed && dup ? (
+          <span className="field-error" role="alert">{t("errExists")}</span>
+        ) : null}
       </Field>
       {editing ? null : (
         <div className="idp-banner" style={{ border: "1px solid var(--c-border)", padding: "13px 15px" }}>
