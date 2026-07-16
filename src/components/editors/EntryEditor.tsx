@@ -8,6 +8,7 @@ import { SidePanel, Field } from "./SidePanel";
 import { ENTRY_TYPE_ORDER, SYSTEM_SUBJECT, type EntryType, type EntryView, type ScopeView } from "@/lib/api/types";
 import { createEntryAction, updateEntryAction } from "@/app/(app)/actions";
 import { entryWriteErrorMessage } from "@/lib/entryWriteError";
+import { isValidKey } from "@/lib/slug";
 import { relTime } from "@/lib/time";
 import { useToast } from "@/components/ui/Toast";
 
@@ -35,13 +36,12 @@ function ContentCounter({ length }: Readonly<{ length: number }>) {
 }
 
 // Mirror the server key rule EXACTLY (E2E-06 / server MemoryKeyValidator):
-// lowercase a-z + 0-9 with single dot/hyphen separators; no underscores,
-// uppercase, slashes, or leading/trailing/double separators. An empty key is
-// allowed (the key is optional). Keep this regex in lock-step with the server's.
-const KEY_RE = /^[a-z0-9]+([.-][a-z0-9]+)*$/;
+// the canonical namespaced-key grammar lives in @/lib/slug (pinned by its
+// test, in lock-step with the server's pin). An empty key is allowed (the
+// key is optional).
 function isMalformedKey(key: string): boolean {
   const k = key.trim();
-  return k.length > 0 && !KEY_RE.test(k);
+  return k.length > 0 && !isValidKey(k);
 }
 
 type Mode = {

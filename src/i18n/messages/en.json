@@ -528,6 +528,7 @@
       "idLabel": "Scope id",
       "idHint": "Stable, kebab-case. The assistant addresses the scope by this. Immutable after creation.",
       "idPlaceholder": "billing-platform",
+      "idError": "Lowercase letters, digits and single hyphens only — no dots, underscores, or leading/trailing hyphens.",
       "banner": "New scopes start empty and writable by admins. Adjust who may write in <b>Settings → write-scope policy</b>.",
       "renamed": "Scope renamed",
       "created": "Scope {slug} created",

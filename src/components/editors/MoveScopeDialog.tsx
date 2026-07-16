@@ -8,10 +8,7 @@ import { SidePanel, Field } from "./SidePanel";
 import { remapEntryAction } from "@/app/(app)/actions";
 import { useToast } from "@/components/ui/Toast";
 import type { EntryView, ScopeActionResult, ScopeView } from "@/lib/api/types";
-
-// Mirror the server key rule (see EntryEditor): lowercase a-z/0-9 with single
-// dot/hyphen separators. An empty override means "keep the current key".
-const KEY_RE = /^[a-z0-9]+([.-][a-z0-9]+)*$/;
+import { isValidKey } from "@/lib/slug";
 
 /**
  * D-CORE-17: re-home an entry to another shared scope (admin only). The target
@@ -46,7 +43,9 @@ export function MoveScopeDialog({
   );
   const [target, setTarget] = useState(targets[0]?.slug ?? "");
 
-  const keyInvalid = showKey && key.trim().length > 0 && !KEY_RE.test(key.trim());
+  // An empty override means "keep the current key"; a non-empty one must be
+  // on the canonical key grammar (@/lib/slug, in lock-step with the server).
+  const keyInvalid = showKey && key.trim().length > 0 && !isValidKey(key.trim());
   const canMove = target.length > 0 && !keyInvalid && !pending;
 
   const failMessage = (res: Extract<ScopeActionResult, { ok: false }>): string => {
