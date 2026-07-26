@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, type ReactNode } from "react";
+import { useState, useTransition, type KeyboardEvent, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
@@ -16,12 +16,17 @@ export function ScopeEditor({
   scope,
   existingSlugs = [],
   onClose,
+  onCreated,
 }: Readonly<{
   scope: ScopeView | null;
   /** Live dup-guard against existing scope slugs (visible ones); the server
    *  typed 409 is the backstop for archived/race collisions (dogfood-19). */
   existingSlugs?: readonly string[];
   onClose: () => void;
+  /** Fires after a successful CREATE (not rename) with the new scope's
+   *  slug/name — lets a caller select it immediately (FEAT-53 connect band).
+   *  The internal "created" toast still fires; callers should not toast again. */
+  onCreated?: (created: { slug: string; name: string }) => void;
 }>) {
   const editing = !!scope;
   const [name, setName] = useState(scope?.name ?? "");
@@ -63,8 +68,19 @@ export function ScopeEditor({
         return;
       }
       toast.push({ message: editing ? t("renamed") : t("created", { slug }) });
+      if (!editing) onCreated?.({ slug, name: name.trim() });
       onClose();
     });
+  };
+
+  // Enter in either field submits (the footer button is a sibling of the body
+  // in SidePanel, so there is no native <form>). `submit` itself no-ops while
+  // invalid or pending, so a premature Enter is harmless.
+  const submitOnEnter = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      submit();
+    }
   };
 
   return (
@@ -89,6 +105,7 @@ export function ScopeEditor({
           className="input"
           value={name}
           placeholder={t("namePlaceholder")}
+          onKeyDown={submitOnEnter}
           onChange={(e) => {
             setName(e.target.value);
             if (!touchedSlug) setSlug(slugify(e.target.value));
@@ -103,6 +120,7 @@ export function ScopeEditor({
           disabled={editing}
           aria-invalid={malformed || dup || undefined}
           placeholder={t("idPlaceholder")}
+          onKeyDown={submitOnEnter}
           onChange={(e) => {
             setTouchedSlug(true);
             // Gentle normalisation only (spaces → hyphen, lowercase) — same
