@@ -4,7 +4,17 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/Toast";
+import { ScopeEditor } from "@/components/editors/ScopeEditor";
 import type { ScopeView } from "@/lib/api/types";
+
+/**
+ * How many scopes the band shows before it collapses to a summary + a live
+ * filter. ONE constant on purpose: `many`, the collapsed slice, and the
+ * "+N more" count must stay equal or the band's height jumps. Production
+ * value — the design prototype ran at 5 so the collapsed state was visible in
+ * a 6-scope demo dataset; 8–10 is the realistic production threshold.
+ */
+export const SCOPE_LIMIT = 8;
 
 /**
  * Block 2 — "Anweisung für den Assistenten". Scope picker + the generated
@@ -26,9 +36,14 @@ import type { ScopeView } from "@/lib/api/types";
 export function InstructionBlock({ scopes }: Readonly<{ scopes: ScopeView[] }>) {
   const t = useTranslations("connect.instruction");
   const toast = useToast();
-  const pinnable = scopes.filter((s) => !s.archived);
+  const base = scopes.filter((s) => !s.archived);
+  // Scopes created inline via the band's "Scope anlegen" button appear at once;
+  // createScopeAction revalidates /overview, so each is dropped again once the
+  // refreshed `scopes` prop carries it (keyed by slug — no duplicate chip).
+  const [created, setCreated] = useState<ScopeView[]>([]);
+  const pinnable = [...base, ...created.filter((c) => !base.some((b) => b.slug === c.slug))];
   const [slug, setSlug] = useState<string>(
-    () => pinnable.find((s) => s.kind === "global")?.slug ?? pinnable[0]?.slug ?? "global",
+    () => base.find((s) => s.kind === "global")?.slug ?? base[0]?.slug ?? "global",
   );
 
   const block = t("block", { slug });
@@ -42,6 +57,52 @@ export function InstructionBlock({ scopes }: Readonly<{ scopes: ScopeView[] }>) 
     toast.push({ message: t("sentenceCopied") });
   };
 
+  // --- scope band: segmented chips, with a filter + collapse once there are
+  // many scopes. `pinnable` is the pre-existing "not archived" set. This
+  // mirrors the FEAT-53 design prototype (spec/design/console) 1:1; SCOPE_LIMIT
+  // is the only intended divergence — the production threshold vs. the
+  // prototype's review value of 5.
+  const [filter, setFilter] = useState("");
+  const [expanded, setExpanded] = useState(false);
+  const [newOpen, setNewOpen] = useState(false);
+  const many = pinnable.length > SCOPE_LIMIT;
+  const query = filter.trim();
+  const filtered = query
+    ? pinnable.filter((s) => s.slug.toLowerCase().includes(query.toLowerCase()))
+    : pinnable;
+  let visible = !query && !expanded && many ? filtered.slice(0, SCOPE_LIMIT) : filtered;
+  // The active scope is ALWAYS visible: if it fell behind the cut or outside
+  // the filter, pin it to the front and drop the last chip so the count stays
+  // constant. (Per the prototype the drop happens while filtering too, which
+  // can hide a live match — flagged for Concept in the handover.)
+  if (!visible.some((s) => s.slug === slug)) {
+    const sel = pinnable.find((s) => s.slug === slug);
+    if (sel) visible = [sel, ...visible.slice(0, Math.max(0, visible.length - 1))];
+  }
+  const hidden = filtered.length - visible.length;
+
+  // A scope just created via the band's editor: show it and select it at once
+  // (the revalidated prop is authoritative and takes over on the next render).
+  const onScopeCreated = (c: { slug: string; name: string }) => {
+    setCreated((prev) => [
+      ...prev,
+      {
+        slug: c.slug,
+        name: c.name,
+        kind: "project",
+        fixed: false,
+        archived: false,
+        locked: false,
+        description: null,
+        entryCount: 0,
+        createdAt: new Date().toISOString(),
+      },
+    ]);
+    setSlug(c.slug);
+    setFilter("");
+    setExpanded(true);
+  };
+
   return (
     <div className="iblock" id="connect-instruction">
       <div className="iblock-intro">
@@ -51,24 +112,59 @@ export function InstructionBlock({ scopes }: Readonly<{ scopes: ScopeView[] }>) 
         </h3>
         <p>{t("intro")}</p>
       </div>
-      <div className="iblock-scope">
-        <label htmlFor="connect-scope">{t("scopeLabel")}</label>
-        <div className="select-wrap">
-          <select
-            id="connect-scope"
-            className="mono"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-          >
-            {pinnable.map((s) => (
-              <option key={s.slug} value={s.slug}>
-                {s.slug}
-                {s.kind === "global" ? t("scopeOrgSuffix") : ""}
-              </option>
-            ))}
-          </select>
-          <Icon name="chevDown" />
+      {/* Scope band — the scope choice as a visible decision, not a form
+          field: it drives the context key in BOTH copy blocks below. */}
+      <div className="scope-band" role="radiogroup" aria-label={t("scopeLabel")}>
+        <div className="sb-head">
+          <span className="sb-eyebrow">{`// ${t("scopeLabel")}`}</span>
+          <span className="sb-ask">{t("scopeAsk")}</span>
+          {many && (
+            <input
+              type="search"
+              className="sb-filter"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              placeholder={t("scopeFilter")}
+              aria-label={t("scopeFilter")}
+            />
+          )}
         </div>
+        <div className="sb-chips">
+          {visible.map((s) => (
+            <button
+              key={s.slug}
+              type="button"
+              role="radio"
+              aria-checked={s.slug === slug}
+              className={"sb-chip" + (s.slug === slug ? " on" : "")}
+              onClick={() => setSlug(s.slug)}
+            >
+              <span className="sb-chip-key">{s.slug}</span>
+              {s.kind === "global" && (
+                <span className="sb-chip-note">{t("scopeOrgShort")}</span>
+              )}
+            </button>
+          ))}
+          {hidden > 0 && (
+            <button type="button" className="sb-more" onClick={() => setExpanded(true)}>
+              {t("scopeMore", { count: hidden })}
+            </button>
+          )}
+          {expanded && !query && many && (
+            <button type="button" className="sb-more" onClick={() => setExpanded(false)}>
+              {t("scopeLess")}
+            </button>
+          )}
+          {visible.length === 0 && <span className="sb-empty">{t("scopeNone")}</span>}
+        </div>
+        <div className="sb-add-row">
+          <button type="button" className="sb-add" onClick={() => setNewOpen(true)}>
+            <Icon name="plus" />
+            {t("scopeAdd")}
+          </button>
+          <span className="sb-add-hint">{t("scopeAddHint")}</span>
+        </div>
+        <p className="sb-foot">{t("scopeFoot")}</p>
       </div>
 
       {/* Path A — the normal case */}
@@ -116,6 +212,15 @@ export function InstructionBlock({ scopes }: Readonly<{ scopes: ScopeView[] }>) 
           </button>
         </div>
       </div>
+
+      {newOpen && (
+        <ScopeEditor
+          scope={null}
+          existingSlugs={pinnable.map((s) => s.slug)}
+          onClose={() => setNewOpen(false)}
+          onCreated={onScopeCreated}
+        />
+      )}
     </div>
   );
 }

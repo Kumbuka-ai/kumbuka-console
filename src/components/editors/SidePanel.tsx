@@ -22,9 +22,16 @@ export function SidePanel({
   const ref = useRef<HTMLDivElement>(null);
   const t = useTranslations("common");
   useEffect(() => {
-    const focusable = ref.current?.querySelector<HTMLElement>(
-      "input, textarea, button, [tabindex]:not([tabindex='-1'])",
+    // Workspace default: land the cursor on the first text field so the user
+    // can type immediately. Only fall back to the first focusable (e.g. the
+    // header close button) when the panel has no field — otherwise the close
+    // "×", which precedes the body in the DOM, would steal focus.
+    const field = ref.current?.querySelector<HTMLElement>(
+      "input:not([disabled]), textarea:not([disabled]), select:not([disabled])",
     );
+    const focusable =
+      field ??
+      ref.current?.querySelector<HTMLElement>("button, [tabindex]:not([tabindex='-1'])");
     focusable?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();

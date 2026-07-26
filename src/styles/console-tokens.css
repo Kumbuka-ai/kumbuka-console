@@ -1655,9 +1655,39 @@ button { font-family: inherit; }
 .iblock-intro h3 { font-size: 22px; font-weight: 600; letter-spacing: -0.015em; margin: 9px 0 7px; color: var(--c-text); }
 .iblock-intro h3.cw-box-title { margin: 0 0 8px; }
 .iblock-intro p { font-size: 14.95px; line-height: 1.52; color: var(--c-text-2); margin: 0; max-width: 68ch; }
-.iblock-scope { display: flex; align-items: center; gap: 13px; }
-.iblock-scope label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--c-muted); }
-.iblock-scope .select-wrap { max-width: 320px; }
+/* scope band — the scope choice as a visible decision, not a form field.
+   Ported 1:1 from the FEAT-53 design prototype (spec/design/console). The band
+   background uses the real product's recessed-surface token (--c-inset) where
+   the prototype had the undefined --c-panel-2 with a --c-panel fallback.
+   Structural 3px accent edge reads as "decided here"; exactly one orange
+   element inside — the eyebrow. The active chip is inverted deep-ink, never
+   orange (edge + chip would otherwise stand orange side by side). */
+.scope-band { border: 1px solid var(--c-border); border-left: 3px solid var(--c-accent); background: var(--c-inset); padding: 16px 20px 14px; display: flex; flex-direction: column; gap: 12px; }
+.sb-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.sb-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--c-accent); }
+.sb-ask { font-size: 15.5px; font-weight: 600; color: var(--c-text); }
+.sb-filter { margin-left: auto; width: 180px; padding: 6px 9px; border: 1px solid var(--c-border); background: var(--c-panel); color: var(--c-text); font-family: var(--font-mono); font-size: 12.65px; }
+.sb-filter::placeholder { color: var(--c-faint); }
+.sb-filter:focus-visible { outline: 2px solid var(--c-text); outline-offset: 2px; }
+.sb-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.sb-chip { display: inline-flex; align-items: baseline; gap: 8px; padding: 7px 13px; border: 1px solid var(--c-border); background: transparent; color: var(--c-text-2); font-family: var(--font-mono); font-size: 12.65px; cursor: pointer; transition: background .15s ease-out, color .15s ease-out, border-color .15s ease-out; }
+.sb-chip.on { background: var(--c-text); border-color: var(--c-text); color: var(--c-panel); }
+.sb-chip:focus-visible { outline: 2px solid var(--c-text); outline-offset: 2px; }
+@media (hover: hover) { .sb-chip:hover { border-color: var(--c-text); color: var(--c-text); } }
+.sb-chip-note { font-family: var(--font-body); font-size: 11px; opacity: .7; text-transform: lowercase; }
+/* the collapse toggle — dashed so it reads as a control, not a scope */
+.sb-more { padding: 7px 13px; border: 1px dashed var(--c-border); background: transparent; color: var(--c-muted); font-family: var(--font-mono); font-size: 12.65px; cursor: pointer; }
+.sb-more:focus-visible { outline: 2px solid var(--c-text); outline-offset: 2px; }
+@media (hover: hover) { .sb-more:hover { color: var(--c-text); border-color: var(--c-text); } }
+.sb-empty { font-size: 13px; color: var(--c-muted); align-self: center; }
+/* create-scope row — an entry point into the existing ScopeEditor */
+.sb-add-row { display: flex; align-items: center; gap: 13px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid var(--c-border-soft); }
+.sb-add { display: inline-flex; align-items: center; gap: 7px; padding: 7px 13px; border: 1px solid var(--c-text); background: transparent; color: var(--c-text); font-family: var(--font-mono); font-size: 12.65px; cursor: pointer; transition: background .15s ease-out, color .15s ease-out; }
+.sb-add .ico { width: 14px; height: 14px; }
+.sb-add:focus-visible { outline: 2px solid var(--c-text); outline-offset: 2px; }
+@media (hover: hover) { .sb-add:hover { background: var(--c-text); color: var(--c-panel); } }
+.sb-add-hint { font-size: 13px; color: var(--c-muted); }
+.sb-foot { margin: 0; font-size: 13px; line-height: 1.45; color: var(--c-muted); max-width: 70ch; }
 .iblock-step { display: flex; flex-direction: column; gap: 11px; }
 .iblock-step.subordinate { border-top: 1px solid var(--c-border-soft); padding-top: 18px; margin-top: 2px; opacity: .92; }
 .ib-step-head { display: flex; align-items: baseline; gap: 12px; }
