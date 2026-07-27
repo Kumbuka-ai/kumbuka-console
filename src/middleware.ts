@@ -41,13 +41,27 @@ export async function middleware(req: NextRequest) {
   // renders in their chosen language instead of the default — the cookie is
   // the SSR source of truth (src/lib/locale.ts).
   let seedLocale: "de" | "en" | null = null;
+  // The backend is reached server-to-server, so the request arrives with
+  // host=kumbuka-backend:8080. The SaaS tenant resolver matches the host against
+  // four exact public hosts (console./mcp./ops./auth.<base>) and rejects anything
+  // else with HOST_NOT_SAAS -> 401. /api/auth/me is neither a public path nor an
+  // /api/internal/* path, so it gets no exemption: without the forwarded host
+  // this probe was rejected on EVERY navigation, silently swallowed by the catch
+  // below, and the cookie relay it exists for never ran. Mirrors what
+  // src/lib/api/client.ts already does for every other server-side call.
+  // Set only when present — an empty x-forwarded-host is worse than none, since
+  // it would override the host the resolver reads.
+  const probeHeaders = new Headers({
+    accept: "application/json",
+    "x-requested-with": "kumbuka-console",
+  });
+  if (cookie) probeHeaders.set("cookie", cookie);
+  const fwdHost = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
+  if (fwdHost) probeHeaders.set("x-forwarded-host", fwdHost);
+  probeHeaders.set("x-forwarded-proto", req.headers.get("x-forwarded-proto") ?? "https");
   try {
     const probe = await fetch(`${BACKEND}/api/auth/me`, {
-      headers: {
-        cookie,
-        accept: "application/json",
-        "x-requested-with": "kumbuka-console",
-      },
+      headers: probeHeaders,
       redirect: "manual",
       cache: "no-store",
     });
