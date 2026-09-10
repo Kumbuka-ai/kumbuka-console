@@ -25,21 +25,40 @@ export default defineConfig({
     },
   },
   test: {
-    environment: "node",
-    // Component tests (anything inside packages/ui/src/** or src/components/**)
-    // run under jsdom so React + @testing-library can render. Server-side
-    // modules (src/lib/**, src/app/**, packages/api-client) keep the lean
-    // node env.
-    environmentMatchGlobs: [
-      ["packages/ui/src/**/*.test.{ts,tsx}", "jsdom"],
-      ["src/components/**/*.test.{ts,tsx}", "jsdom"],
-    ],
     // RTL cleanup() must run between component tests; the setup file
-    // handles it.
+    // handles it. Applied via `extends: true` to every project below.
     setupFiles: ["./vitest.setup.ts"],
-    include: [
-      "src/**/*.{test,spec}.{ts,tsx}",
-      "packages/*/src/**/*.{test,spec}.{ts,tsx}",
+    // Vitest 5 removed `environmentMatchGlobs`. The jsdom/node split now
+    // lives in `projects`: component tests (packages/ui/src/**, src/components/**)
+    // render under jsdom; every other src/ or packages/**/src/ test stays on
+    // the lean node env.
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "node",
+          environment: "node",
+          include: [
+            "src/**/*.{test,spec}.{ts,tsx}",
+            "packages/*/src/**/*.{test,spec}.{ts,tsx}",
+          ],
+          exclude: [
+            "packages/ui/src/**/*.{test,spec}.{ts,tsx}",
+            "src/components/**/*.{test,spec}.{ts,tsx}",
+          ],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "jsdom",
+          environment: "jsdom",
+          include: [
+            "packages/ui/src/**/*.{test,spec}.{ts,tsx}",
+            "src/components/**/*.{test,spec}.{ts,tsx}",
+          ],
+        },
+      },
     ],
     coverage: {
       provider: "v8",
