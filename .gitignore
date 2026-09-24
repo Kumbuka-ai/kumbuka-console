@@ -12,3 +12,6 @@ reports/
 tsconfig.tsbuildinfo
 .DS_Store
 platform-dev
+
+# --- Claude Code (local agent state: worktrees, settings, checkpoints) ---
+.claude/
