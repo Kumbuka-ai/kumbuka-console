@@ -1,2 +1,22 @@
 packages:
   - "packages/*"
+
+# Supply-chain hardening for installs.
+#
+# Every recent npm/pnpm account-takeover had the same shape: a maintainer
+# account is compromised, a malicious version is published, and every CI job
+# resolving that range in the next minutes installs it.
+#
+# minimumReleaseAge   refuse versions younger than seven days, so someone else
+#                     has time to notice before we install it
+# blockExoticSubdeps  refuse transitive dependencies pulled from git URLs,
+#                     tarballs and other non-registry sources
+# trustPolicy         refuse updates that downgrade security settings
+#
+# pnpm honours these from 10.21 / 10.26. This workspace is pinned to pnpm 9.12.3
+# through `packageManager`, which ignores unknown keys without complaining, so
+# they do nothing today and start working the day that version is raised. That
+# beats a note asking someone to remember them then.
+minimumReleaseAge: 10080
+blockExoticSubdeps: true
+trustPolicy: no-downgrade

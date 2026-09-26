@@ -18,6 +18,21 @@ RUN pnpm build
 
 # ---------- runtime ----------
 FROM node:22-alpine AS runner
+
+# Remove npm from the runtime image.
+#
+# Every finding in this image's Node layer came from npm's own dependency tree —
+# brace-expansion, ip-address — not from the application lockfile, which is why
+# overrides there do not touch them. This image starts with `node server.js` and
+# never calls npm or npx, so the package manager is attack surface carried for
+# nothing.
+#
+# Also patch the remaining OS packages, for the same reason the base image lags:
+# it is rebuilt on its own schedule and carries fixes that already exist.
+RUN rm -rf /usr/local/lib/node_modules/npm \
+           /usr/local/bin/npm \
+           /usr/local/bin/npx \
+ && apk --no-cache upgrade
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
