@@ -32,7 +32,9 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '22'
-          cache: pnpm
+          # No GitHub cache on apollo: up- and downloading it over the runner's uplink costs
+          # minutes, more than fetching the dependencies fresh (organisation rule, see
+          # Kumbuka-ai/workflows reusable-security-image.yml).
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm build
@@ -89,8 +91,6 @@ jobs:
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.version=${{ steps.meta.outputs.version }}
-          cache-from: type=gha,scope=console
-          cache-to: type=gha,scope=console,mode=max
 
   npm-packages:
     name: packages · publish to GH npm
@@ -106,7 +106,6 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '22'
-          cache: pnpm
           registry-url: https://npm.pkg.github.com
           scope: '@kumbuka-ai'
 
